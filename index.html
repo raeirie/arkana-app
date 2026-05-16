@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#080B12">
 <title>Arkana App</title>
 <link rel="manifest" href="manifest.json">
+<script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -1296,18 +1297,43 @@
   // ═══════════════════════════════════
   // CONFIG
   // ═══════════════════════════════════
+  const SCRIPT_URL = ARKANA_SCRIPT_URL;
+
   const USERS = {
     arie: { name: 'Arie', avatar: 'AR', color: 'linear-gradient(135deg,#1D4ED8,#3B82F6)' },
     ajin: { name: 'Ajin', avatar: 'AJ', color: 'linear-gradient(135deg,#065F46,#10B981)' }
   };
 
   const AVATAR_KEY = (user) => `arkana_avatar_${user}`;
-
-  const PIN_KEY = (user) => `arkana_pin_${user}`;
+  const PIN_KEY    = (user) => `arkana_pin_${user}`;
   const SESSION_KEY = 'arkana_session';
-  const LOG_KEY = 'arkana_activity_log';
+  const LOG_KEY     = 'arkana_activity_log';
 
-  // Default PINs
+  // ── API helper ──
+  async function api(action, payload = {}) {
+    const res = await fetch(SCRIPT_URL + '?action=' + encodeURIComponent(action), {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'API error');
+    return data;
+  }
+
+  // ── Sync PINs from Sheet into localStorage (called on load) ──
+  async function syncPINsFromSheet() {
+    try {
+      const data = await api('getAll');
+      const settings = data.db?.settings || {};
+      if (settings.pinArie) localStorage.setItem(PIN_KEY('arie'), settings.pinArie);
+      if (settings.pinAjin) localStorage.setItem(PIN_KEY('ajin'), settings.pinAjin);
+    } catch(e) {
+      // Offline fallback — use localStorage PINs
+      console.warn('PIN sync failed, using local:', e.message);
+    }
+  }
+
+  // Default PINs (fallback if sheet not reachable yet)
   function initPINs() {
     if (!localStorage.getItem(PIN_KEY('arie'))) localStorage.setItem(PIN_KEY('arie'), '1234');
     if (!localStorage.getItem(PIN_KEY('ajin'))) localStorage.setItem(PIN_KEY('ajin'), '1234');
@@ -1380,10 +1406,13 @@
   // ═══════════════════════════════════
   // INIT
   // ═══════════════════════════════════
-  window.onload = function() {
+  window.onload = async function() {
     initPINs();
     loadAvatars();
     setHomeDate();
+
+    // Sync PINs from Sheet (in background, non-blocking)
+    syncPINsFromSheet();
 
     // Check existing session
     const session = localStorage.getItem(SESSION_KEY);
@@ -1540,15 +1569,12 @@
   function logActivity(userId, action, detail) {
     const logs = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
     const now = new Date();
-    logs.unshift({
-      userId,
-      action,
-      detail,
-      time: now.toISOString()
-    });
+    logs.unshift({ userId, action, detail, time: now.toISOString() });
     if (logs.length > 100) logs.pop();
     localStorage.setItem(LOG_KEY, JSON.stringify(logs));
     renderActivityLog();
+    // Sync to Sheet (fire & forget)
+    api('addLog', { action, detail, user: USERS[userId]?.name || userId }).catch(() => {});
   }
 
   function renderActivityLog() {
@@ -1665,10 +1691,15 @@
         updateEnterBtn('modal-enter', '');
         return;
       }
+      // Save to localStorage immediately
       localStorage.setItem(PIN_KEY(userId), newPinTemp);
+      // Save to Sheet (fire & forget, with toast feedback)
+      const pinField = userId === 'arie' ? 'pinArie' : 'pinAjin';
+      api('updateSettings', { [pinField]: newPinTemp })
+        .then(() => showToast('PIN berhasil diubah & disync ✓', 'success'))
+        .catch(() => showToast('PIN diubah (offline, belum sync)', ''));
       logActivity(userId, 'Ganti PIN', `${USERS[userId].name} mengubah PIN login`);
       closeChangePIN();
-      showToast('PIN berhasil diubah ✓', 'success');
     }
   }
 
@@ -1690,9 +1721,27 @@
 
   // Render activity log when switching to aktivitas
   const origNavTo = navTo;
-  window.navTo = function(id) {
-    if (id === 'aktivitas') renderActivityLog();
+  window.navTo = async function(id) {
     origNavTo(id);
+    if (id === 'aktivitas') {
+      renderActivityLog(); // show local first
+      try {
+        const data = await api('getLogs');
+        if (data.logs) {
+          // Merge Sheet logs with local, deduplicate by time+action
+          const sheetLogs = data.logs.map(l => ({
+            userId: Object.values(USERS).find(u => u.name === l.user)?.name === l.user
+              ? Object.keys(USERS).find(k => USERS[k].name === l.user)
+              : l.user,
+            action: l.action,
+            detail: l.detail,
+            time: l.timestamp
+          }));
+          localStorage.setItem(LOG_KEY, JSON.stringify(sheetLogs));
+          renderActivityLog();
+        }
+      } catch(e) { /* offline, show local */ }
+    }
   };
 </script>
 </body>
