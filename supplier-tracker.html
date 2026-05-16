@@ -731,10 +731,9 @@ window.onload = async function() {
 // ─────────────────────────────────────────
 async function api(action, payload = {}) {
   if (!SCRIPT_URL) throw new Error('No script URL');
-  const url = SCRIPT_URL + '?action=' + action;
+  const url = SCRIPT_URL + '?action=' + encodeURIComponent(action);
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ ...payload, user: getUser().name })
   });
   const data = await res.json();
