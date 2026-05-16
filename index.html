@@ -1137,7 +1137,7 @@
         </div>
         <div class="strip-right">
           <div class="strip-app">Arkana App</div>
-          <div class="strip-version">v1.1.3</div>
+          <div class="strip-version" id="home-version"></div>
         </div>
       </div>
     </div>
@@ -1230,7 +1230,7 @@
         <div class="app-info-card">
           <div class="app-info-logo">⚡</div>
           <div class="app-info-name">Arkana App</div>
-          <div class="app-info-version">Version 1.1.3 · PRD-01</div>
+          <div class="app-info-version" id="setting-version"></div>
           <div class="app-info-company">CV Arkana Trisinergi</div>
         </div>
 
@@ -1438,6 +1438,12 @@
     const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     document.getElementById('home-date').textContent =
       `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    // Set version from config.js
+    const v = typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'v1.x';
+    const el1 = document.getElementById('home-version');
+    const el2 = document.getElementById('setting-version');
+    if (el1) el1.textContent = v;
+    if (el2) el2.textContent = v + ' · PRD-01';
   }
 
   // ═══════════════════════════════════

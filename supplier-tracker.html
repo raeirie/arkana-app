@@ -166,6 +166,14 @@
     background:rgba(79,127,255,.08); color:var(--accent); border:1px solid rgba(79,127,255,.15);
   }
 
+  .stat-chip {
+    flex-shrink:0; background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; padding:5px 12px; font-size:11px; font-weight:600;
+    color:var(--text2); white-space:nowrap;
+  }
+
+  .stat-chip span { color:var(--accent); font-family:'JetBrains Mono',monospace; }
+
   /* ── Product cards ── */
   .product-card {
     background:var(--surface); border:1.5px solid var(--border);
@@ -446,15 +454,22 @@
     <div id="pane-suppliers" class="scroll-content">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" placeholder="Cari supplier..." id="search-suppliers" oninput="renderSuppliers()">
+        <input type="text" class="search-input" placeholder="Cari supplier atau kota..." id="search-suppliers" oninput="renderSuppliers()">
       </div>
+      <!-- Stats bar -->
+      <div id="supplier-stats" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
+      <!-- Level filter -->
       <div class="filter-row" id="filter-level">
-        <div class="chip active" data-level="" onclick="setLevelFilter(this,'')">Semua</div>
-        <div class="chip" data-level="L1" onclick="setLevelFilter(this,'L1')">L1 Pabrik</div>
-        <div class="chip" data-level="L2" onclick="setLevelFilter(this,'L2')">L2 Distributor</div>
-        <div class="chip" data-level="L3" onclick="setLevelFilter(this,'L3')">L3 Grosir</div>
-        <div class="chip" data-level="L4" onclick="setLevelFilter(this,'L4')">L4 Retail</div>
+        <div class="chip active" onclick="setLevelFilter(this,'')">Semua</div>
+        <div class="chip" onclick="setLevelFilter(this,'L1')">L1 Pabrik</div>
+        <div class="chip" onclick="setLevelFilter(this,'L2')">L2 Distributor</div>
+        <div class="chip" onclick="setLevelFilter(this,'L3')">L3 Grosir</div>
+        <div class="chip" onclick="setLevelFilter(this,'L4')">L4 Retail</div>
       </div>
+      <!-- Unit bisnis filter -->
+      <div class="filter-row" id="filter-unit" style="margin-bottom:8px;"></div>
+      <!-- City filter -->
+      <div class="filter-row" id="filter-city" style="margin-bottom:12px;"></div>
       <div class="card-list" id="list-suppliers"></div>
     </div>
 
@@ -696,7 +711,6 @@
 // ═══════════════════════════════════════════════════
 // CONFIG — ganti SCRIPT_URL setelah deploy Apps Script
 // ═══════════════════════════════════════════════════
-const APP_VERSION = 'v1.1.3';
 const SCRIPT_URL = ARKANA_SCRIPT_URL;
 const SESSION_KEY = 'arkana_session';
 const CACHE_KEY = 'arkana_cache';
@@ -704,6 +718,8 @@ const CACHE_KEY = 'arkana_cache';
 // ── State ──
 let currentTab = 'suppliers';
 let levelFilter = '';
+let unitFilter  = '';
+let cityFilter  = '';
 let currentSupplierId = null;
 let currentProductId = null;
 let editMode = false;
@@ -781,10 +797,47 @@ function renderAll() {
 
 function renderSuppliers() {
   const q = document.getElementById('search-suppliers').value.toLowerCase();
+
+  // Apply all filters
   let list = DB.suppliers.filter(s =>
     (!levelFilter || s.level === levelFilter) &&
+    (!unitFilter  || (s.units||[]).includes(unitFilter)) &&
+    (!cityFilter  || (s.kota||'').toLowerCase() === cityFilter.toLowerCase()) &&
     (!q || s.name.toLowerCase().includes(q) || (s.kota||'').toLowerCase().includes(q))
   );
+
+  // Sort by name A-Z
+  list.sort((a, b) => a.name.localeCompare(b.name, 'id'));
+
+  // Render stats bar
+  const statsEl = document.getElementById('supplier-stats');
+  const total = DB.suppliers.length;
+  const filtered = list.length;
+  const cities = [...new Set(DB.suppliers.map(s => s.kota).filter(Boolean))].length;
+  statsEl.innerHTML = `
+    <div class="stat-chip">Total: <span>${total}</span></div>
+    ${filtered !== total ? `<div class="stat-chip">Filter: <span>${filtered}</span></div>` : ''}
+    <div class="stat-chip">Kota: <span>${cities}</span></div>
+  `;
+
+  // Render unit bisnis filter chips (dynamic from DB)
+  const unitEl = document.getElementById('filter-unit');
+  const allUnits = [...new Set(DB.suppliers.flatMap(s => s.units||[]))].sort();
+  unitEl.innerHTML = allUnits.length ? `
+    <div class="chip ${!unitFilter?'active':''}" onclick="setUnitFilter(this,'')">Semua Unit</div>
+    ${allUnits.map(u => `<div class="chip ${unitFilter===u?'active':''}" onclick="setUnitFilter(this,'${u}')">${u}</div>`).join('')}
+  ` : '';
+
+  // Render city filter chips (dynamic from DB)
+  const cityEl = document.getElementById('filter-city');
+  const allCities = [...new Set(DB.suppliers.map(s => s.kota).filter(Boolean))].sort();
+  cityEl.innerHTML = allCities.length ? `
+    <div class="chip ${!cityFilter?'active':''}" onclick="setCityFilter(this,'')">Semua Kota</div>
+    ${allCities.map(c => {
+      const count = DB.suppliers.filter(s => s.kota === c).length;
+      return `<div class="chip ${cityFilter===c?'active':''}" onclick="setCityFilter(this,'${c}')">${c} (${count})</div>`;
+    }).join('')}
+  ` : '';
 
   const el = document.getElementById('list-suppliers');
   if (!list.length) {
@@ -796,13 +849,15 @@ function renderSuppliers() {
     const initials = s.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
     const colors = ['linear-gradient(135deg,#1D4ED8,#3B82F6)','linear-gradient(135deg,#065F46,#10B981)','linear-gradient(135deg,#7C3AED,#8B5CF6)','linear-gradient(135deg,#B45309,#F59E0B)'];
     const color = colors[s.name.charCodeAt(0) % colors.length];
+    // Ensure phone displayed as string (preserve leading zero)
+    const phone = s.kontak ? String(s.kontak) : '—';
     return `
     <div class="supplier-card" onclick="openSupplierDetail('${s.id}')">
       <div class="supplier-card-top">
         <div class="supplier-initial" style="background:${color}">${initials}</div>
         <div class="supplier-info">
           <div class="supplier-name">${s.name}</div>
-          <div class="supplier-meta">${s.kontak || '—'} ${s.kota ? '· '+s.kota : ''}</div>
+          <div class="supplier-meta">${phone} ${s.kota ? '· '+s.kota : ''}</div>
         </div>
       </div>
       <div class="supplier-badges">
@@ -934,7 +989,7 @@ function openSupplierDetail(id) {
     <div class="detail-section">
       <div class="detail-section-title">Informasi Supplier</div>
       <div class="detail-card">
-        <div class="detail-field"><div class="detail-field-label">Kontak</div><div class="detail-field-value">${s.kontak||'—'}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Kontak</div><div class="detail-field-value">${s.kontak ? String(s.kontak) : '—'}</div></div>
         <div class="detail-field"><div class="detail-field-label">Kota</div><div class="detail-field-value">${s.kota||'—'}</div></div>
         <div class="detail-field"><div class="detail-field-label">Unit Bisnis</div><div class="detail-field-value">${(s.units||[]).join(', ')||'—'}</div></div>
         ${s.catatan ? `<div class="detail-field"><div class="detail-field-label">Catatan</div><div class="detail-field-value">${s.catatan}</div></div>` : ''}
@@ -1287,6 +1342,16 @@ function setLevelFilter(el, level) {
   levelFilter = level;
   document.querySelectorAll('#filter-level .chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
+  renderSuppliers();
+}
+
+function setUnitFilter(el, unit) {
+  unitFilter = unit;
+  renderSuppliers();
+}
+
+function setCityFilter(el, city) {
+  cityFilter = city;
   renderSuppliers();
 }
 

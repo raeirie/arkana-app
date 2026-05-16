@@ -2,6 +2,20 @@
 
 ---
 
+## v1.1.4 — Feature Update & Bug Fix Batch 3
+**Files:** `config.js`, `index.html`, `supplier-tracker.html`, `apps-script.js`
+
+- fix: Phone number leading zero now preserved — Apps Script uses setNumberFormat('@') + setValues on correct row
+- fix: Phone displayed as string in supplier list and detail view
+- feat: Supplier list sorted A-Z by name
+- feat: Filter supplier by unit bisnis (dynamic from DB)
+- feat: Filter supplier by city with count per city
+- feat: Stats bar — total supplier, filtered count, total cities
+- feat: Dynamic versioning — APP_VERSION defined once in config.js, referenced everywhere
+- fix: Version v1.0.0 on home strip updated (now synced from config.js)
+
+---
+
 ## v1.1.3 — Bug Fix Batch 2
 **Files:** `index.html`, `supplier-tracker.html`, `apps-script.js`
 
