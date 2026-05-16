@@ -2,7 +2,7 @@
   "name": "Arkana App",
   "short_name": "Arkana",
   "description": "Internal Operations Platform - CV Arkana Trisinergi",
-  "start_url": "/index.html",
+  "start_url": "/arkana-app/",
   "display": "standalone",
   "background_color": "#080B12",
   "theme_color": "#080B12",
