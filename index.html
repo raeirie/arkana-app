@@ -1222,17 +1222,6 @@
           <div class="setting-arrow">›</div>
         </div>
 
-        <div class="setting-section-label">Koneksi Database</div>
-
-        <div class="setting-item" onclick="openScriptURL()" id="script-url-item">
-          <div class="setting-icon">🔗</div>
-          <div class="setting-info">
-            <div class="setting-name">Google Script URL</div>
-            <div class="setting-desc" id="script-url-desc">Belum diset — tap untuk setup</div>
-          </div>
-          <div class="setting-arrow">›</div>
-        </div>
-
         <div class="setting-section-label">Aplikasi</div>
 
         <div class="app-info-card">
@@ -1300,100 +1289,10 @@
   </div>
 </div>
 
-<!-- ══ SCRIPT URL MODAL ══ -->
-<div class="modal-overlay" id="modal-script-url">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Google Script URL</div>
-    <div class="modal-sub">Paste URL dari Google Apps Script deployment kamu</div>
-
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:6px;">Cara dapat URL ini:</div>
-      <div style="font-size:12px;color:var(--text2);line-height:1.6;">
-        1. Buka Google Sheet → Extensions → Apps Script<br>
-        2. Paste kode dari apps-script.js<br>
-        3. Deploy → New deployment → Web app<br>
-        4. Copy URL yang muncul
-      </div>
-    </div>
-
-    <textarea id="script-url-input"
-      style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;resize:none;height:80px;line-height:1.5;"
-      placeholder="https://script.google.com/macros/s/.../exec"></textarea>
-
-    <div style="display:flex;gap:10px;margin-top:14px;">
-      <div class="modal-btn" style="flex:1;text-align:center;" onclick="closeScriptURL()">Batal</div>
-      <div class="modal-btn primary" style="flex:1;text-align:center;background:var(--accent);color:white;border-color:var(--accent);" onclick="saveScriptURL()">Simpan</div>
-    </div>
-
-    <div id="script-url-current" style="margin-top:12px;display:none;">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:6px;">URL Tersimpan:</div>
-      <div id="script-url-display" style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;word-break:break-all;line-height:1.5;"></div>
-      <div class="modal-btn" style="margin-top:10px;text-align:center;color:var(--red);background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2);" onclick="clearScriptURL()">Hapus URL</div>
-    </div>
-  </div>
-</div>
-
 <!-- ══ TOAST ══ -->
 <div class="toast" id="toast"></div>
 
 <script>
-  const SCRIPT_URL_KEY = 'arkana_script_url';
-
-  // ── Script URL ──
-  function openScriptURL() {
-    const saved = localStorage.getItem(SCRIPT_URL_KEY) || '';
-    document.getElementById('script-url-input').value = saved;
-
-    const currentEl = document.getElementById('script-url-current');
-    const displayEl = document.getElementById('script-url-display');
-    if (saved) {
-      currentEl.style.display = 'block';
-      displayEl.textContent = saved;
-    } else {
-      currentEl.style.display = 'none';
-    }
-
-    document.getElementById('modal-script-url').classList.add('active');
-  }
-
-  function closeScriptURL() {
-    document.getElementById('modal-script-url').classList.remove('active');
-  }
-
-  function saveScriptURL() {
-    const url = document.getElementById('script-url-input').value.trim();
-    if (!url) { showToast('URL tidak boleh kosong', 'error'); return; }
-    if (!url.startsWith('https://script.google.com')) {
-      showToast('URL tidak valid', 'error'); return;
-    }
-    localStorage.setItem(SCRIPT_URL_KEY, url);
-    updateScriptURLStatus();
-    closeScriptURL();
-    showToast('Script URL disimpan ✓', 'success');
-  }
-
-  function clearScriptURL() {
-    localStorage.removeItem(SCRIPT_URL_KEY);
-    updateScriptURLStatus();
-    closeScriptURL();
-    showToast('Script URL dihapus', '');
-  }
-
-  function updateScriptURLStatus() {
-    const saved = localStorage.getItem(SCRIPT_URL_KEY);
-    const desc = document.getElementById('script-url-desc');
-    if (!desc) return;
-    if (saved) {
-      const short = saved.length > 40 ? saved.substring(0, 40) + '...' : saved;
-      desc.textContent = '✓ Terhubung · ' + short;
-      desc.style.color = 'var(--green)';
-    } else {
-      desc.textContent = 'Belum diset — tap untuk setup';
-      desc.style.color = '';
-    }
-  }
-
   // ═══════════════════════════════════
   // CONFIG
   // ═══════════════════════════════════
@@ -1485,7 +1384,6 @@
     initPINs();
     loadAvatars();
     setHomeDate();
-    updateScriptURLStatus();
 
     // Check existing session
     const session = localStorage.getItem(SESSION_KEY);
@@ -1788,10 +1686,6 @@
   // Close modal on overlay click
   document.getElementById('modal-pin').addEventListener('click', function(e) {
     if (e.target === this) closeChangePIN();
-  });
-
-  document.getElementById('modal-script-url').addEventListener('click', function(e) {
-    if (e.target === this) closeScriptURL();
   });
 
   // Render activity log when switching to aktivitas

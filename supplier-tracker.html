@@ -693,7 +693,7 @@
 // ═══════════════════════════════════════════════════
 // CONFIG — ganti SCRIPT_URL setelah deploy Apps Script
 // ═══════════════════════════════════════════════════
-const SCRIPT_URL = localStorage.getItem('arkana_script_url') || '';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlGVol9ZuZAeZ_sm-7-ZKbInt24-ypSI8YMLkQ6pEEuq7txt6iS5eLmF2An_w7clHonw/exec';
 const SESSION_KEY = 'arkana_session';
 const CACHE_KEY = 'arkana_cache';
 
@@ -723,8 +723,6 @@ window.onload = async function() {
 
   if (SCRIPT_URL) {
     await fetchAll();
-  } else {
-    showToast('⚠️ Script URL belum diset. Data lokal saja.', '');
   }
 };
 
