@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080B12">
+<title>Supplier & Price — Arkana App</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  :root {
+    --bg:#080B12; --surface:#0F1320; --surface2:#161C2E;
+    --border:#1E2640; --border2:#2A3352;
+    --accent:#3B82F6; --accent2:#6366F1;
+    --green:#10B981; --orange:#F59E0B; --red:#EF4444; --purple:#8B5CF6;
+    --l1:#F59E0B; --l2:#3B82F6; --l3:#10B981; --l4:#6B7280;
+    --muted:#4B5680; --text:#F0F2FA; --text2:#8B93B4; --text3:#4B5680;
+  }
+
+  html,body { height:100%; overflow:hidden; background:var(--bg); font-family:'Plus Jakarta Sans',sans-serif; color:var(--text); }
+
+  #app { height:100%; display:flex; flex-direction:column; max-width:480px; margin:0 auto; position:relative; overflow:hidden; }
+
+  /* ── Screens ── */
+  .screen { position:absolute; inset:0; display:flex; flex-direction:column; opacity:0; pointer-events:none; transition:opacity .25s,transform .25s; transform:translateX(30px); }
+  .screen.active { opacity:1; pointer-events:all; transform:translateX(0); }
+  .screen.prev { transform:translateX(-30px); opacity:0; }
+
+  /* ── Top bar ── */
+  .topbar {
+    padding: max(env(safe-area-inset-top),44px) 18px 12px;
+    flex-shrink:0; display:flex; align-items:center; gap:12px;
+    background:var(--bg); border-bottom:1px solid var(--border);
+    position:relative; z-index:10;
+  }
+
+  .back-btn {
+    width:34px; height:34px; border-radius:10px;
+    background:var(--surface); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; cursor:pointer; flex-shrink:0;
+    text-decoration:none; color:var(--text2);
+  }
+
+  .topbar-title { font-size:17px; font-weight:800; color:var(--text); flex:1; letter-spacing:-0.01em; }
+  .topbar-sub { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); }
+
+  .topbar-action {
+    width:34px; height:34px; border-radius:10px;
+    background:var(--accent); border:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; cursor:pointer; flex-shrink:0; color:white;
+  }
+
+  /* ── Tab bar ── */
+  .tab-bar {
+    flex-shrink:0; display:flex;
+    background:var(--surface); border-bottom:1px solid var(--border);
+    position:relative; z-index:9;
+  }
+
+  .tab {
+    flex:1; padding:11px 4px 10px; text-align:center; cursor:pointer;
+    font-size:11px; font-weight:600; color:var(--text3);
+    letter-spacing:0.04em; position:relative; transition:color .2s;
+  }
+
+  .tab.active { color:var(--accent); }
+
+  .tab.active::after {
+    content:''; position:absolute; bottom:0; left:20%; right:20%;
+    height:2px; background:var(--accent); border-radius:2px;
+  }
+
+  /* ── Scrollable content ── */
+  .scroll-content {
+    flex:1; overflow-y:auto; scrollbar-width:none;
+    padding:14px 16px 80px;
+  }
+  .scroll-content::-webkit-scrollbar { display:none; }
+
+  /* ── Search bar ── */
+  .search-wrap { margin-bottom:14px; position:relative; }
+
+  .search-input {
+    width:100%; background:var(--surface); border:1.5px solid var(--border);
+    border-radius:12px; padding:11px 14px 11px 38px;
+    font-size:13px; color:var(--text); font-family:inherit;
+    outline:none; transition:border-color .2s;
+  }
+
+  .search-input:focus { border-color:var(--accent); }
+  .search-input::placeholder { color:var(--text3); }
+
+  .search-icon {
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    font-size:14px; pointer-events:none;
+  }
+
+  /* ── Filter chips ── */
+  .filter-row {
+    display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;
+    scrollbar-width:none; margin-bottom:14px;
+  }
+  .filter-row::-webkit-scrollbar { display:none; }
+
+  .chip {
+    flex-shrink:0; background:var(--surface); border:1.5px solid var(--border);
+    border-radius:20px; padding:6px 12px; font-size:11px; font-weight:600;
+    color:var(--text3); cursor:pointer; transition:all .15s; white-space:nowrap;
+  }
+
+  .chip.active { border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,0.08); }
+
+  /* ── Cards ── */
+  .card-list { display:flex; flex-direction:column; gap:10px; }
+
+  .supplier-card {
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:14px; padding:14px 16px; cursor:pointer;
+    transition:border-color .2s;
+  }
+
+  .supplier-card:active { opacity:.85; }
+
+  .supplier-card-top { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
+
+  .supplier-initial {
+    width:40px; height:40px; border-radius:12px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:800; color:white;
+    background:linear-gradient(135deg,#1D4ED8,#3B82F6);
+  }
+
+  .supplier-info { flex:1; min-width:0; }
+
+  .supplier-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .supplier-meta { font-size:11px; color:var(--text3); }
+
+  .supplier-badges { display:flex; gap:6px; flex-wrap:wrap; }
+
+  .level-badge {
+    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:500;
+    padding:3px 8px; border-radius:20px; letter-spacing:.04em;
+  }
+
+  .l1 { background:rgba(245,158,11,.12); color:var(--l1); border:1px solid rgba(245,158,11,.2); }
+  .l2 { background:rgba(59,130,246,.12); color:var(--l2); border:1px solid rgba(59,130,246,.2); }
+  .l3 { background:rgba(16,185,129,.12); color:var(--l3); border:1px solid rgba(16,185,129,.2); }
+  .l4 { background:rgba(107,114,128,.12); color:var(--l4); border:1px solid rgba(107,114,128,.2); }
+
+  .auth-badge {
+    font-size:10px; font-weight:600; padding:3px 8px; border-radius:20px;
+    background:rgba(16,185,129,.1); color:var(--green); border:1px solid rgba(16,185,129,.2);
+  }
+
+  .unit-badge {
+    font-size:10px; font-weight:500; padding:3px 8px; border-radius:20px;
+    background:rgba(79,127,255,.08); color:var(--accent); border:1px solid rgba(79,127,255,.15);
+  }
+
+  /* ── Product cards ── */
+  .product-card {
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:14px; padding:14px 16px; cursor:pointer; transition:border-color .2s;
+  }
+
+  .product-card:active { opacity:.85; }
+
+  .product-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+
+  .product-name { font-size:14px; font-weight:700; color:var(--text); flex:1; margin-right:8px; line-height:1.3; }
+
+  .product-category {
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted);
+    background:var(--surface2); padding:3px 8px; border-radius:4px; white-space:nowrap;
+  }
+
+  .product-price-row { display:flex; justify-content:space-between; align-items:center; }
+
+  .product-best-price { font-size:15px; font-weight:700; color:var(--green); }
+
+  .product-supplier-count { font-size:11px; color:var(--text3); }
+
+  .product-updated { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); margin-top:4px; }
+
+  /* ── Compare cards ── */
+  .compare-card {
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:14px; padding:14px 16px; cursor:pointer; transition:border-color .2s;
+  }
+
+  .compare-card:active { opacity:.85; }
+
+  .compare-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .compare-cat { font-size:11px; color:var(--text3); margin-bottom:10px; }
+
+  .compare-suppliers { display:flex; flex-direction:column; gap:6px; }
+
+  .compare-row {
+    display:flex; align-items:center; gap:8px; padding:8px 10px;
+    background:var(--surface2); border-radius:8px; position:relative;
+  }
+
+  .compare-row.best { border:1px solid rgba(16,185,129,.3); background:rgba(16,185,129,.05); }
+
+  .compare-supplier-name { flex:1; font-size:12px; font-weight:600; color:var(--text); }
+  .compare-price { font-size:13px; font-weight:700; color:var(--text); }
+  .compare-row.best .compare-price { color:var(--green); }
+  .best-label { font-size:9px; font-weight:700; color:var(--green); background:rgba(16,185,129,.12); padding:2px 6px; border-radius:10px; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:center; padding:60px 20px; gap:12px; text-align:center;
+  }
+
+  .empty-icon { font-size:40px; opacity:.3; }
+  .empty-text { font-size:13px; color:var(--text3); line-height:1.6; }
+  .empty-btn {
+    margin-top:8px; background:var(--accent); border:none; border-radius:12px;
+    padding:10px 20px; font-size:13px; font-weight:700; color:white;
+    cursor:pointer; font-family:inherit;
+  }
+
+  /* ── FAB ── */
+  .fab {
+    position:fixed; bottom:24px; right:max(calc(50% - 240px + 16px), 16px);
+    width:52px; height:52px; border-radius:16px;
+    background:var(--accent); border:none; color:white;
+    font-size:22px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; box-shadow:0 8px 24px rgba(59,130,246,.4);
+    z-index:50; transition:transform .15s;
+  }
+
+  .fab:active { transform:scale(.93); }
+
+  /* ── Bottom nav ── */
+  .bottom-nav {
+    flex-shrink:0; background:var(--surface); border-top:1px solid var(--border);
+    display:flex; padding:10px 0 max(env(safe-area-inset-bottom),10px);
+    position:relative; z-index:10;
+  }
+
+  .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; padding:4px 0; }
+  .nav-item:active { opacity:.7; }
+  .nav-icon { font-size:20px; line-height:1; }
+  .nav-label { font-size:9px; font-weight:600; color:var(--text3); letter-spacing:.06em; text-transform:uppercase; }
+  .nav-item.active .nav-label { color:var(--accent); }
+  .nav-indicator { width:4px; height:4px; border-radius:50%; background:transparent; margin-top:1px; }
+  .nav-item.active .nav-indicator { background:var(--accent); }
+
+  /* ── Modal / Bottom Sheet ── */
+  .overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:100;
+    opacity:0; pointer-events:none; transition:opacity .3s;
+  }
+
+  .overlay.active { opacity:1; pointer-events:all; }
+
+  .sheet {
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%) translateY(100%);
+    width:100%; max-width:480px; background:var(--surface);
+    border:1px solid var(--border); border-radius:24px 24px 0 0;
+    padding:20px 20px max(env(safe-area-inset-bottom),24px);
+    z-index:101; transition:transform .35s cubic-bezier(.32,.72,0,1);
+    max-height:90vh; overflow-y:auto; scrollbar-width:none;
+  }
+
+  .sheet::-webkit-scrollbar { display:none; }
+  .overlay.active .sheet { transform:translateX(-50%) translateY(0); }
+
+  .sheet-handle { width:36px; height:4px; background:var(--border2); border-radius:2px; margin:0 auto 18px; }
+
+  .sheet-title { font-size:18px; font-weight:800; color:var(--text); margin-bottom:4px; letter-spacing:-.01em; }
+  .sheet-sub { font-size:12px; color:var(--text3); margin-bottom:20px; }
+
+  /* ── Form fields ── */
+  .form-group { margin-bottom:14px; }
+
+  .form-label {
+    display:block; font-size:11px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.1em; color:var(--text3); margin-bottom:6px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    width:100%; background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:10px; padding:11px 14px; font-size:14px; color:var(--text);
+    font-family:inherit; outline:none; transition:border-color .2s;
+    -webkit-appearance:none; appearance:none;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--accent); }
+  .form-input::placeholder, .form-textarea::placeholder { color:var(--text3); }
+
+  .form-textarea { resize:none; min-height:80px; line-height:1.5; }
+
+  .form-select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234B5680' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; }
+
+  .form-select option { background:#161C2E; }
+
+  /* Toggle */
+  .toggle-row { display:flex; justify-content:space-between; align-items:center; }
+  .toggle-label { font-size:14px; color:var(--text); }
+  .toggle { position:relative; width:44px; height:26px; }
+  .toggle input { display:none; }
+  .toggle-track {
+    position:absolute; inset:0; background:var(--border2);
+    border-radius:13px; cursor:pointer; transition:background .2s;
+  }
+  .toggle input:checked + .toggle-track { background:var(--accent); }
+  .toggle-thumb {
+    position:absolute; top:3px; left:3px; width:20px; height:20px;
+    background:white; border-radius:50%; transition:transform .2s; pointer-events:none;
+  }
+  .toggle input:checked ~ .toggle-thumb { transform:translateX(18px); }
+
+  /* Multi-select chips */
+  .multi-chips { display:flex; flex-wrap:wrap; gap:8px; }
+
+  .multi-chip {
+    background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:20px; padding:7px 12px; font-size:12px; font-weight:600;
+    color:var(--text3); cursor:pointer; transition:all .15s;
+  }
+
+  .multi-chip.selected { border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08); }
+
+  /* Buttons */
+  .btn-row { display:flex; gap:10px; margin-top:20px; }
+
+  .btn {
+    flex:1; padding:14px; border-radius:12px; font-size:14px;
+    font-weight:700; font-family:inherit; cursor:pointer; border:none; transition:opacity .2s;
+  }
+
+  .btn:active { opacity:.8; }
+  .btn-primary { background:var(--accent); color:white; }
+  .btn-secondary { background:var(--surface2); color:var(--text2); border:1px solid var(--border); }
+  .btn-danger { background:rgba(239,68,68,.1); color:var(--red); border:1px solid rgba(239,68,68,.2); }
+
+  /* ── Detail screen ── */
+  .detail-section { margin-bottom:20px; }
+
+  .detail-section-title {
+    font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase;
+    letter-spacing:.14em; color:var(--muted); margin-bottom:10px;
+  }
+
+  .detail-field { margin-bottom:10px; }
+  .detail-field-label { font-size:11px; color:var(--text3); margin-bottom:2px; }
+  .detail-field-value { font-size:14px; color:var(--text); font-weight:500; line-height:1.5; }
+
+  .detail-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:14px 16px; margin-bottom:10px;
+  }
+
+  .price-entry-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px; }
+  .price-entry-name { font-size:13px; font-weight:700; color:var(--text); }
+  .price-entry-price { font-size:14px; font-weight:800; color:var(--green); }
+  .price-entry-meta { font-size:11px; color:var(--text3); }
+  .price-entry-moq { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); margin-top:2px; }
+
+  /* ── Toast ── */
+  .toast {
+    position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface2); border:1px solid var(--border2);
+    border-radius:12px; padding:10px 20px; font-size:13px; font-weight:600;
+    color:var(--text); z-index:200; opacity:0; transition:all .3s; white-space:nowrap;
+  }
+
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.success { border-color:var(--green); color:var(--green); }
+  .toast.error { border-color:var(--red); color:var(--red); }
+
+  /* ── Loading ── */
+  .loading-overlay {
+    position:fixed; inset:0; background:rgba(8,11,18,.85);
+    z-index:300; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px;
+    opacity:0; pointer-events:none; transition:opacity .3s;
+  }
+
+  .loading-overlay.active { opacity:1; pointer-events:all; }
+
+  .spinner {
+    width:36px; height:36px; border:3px solid var(--border2);
+    border-top-color:var(--accent); border-radius:50%;
+    animation:spin .8s linear infinite;
+  }
+
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  .loading-text { font-size:13px; color:var(--text3); }
+
+  /* ── Confirm dialog ── */
+  .confirm-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.8);
+    z-index:200; display:flex; align-items:center; justify-content:center;
+    padding:24px; opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+
+  .confirm-overlay.active { opacity:1; pointer-events:all; }
+
+  .confirm-box {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:20px; padding:24px; width:100%; max-width:320px;
+    transform:scale(.95); transition:transform .2s;
+  }
+
+  .confirm-overlay.active .confirm-box { transform:scale(1); }
+
+  .confirm-title { font-size:16px; font-weight:800; color:var(--text); margin-bottom:8px; }
+  .confirm-msg { font-size:13px; color:var(--text2); line-height:1.5; margin-bottom:20px; }
+  .confirm-btns { display:flex; gap:10px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ MAIN SCREEN ══ -->
+  <div id="screen-main" class="screen active">
+    <div class="topbar">
+      <a href="index.html" class="back-btn">←</a>
+      <div>
+        <div class="topbar-title">Supplier & Price</div>
+        <div class="topbar-sub" id="topbar-user">Loading...</div>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active" id="tab-suppliers" onclick="switchTab('suppliers')">Suppliers</div>
+      <div class="tab" id="tab-products" onclick="switchTab('products')">Produk</div>
+      <div class="tab" id="tab-compare" onclick="switchTab('compare')">Compare</div>
+    </div>
+
+    <!-- Suppliers Tab -->
+    <div id="pane-suppliers" class="scroll-content">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Cari supplier..." id="search-suppliers" oninput="renderSuppliers()">
+      </div>
+      <div class="filter-row" id="filter-level">
+        <div class="chip active" data-level="" onclick="setLevelFilter(this,'')">Semua</div>
+        <div class="chip" data-level="L1" onclick="setLevelFilter(this,'L1')">L1 Pabrik</div>
+        <div class="chip" data-level="L2" onclick="setLevelFilter(this,'L2')">L2 Distributor</div>
+        <div class="chip" data-level="L3" onclick="setLevelFilter(this,'L3')">L3 Grosir</div>
+        <div class="chip" data-level="L4" onclick="setLevelFilter(this,'L4')">L4 Retail</div>
+      </div>
+      <div class="card-list" id="list-suppliers"></div>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="pane-products" class="scroll-content" style="display:none">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Cari produk..." id="search-products" oninput="renderProducts()">
+      </div>
+      <div class="card-list" id="list-products"></div>
+    </div>
+
+    <!-- Compare Tab -->
+    <div id="pane-compare" class="scroll-content" style="display:none">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Cari produk untuk compare..." id="search-compare" oninput="renderCompare()">
+      </div>
+      <div class="card-list" id="list-compare"></div>
+    </div>
+
+    <button class="fab" id="fab-btn" onclick="openAddSheet()">+</button>
+  </div>
+
+  <!-- ══ SUPPLIER DETAIL SCREEN ══ -->
+  <div id="screen-supplier-detail" class="screen">
+    <div class="topbar">
+      <div class="back-btn" onclick="goBack('screen-main')">←</div>
+      <div style="flex:1">
+        <div class="topbar-title" id="detail-supplier-name">Supplier</div>
+        <div class="topbar-sub" id="detail-supplier-level"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div class="back-btn" onclick="openEditSupplier()" style="background:var(--surface2)">✏️</div>
+        <div class="back-btn" onclick="confirmDeleteSupplier()" style="background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2)">🗑️</div>
+      </div>
+    </div>
+    <div class="scroll-content" id="supplier-detail-content"></div>
+  </div>
+
+  <!-- ══ PRODUCT DETAIL SCREEN ══ -->
+  <div id="screen-product-detail" class="screen">
+    <div class="topbar">
+      <div class="back-btn" onclick="goBack('screen-main')">←</div>
+      <div style="flex:1">
+        <div class="topbar-title" id="detail-product-name">Produk</div>
+        <div class="topbar-sub" id="detail-product-cat"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div class="back-btn" onclick="openEditProduct()" style="background:var(--surface2)">✏️</div>
+        <div class="back-btn" onclick="confirmDeleteProduct()" style="background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2)">🗑️</div>
+      </div>
+    </div>
+    <div class="scroll-content" id="product-detail-content"></div>
+  </div>
+
+</div>
+
+<!-- ══ ADD/EDIT SUPPLIER SHEET ══ -->
+<div class="overlay" id="overlay-supplier">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-supplier-title">Tambah Supplier</div>
+    <div class="sheet-sub">Data akan tersimpan ke Google Sheet</div>
+
+    <div class="form-group">
+      <label class="form-label">Nama Supplier *</label>
+      <input type="text" class="form-input" id="f-supplier-name" placeholder="Nama perusahaan / toko">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kontak (WhatsApp / Telepon)</label>
+      <input type="text" class="form-input" id="f-supplier-kontak" placeholder="08xx-xxxx-xxxx">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kota</label>
+      <input type="text" class="form-input" id="f-supplier-kota" placeholder="Jakarta, Surabaya, dll.">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Level Supplier *</label>
+      <select class="form-select" id="f-supplier-level">
+        <option value="">Pilih level...</option>
+        <option value="L1">L1 — Pabrik</option>
+        <option value="L2">L2 — Distributor Resmi</option>
+        <option value="L3">L3 — Grosir / Subdistributor</option>
+        <option value="L4">L4 — Retail</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Unit Bisnis</label>
+      <div class="multi-chips" id="f-supplier-units"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Authorized / Ada SPD</label>
+      <div class="toggle-row">
+        <span class="toggle-label">Supplier authorized / punya SPD resmi</span>
+        <label class="toggle">
+          <input type="checkbox" id="f-supplier-auth">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catatan</label>
+      <textarea class="form-textarea" id="f-supplier-catatan" placeholder="Info tambahan tentang supplier ini..."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeSheet('overlay-supplier')">Batal</button>
+      <button class="btn btn-primary" onclick="saveSupplier()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD/EDIT PRODUCT SHEET ══ -->
+<div class="overlay" id="overlay-product">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-product-title">Tambah Produk</div>
+    <div class="sheet-sub">Data akan tersimpan ke Google Sheet</div>
+
+    <div class="form-group">
+      <label class="form-label">Nama Produk *</label>
+      <input type="text" class="form-input" id="f-product-name" placeholder="Nama lengkap produk">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kategori</label>
+      <input type="text" class="form-input" id="f-product-category" placeholder="Laptop, Printer, ATK, dll.">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Satuan</label>
+      <select class="form-select" id="f-product-satuan">
+        <option value="pcs">pcs</option>
+        <option value="unit">unit</option>
+        <option value="box">box</option>
+        <option value="rim">rim</option>
+        <option value="lusin">lusin</option>
+        <option value="kg">kg</option>
+        <option value="liter">liter</option>
+        <option value="set">set</option>
+        <option value="roll">roll</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catatan / Spesifikasi Teknis</label>
+      <textarea class="form-textarea" id="f-product-catatan" placeholder="Detail spek, varian, informasi teknis..."></textarea>
+    </div>
+    <div class="form-group" id="price-entry-group">
+      <label class="form-label">Harga Awal (Opsional)</label>
+      <select class="form-select" id="f-price-supplier" style="margin-bottom:8px">
+        <option value="">Pilih supplier...</option>
+      </select>
+      <input type="number" class="form-input" id="f-price-harga" placeholder="Harga beli (Rp)" style="margin-bottom:8px">
+      <input type="number" class="form-input" id="f-price-moq" placeholder="MOQ (opsional)">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeSheet('overlay-product')">Batal</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD PRICE ENTRY SHEET ══ -->
+<div class="overlay" id="overlay-price">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Tambah Harga</div>
+    <div class="sheet-sub" id="price-sheet-sub">untuk produk ini</div>
+
+    <div class="form-group">
+      <label class="form-label">Supplier *</label>
+      <select class="form-select" id="f-pe-supplier"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Harga Beli (Rp) *</label>
+      <input type="number" class="form-input" id="f-pe-harga" placeholder="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">MOQ</label>
+      <input type="number" class="form-input" id="f-pe-moq" placeholder="Minimum order qty">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catatan</label>
+      <textarea class="form-textarea" id="f-pe-catatan" placeholder="Syarat, diskon, info khusus..."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeSheet('overlay-price')">Batal</button>
+      <button class="btn btn-primary" onclick="savePriceEntry()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD: CHOOSE WHAT TO ADD ══ -->
+<div class="overlay" id="overlay-add-choice">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Tambah Baru</div>
+    <div class="sheet-sub">Pilih yang ingin ditambahkan</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+      <button class="btn btn-secondary" style="text-align:left;padding:16px 18px;" onclick="closeSheet('overlay-add-choice');openAddSupplier()">
+        <div style="font-size:16px;margin-bottom:2px;">🏪 Supplier Baru</div>
+        <div style="font-size:12px;font-weight:400;color:var(--text3)">Tambah supplier ke database</div>
+      </button>
+      <button class="btn btn-secondary" style="text-align:left;padding:16px 18px;" onclick="closeSheet('overlay-add-choice');openAddProduct()">
+        <div style="font-size:16px;margin-bottom:2px;">📦 Produk Baru</div>
+        <div style="font-size:12px;font-weight:400;color:var(--text3)">Tambah produk + harga awal</div>
+      </button>
+    </div>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn btn-secondary" onclick="closeSheet('overlay-add-choice')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOADING ══ -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Menyimpan...</div>
+</div>
+
+<!-- ══ CONFIRM DIALOG ══ -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">Hapus?</div>
+    <div class="confirm-msg" id="confirm-msg">Yakin ingin menghapus data ini?</div>
+    <div class="confirm-btns">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Batal</button>
+      <button class="btn btn-danger" id="confirm-ok-btn">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONFIG — ganti SCRIPT_URL setelah deploy Apps Script
+// ═══════════════════════════════════════════════════
+const SCRIPT_URL = localStorage.getItem('arkana_script_url') || '';
+const SESSION_KEY = 'arkana_session';
+const CACHE_KEY = 'arkana_cache';
+
+// ── State ──
+let currentTab = 'suppliers';
+let levelFilter = '';
+let currentSupplierId = null;
+let currentProductId = null;
+let editMode = false;
+let priceEntryProductId = null;
+
+let DB = { suppliers:[], products:[], priceEntries:[], units:[] };
+
+// ── User ──
+function getUser() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY)) || {}; } catch { return {}; }
+}
+
+// ── Init ──
+window.onload = async function() {
+  const user = getUser();
+  if (!user.id) { window.location.href = 'index.html'; return; }
+  document.getElementById('topbar-user').textContent = `Login sebagai ${user.name}`;
+
+  loadFromCache();
+  renderAll();
+
+  if (SCRIPT_URL) {
+    await fetchAll();
+  } else {
+    showToast('⚠️ Script URL belum diset. Data lokal saja.', '');
+  }
+};
+
+// ─────────────────────────────────────────
+// API CALLS
+// ─────────────────────────────────────────
+async function api(action, payload = {}) {
+  if (!SCRIPT_URL) throw new Error('No script URL');
+  const url = SCRIPT_URL + '?action=' + action;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ ...payload, user: getUser().name })
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || 'API error');
+  return data;
+}
+
+async function fetchAll() {
+  showLoading('Memuat data...');
+  try {
+    const data = await api('getAll');
+    DB = data.db;
+    saveToCache();
+    renderAll();
+  } catch(e) {
+    showToast('Gagal memuat data: ' + e.message, 'error');
+  } finally {
+    hideLoading();
+  }
+}
+
+// ─────────────────────────────────────────
+// CACHE
+// ─────────────────────────────────────────
+function saveToCache() { localStorage.setItem(CACHE_KEY, JSON.stringify(DB)); }
+function loadFromCache() {
+  const c = localStorage.getItem(CACHE_KEY);
+  if (c) DB = JSON.parse(c);
+}
+
+// ─────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────
+function renderAll() {
+  renderSuppliers();
+  renderProducts();
+  renderCompare();
+  renderUnitChips();
+  populateSupplierDropdowns();
+}
+
+function renderSuppliers() {
+  const q = document.getElementById('search-suppliers').value.toLowerCase();
+  let list = DB.suppliers.filter(s =>
+    (!levelFilter || s.level === levelFilter) &&
+    (!q || s.name.toLowerCase().includes(q) || (s.kota||'').toLowerCase().includes(q))
+  );
+
+  const el = document.getElementById('list-suppliers');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🏪</div><div class="empty-text">Belum ada supplier.<br>Tap + untuk tambah supplier baru.</div></div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(s => {
+    const initials = s.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const colors = ['linear-gradient(135deg,#1D4ED8,#3B82F6)','linear-gradient(135deg,#065F46,#10B981)','linear-gradient(135deg,#7C3AED,#8B5CF6)','linear-gradient(135deg,#B45309,#F59E0B)'];
+    const color = colors[s.name.charCodeAt(0) % colors.length];
+    return `
+    <div class="supplier-card" onclick="openSupplierDetail('${s.id}')">
+      <div class="supplier-card-top">
+        <div class="supplier-initial" style="background:${color}">${initials}</div>
+        <div class="supplier-info">
+          <div class="supplier-name">${s.name}</div>
+          <div class="supplier-meta">${s.kontak || '—'} ${s.kota ? '· '+s.kota : ''}</div>
+        </div>
+      </div>
+      <div class="supplier-badges">
+        <span class="level-badge ${s.level.toLowerCase()}">${s.level}</span>
+        ${s.authorized ? '<span class="auth-badge">✓ Authorized</span>' : ''}
+        ${(s.units||[]).map(u=>`<span class="unit-badge">${u}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderProducts() {
+  const q = document.getElementById('search-products').value.toLowerCase();
+  let list = DB.products.filter(p =>
+    !q || p.name.toLowerCase().includes(q) || (p.category||'').toLowerCase().includes(q)
+  );
+
+  const el = document.getElementById('list-products');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Belum ada produk.<br>Tap + untuk tambah produk baru.</div></div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(p => {
+    const entries = DB.priceEntries.filter(e => e.productId === p.id);
+    const bestPrice = entries.length ? Math.min(...entries.map(e=>e.harga)) : null;
+    const latest = entries.sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt))[0];
+    return `
+    <div class="product-card" onclick="openProductDetail('${p.id}')">
+      <div class="product-header">
+        <div class="product-name">${p.name}</div>
+        <div class="product-category">${p.category||'—'}</div>
+      </div>
+      <div class="product-price-row">
+        <div class="product-best-price">${bestPrice ? 'Rp '+fmtNum(bestPrice) : 'Belum ada harga'}</div>
+        <div class="product-supplier-count">${entries.length} supplier</div>
+      </div>
+      ${latest ? `<div class="product-updated">Update: ${fmtDate(latest.updatedAt)} · ${latest.updatedBy}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderCompare() {
+  const q = document.getElementById('search-compare').value.toLowerCase();
+  let list = DB.products.filter(p => {
+    const hasEntries = DB.priceEntries.some(e => e.productId === p.id);
+    return hasEntries && (!q || p.name.toLowerCase().includes(q) || (p.category||'').toLowerCase().includes(q));
+  });
+
+  const el = document.getElementById('list-compare');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚖️</div><div class="empty-text">Belum ada data harga untuk dibandingkan.<br>Tambah produk + harga dari tab Produk.</div></div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(p => {
+    const entries = DB.priceEntries.filter(e => e.productId === p.id)
+      .sort((a,b) => a.harga - b.harga);
+    const bestPrice = entries[0]?.harga;
+
+    const rows = entries.map(e => {
+      const sup = DB.suppliers.find(s => s.id === e.supplierId);
+      const isBest = e.harga === bestPrice;
+      return `
+      <div class="compare-row ${isBest?'best':''}">
+        <span class="level-badge ${(sup?.level||'').toLowerCase()}" style="flex-shrink:0">${sup?.level||'?'}</span>
+        <span class="compare-supplier-name">${sup?.name||'?'}</span>
+        <span class="compare-price">Rp ${fmtNum(e.harga)}</span>
+        ${isBest ? '<span class="best-label">Terbaik</span>' : ''}
+      </div>`;
+    }).join('');
+
+    return `
+    <div class="compare-card">
+      <div class="compare-name">${p.name}</div>
+      <div class="compare-cat">${p.category||''} · ${p.satuan||'pcs'}</div>
+      <div class="compare-suppliers">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderUnitChips() {
+  const el = document.getElementById('f-supplier-units');
+  if (!el) return;
+  el.innerHTML = DB.units.map(u =>
+    `<div class="multi-chip" onclick="toggleChip(this)">${u}</div>`
+  ).join('');
+}
+
+function populateSupplierDropdowns() {
+  const opts = '<option value="">Pilih supplier...</option>' +
+    DB.suppliers.map(s => `<option value="${s.id}">${s.name} (${s.level})</option>`).join('');
+  ['f-price-supplier','f-pe-supplier'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = opts;
+  });
+}
+
+// ─────────────────────────────────────────
+// SUPPLIER DETAIL
+// ─────────────────────────────────────────
+function openSupplierDetail(id) {
+  currentSupplierId = id;
+  const s = DB.suppliers.find(x => x.id === id);
+  if (!s) return;
+
+  document.getElementById('detail-supplier-name').textContent = s.name;
+  document.getElementById('detail-supplier-level').textContent = `${s.level} ${s.authorized ? '· ✓ Authorized' : ''}`;
+
+  const entries = DB.priceEntries.filter(e => e.supplierId === id);
+  const productIds = [...new Set(entries.map(e => e.productId))];
+
+  const priceCards = productIds.map(pid => {
+    const p = DB.products.find(x => x.id === pid);
+    const e = entries.filter(x => x.productId === pid).sort((a,b) => new Date(b.updatedAt)-new Date(a.updatedAt))[0];
+    return `
+    <div class="detail-card" onclick="openProductDetail('${pid}')">
+      <div class="price-entry-row">
+        <div class="price-entry-name">${p?.name||'?'}</div>
+        <div class="price-entry-price">Rp ${fmtNum(e.harga)}</div>
+      </div>
+      <div class="price-entry-meta">${p?.category||''} · ${p?.satuan||'pcs'}</div>
+      ${e.moq ? `<div class="price-entry-moq">MOQ: ${e.moq}</div>` : ''}
+      <div class="price-entry-moq">Update: ${fmtDate(e.updatedAt)} · ${e.updatedBy}</div>
+    </div>`;
+  }).join('') || '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Belum ada produk dari supplier ini.</div></div>';
+
+  document.getElementById('supplier-detail-content').innerHTML = `
+    <div class="detail-section">
+      <div class="detail-section-title">Informasi Supplier</div>
+      <div class="detail-card">
+        <div class="detail-field"><div class="detail-field-label">Kontak</div><div class="detail-field-value">${s.kontak||'—'}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Kota</div><div class="detail-field-value">${s.kota||'—'}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Unit Bisnis</div><div class="detail-field-value">${(s.units||[]).join(', ')||'—'}</div></div>
+        ${s.catatan ? `<div class="detail-field"><div class="detail-field-label">Catatan</div><div class="detail-field-value">${s.catatan}</div></div>` : ''}
+        <div class="detail-field"><div class="detail-field-label">Ditambahkan oleh</div><div class="detail-field-value">${s.createdBy||'—'} · ${fmtDate(s.createdAt)}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Produk & Harga (${productIds.length})</div>
+      ${priceCards}
+    </div>`;
+
+  showScreen('screen-supplier-detail');
+}
+
+// ─────────────────────────────────────────
+// PRODUCT DETAIL
+// ─────────────────────────────────────────
+function openProductDetail(id) {
+  currentProductId = id;
+  const p = DB.products.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('detail-product-name').textContent = p.name;
+  document.getElementById('detail-product-cat').textContent = `${p.category||''} · ${p.satuan||'pcs'}`;
+
+  const entries = DB.priceEntries.filter(e => e.productId === id).sort((a,b) => a.harga - b.harga);
+  const bestPrice = entries[0]?.harga;
+
+  const priceCards = entries.map(e => {
+    const s = DB.suppliers.find(x => x.id === e.supplierId);
+    const isBest = e.harga === bestPrice;
+    return `
+    <div class="detail-card" style="${isBest?'border-color:rgba(16,185,129,.3);':''}">
+      <div class="price-entry-row">
+        <div>
+          <div class="price-entry-name">${s?.name||'?'} <span class="level-badge ${(s?.level||'').toLowerCase()}" style="font-size:9px">${s?.level||''}</span></div>
+          ${s?.authorized ? '<div style="font-size:10px;color:var(--green);margin-top:2px;">✓ Authorized</div>' : ''}
+        </div>
+        <div>
+          <div class="price-entry-price" style="${isBest?'':'color:var(--text)'}">Rp ${fmtNum(e.harga)}</div>
+          ${isBest ? '<div style="font-size:9px;text-align:right;color:var(--green)">Terbaik</div>' : ''}
+        </div>
+      </div>
+      ${e.moq ? `<div class="price-entry-moq">MOQ: ${e.moq} ${p.satuan||'pcs'}</div>` : ''}
+      ${e.catatan ? `<div class="price-entry-meta" style="margin-top:4px">${e.catatan}</div>` : ''}
+      <div class="price-entry-moq" style="margin-top:4px">Update: ${fmtDate(e.updatedAt)} · ${e.updatedBy}
+        <span style="margin-left:8px;cursor:pointer;color:var(--red);font-size:10px;" onclick="confirmDeletePrice('${e.id}')">Hapus</span>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Belum ada harga.</div></div>';
+
+  document.getElementById('product-detail-content').innerHTML = `
+    <div class="detail-section">
+      <div class="detail-section-title">Informasi Produk</div>
+      <div class="detail-card">
+        <div class="detail-field"><div class="detail-field-label">Kategori</div><div class="detail-field-value">${p.category||'—'}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Satuan</div><div class="detail-field-value">${p.satuan||'—'}</div></div>
+        ${p.catatan ? `<div class="detail-field"><div class="detail-field-label">Spesifikasi / Catatan</div><div class="detail-field-value">${p.catatan}</div></div>` : ''}
+        <div class="detail-field"><div class="detail-field-label">Ditambahkan oleh</div><div class="detail-field-value">${p.createdBy||'—'} · ${fmtDate(p.createdAt)}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Harga dari Supplier (${entries.length})</span>
+        <span style="font-size:18px;cursor:pointer;color:var(--accent)" onclick="openAddPrice('${id}')">+</span>
+      </div>
+      ${priceCards}
+    </div>`;
+
+  showScreen('screen-product-detail');
+}
+
+// ─────────────────────────────────────────
+// ADD / EDIT SUPPLIER
+// ─────────────────────────────────────────
+function openAddSupplier() {
+  editMode = false;
+  currentSupplierId = null;
+  document.getElementById('sheet-supplier-title').textContent = 'Tambah Supplier';
+  clearForm(['f-supplier-name','f-supplier-kontak','f-supplier-kota','f-supplier-catatan']);
+  document.getElementById('f-supplier-level').value = '';
+  document.getElementById('f-supplier-auth').checked = false;
+  renderUnitChips();
+  openSheet('overlay-supplier');
+}
+
+function openEditSupplier() {
+  editMode = true;
+  const s = DB.suppliers.find(x => x.id === currentSupplierId);
+  if (!s) return;
+  document.getElementById('sheet-supplier-title').textContent = 'Edit Supplier';
+  document.getElementById('f-supplier-name').value = s.name;
+  document.getElementById('f-supplier-kontak').value = s.kontak||'';
+  document.getElementById('f-supplier-kota').value = s.kota||'';
+  document.getElementById('f-supplier-level').value = s.level;
+  document.getElementById('f-supplier-auth').checked = !!s.authorized;
+  document.getElementById('f-supplier-catatan').value = s.catatan||'';
+  renderUnitChips();
+  setTimeout(() => {
+    document.querySelectorAll('#f-supplier-units .multi-chip').forEach(chip => {
+      if ((s.units||[]).includes(chip.textContent)) chip.classList.add('selected');
+    });
+  }, 50);
+  openSheet('overlay-supplier');
+}
+
+async function saveSupplier() {
+  const name = document.getElementById('f-supplier-name').value.trim();
+  const level = document.getElementById('f-supplier-level').value;
+  if (!name || !level) { showToast('Nama & level wajib diisi', 'error'); return; }
+
+  const units = [...document.querySelectorAll('#f-supplier-units .multi-chip.selected')].map(c=>c.textContent);
+  const payload = {
+    id: editMode ? currentSupplierId : genId(),
+    name, level,
+    kontak: document.getElementById('f-supplier-kontak').value.trim(),
+    kota: document.getElementById('f-supplier-kota').value.trim(),
+    authorized: document.getElementById('f-supplier-auth').checked,
+    catatan: document.getElementById('f-supplier-catatan').value.trim(),
+    units, createdBy: getUser().name, createdAt: new Date().toISOString()
+  };
+
+  closeSheet('overlay-supplier');
+  showLoading(editMode ? 'Menyimpan perubahan...' : 'Menambah supplier...');
+
+  try {
+    if (SCRIPT_URL) {
+      await api(editMode ? 'updateSupplier' : 'addSupplier', payload);
+      await fetchAll();
+    } else {
+      if (editMode) {
+        const idx = DB.suppliers.findIndex(x => x.id === currentSupplierId);
+        if (idx >= 0) DB.suppliers[idx] = payload;
+      } else {
+        DB.suppliers.push(payload);
+      }
+      saveToCache(); renderAll();
+    }
+    logActivity(editMode ? 'Edit Supplier' : 'Tambah Supplier', `${getUser().name} ${editMode?'mengedit':'menambah'} supplier: ${name}`);
+    showToast(editMode ? 'Supplier diperbarui ✓' : 'Supplier ditambahkan ✓', 'success');
+  } catch(e) {
+    showToast('Gagal: ' + e.message, 'error');
+  } finally { hideLoading(); }
+}
+
+// ─────────────────────────────────────────
+// ADD / EDIT PRODUCT
+// ─────────────────────────────────────────
+function openAddProduct() {
+  editMode = false;
+  currentProductId = null;
+  document.getElementById('sheet-product-title').textContent = 'Tambah Produk';
+  clearForm(['f-product-name','f-product-category','f-product-catatan','f-price-harga','f-price-moq']);
+  document.getElementById('f-product-satuan').value = 'pcs';
+  document.getElementById('f-price-supplier').value = '';
+  document.getElementById('price-entry-group').style.display = '';
+  openSheet('overlay-product');
+}
+
+function openEditProduct() {
+  editMode = true;
+  const p = DB.products.find(x => x.id === currentProductId);
+  if (!p) return;
+  document.getElementById('sheet-product-title').textContent = 'Edit Produk';
+  document.getElementById('f-product-name').value = p.name;
+  document.getElementById('f-product-category').value = p.category||'';
+  document.getElementById('f-product-satuan').value = p.satuan||'pcs';
+  document.getElementById('f-product-catatan').value = p.catatan||'';
+  document.getElementById('price-entry-group').style.display = 'none';
+  openSheet('overlay-product');
+}
+
+async function saveProduct() {
+  const name = document.getElementById('f-product-name').value.trim();
+  if (!name) { showToast('Nama produk wajib diisi', 'error'); return; }
+
+  const payload = {
+    id: editMode ? currentProductId : genId(),
+    name, category: document.getElementById('f-product-category').value.trim(),
+    satuan: document.getElementById('f-product-satuan').value,
+    catatan: document.getElementById('f-product-catatan').value.trim(),
+    createdBy: getUser().name, createdAt: new Date().toISOString()
+  };
+
+  const supplierId = document.getElementById('f-price-supplier')?.value;
+  const hargaVal = document.getElementById('f-price-harga')?.value;
+  const moqVal = document.getElementById('f-price-moq')?.value;
+
+  let pricePayload = null;
+  if (!editMode && supplierId && hargaVal) {
+    pricePayload = {
+      id: genId(), productId: payload.id, supplierId,
+      harga: parseFloat(hargaVal), moq: moqVal ? parseInt(moqVal) : null,
+      catatan: '', updatedBy: getUser().name, updatedAt: new Date().toISOString()
+    };
+  }
+
+  closeSheet('overlay-product');
+  showLoading('Menyimpan produk...');
+
+  try {
+    if (SCRIPT_URL) {
+      await api(editMode ? 'updateProduct' : 'addProduct', { product: payload, price: pricePayload });
+      await fetchAll();
+    } else {
+      if (editMode) {
+        const idx = DB.products.findIndex(x => x.id === currentProductId);
+        if (idx >= 0) DB.products[idx] = payload;
+      } else {
+        DB.products.push(payload);
+        if (pricePayload) DB.priceEntries.push(pricePayload);
+      }
+      saveToCache(); renderAll();
+    }
+    logActivity(editMode ? 'Edit Produk' : 'Tambah Produk', `${getUser().name} ${editMode?'mengedit':'menambah'} produk: ${name}`);
+    showToast(editMode ? 'Produk diperbarui ✓' : 'Produk ditambahkan ✓', 'success');
+  } catch(e) {
+    showToast('Gagal: ' + e.message, 'error');
+  } finally { hideLoading(); }
+}
+
+// ─────────────────────────────────────────
+// ADD PRICE ENTRY
+// ─────────────────────────────────────────
+function openAddPrice(productId) {
+  priceEntryProductId = productId;
+  const p = DB.products.find(x => x.id === productId);
+  document.getElementById('price-sheet-sub').textContent = `untuk: ${p?.name||''}`;
+  clearForm(['f-pe-harga','f-pe-moq','f-pe-catatan']);
+  document.getElementById('f-pe-supplier').value = '';
+  openSheet('overlay-price');
+}
+
+async function savePriceEntry() {
+  const supplierId = document.getElementById('f-pe-supplier').value;
+  const hargaVal = document.getElementById('f-pe-harga').value;
+  if (!supplierId || !hargaVal) { showToast('Supplier & harga wajib diisi', 'error'); return; }
+
+  const payload = {
+    id: genId(), productId: priceEntryProductId, supplierId,
+    harga: parseFloat(hargaVal),
+    moq: document.getElementById('f-pe-moq').value ? parseInt(document.getElementById('f-pe-moq').value) : null,
+    catatan: document.getElementById('f-pe-catatan').value.trim(),
+    updatedBy: getUser().name, updatedAt: new Date().toISOString()
+  };
+
+  closeSheet('overlay-price');
+  showLoading('Menyimpan harga...');
+
+  try {
+    if (SCRIPT_URL) {
+      await api('addPrice', payload);
+      await fetchAll();
+    } else {
+      DB.priceEntries.push(payload);
+      saveToCache(); renderAll();
+    }
+    const sup = DB.suppliers.find(s => s.id === supplierId);
+    const prod = DB.products.find(p => p.id === priceEntryProductId);
+    logActivity('Tambah Harga', `${getUser().name} menambah harga ${prod?.name||''} dari ${sup?.name||''}: Rp ${fmtNum(payload.harga)}`);
+    showToast('Harga ditambahkan ✓', 'success');
+    if (currentProductId) openProductDetail(currentProductId);
+  } catch(e) {
+    showToast('Gagal: ' + e.message, 'error');
+  } finally { hideLoading(); }
+}
+
+// ─────────────────────────────────────────
+// DELETE
+// ─────────────────────────────────────────
+function confirmDeleteSupplier() {
+  const s = DB.suppliers.find(x => x.id === currentSupplierId);
+  showConfirm('Hapus Supplier', `Hapus "${s?.name}"? Semua data harga dari supplier ini juga akan dihapus.`, async () => {
+    showLoading('Menghapus...');
+    try {
+      if (SCRIPT_URL) { await api('deleteSupplier', { id: currentSupplierId }); await fetchAll(); }
+      else {
+        DB.suppliers = DB.suppliers.filter(x => x.id !== currentSupplierId);
+        DB.priceEntries = DB.priceEntries.filter(x => x.supplierId !== currentSupplierId);
+        saveToCache(); renderAll();
+      }
+      logActivity('Hapus Supplier', `${getUser().name} menghapus supplier: ${s?.name}`);
+      showToast('Supplier dihapus', 'success');
+      goBack('screen-main');
+    } catch(e) { showToast('Gagal: '+e.message,'error'); }
+    finally { hideLoading(); }
+  });
+}
+
+function confirmDeleteProduct() {
+  const p = DB.products.find(x => x.id === currentProductId);
+  showConfirm('Hapus Produk', `Hapus "${p?.name}"? Semua data harga produk ini juga akan dihapus.`, async () => {
+    showLoading('Menghapus...');
+    try {
+      if (SCRIPT_URL) { await api('deleteProduct', { id: currentProductId }); await fetchAll(); }
+      else {
+        DB.products = DB.products.filter(x => x.id !== currentProductId);
+        DB.priceEntries = DB.priceEntries.filter(x => x.productId !== currentProductId);
+        saveToCache(); renderAll();
+      }
+      logActivity('Hapus Produk', `${getUser().name} menghapus produk: ${p?.name}`);
+      showToast('Produk dihapus', 'success');
+      goBack('screen-main');
+    } catch(e) { showToast('Gagal: '+e.message,'error'); }
+    finally { hideLoading(); }
+  });
+}
+
+function confirmDeletePrice(priceId) {
+  showConfirm('Hapus Harga', 'Hapus data harga ini?', async () => {
+    showLoading('Menghapus...');
+    try {
+      if (SCRIPT_URL) { await api('deletePrice', { id: priceId }); await fetchAll(); }
+      else {
+        DB.priceEntries = DB.priceEntries.filter(x => x.id !== priceId);
+        saveToCache(); renderAll();
+      }
+      logActivity('Hapus Harga', `${getUser().name} menghapus data harga`);
+      showToast('Harga dihapus', 'success');
+      if (currentProductId) openProductDetail(currentProductId);
+    } catch(e) { showToast('Gagal: '+e.message,'error'); }
+    finally { hideLoading(); }
+  });
+}
+
+// ─────────────────────────────────────────
+// ACTIVITY LOG
+// ─────────────────────────────────────────
+function logActivity(action, detail) {
+  const logs = JSON.parse(localStorage.getItem('arkana_activity_log') || '[]');
+  logs.unshift({ userId: getUser().id, action, detail, time: new Date().toISOString() });
+  if (logs.length > 200) logs.pop();
+  localStorage.setItem('arkana_activity_log', JSON.stringify(logs));
+  if (SCRIPT_URL) api('addLog', { action, detail }).catch(()=>{});
+}
+
+// ─────────────────────────────────────────
+// UI HELPERS
+// ─────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  ['suppliers','products','compare'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('pane-'+t).style.display = t===tab ? '' : 'none';
+  });
+  document.getElementById('fab-btn').style.display = tab==='compare' ? 'none' : '';
+}
+
+function setLevelFilter(el, level) {
+  levelFilter = level;
+  document.querySelectorAll('#filter-level .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderSuppliers();
+}
+
+function openAddSheet() {
+  if (currentTab === 'suppliers') openAddSupplier();
+  else if (currentTab === 'products') openAddProduct();
+}
+
+function toggleChip(el) { el.classList.toggle('selected'); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goBack(screenId) {
+  showScreen(screenId);
+  renderAll();
+}
+
+function openSheet(id) {
+  document.getElementById(id).classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSheet(id) {
+  document.getElementById(id).classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function showConfirm(title, msg, onOk) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  const btn = document.getElementById('confirm-ok-btn');
+  btn.onclick = () => { closeConfirm(); onOk(); };
+  document.getElementById('confirm-overlay').classList.add('active');
+}
+
+function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('active'); }
+
+function showLoading(text='Loading...') {
+  document.getElementById('loading-text').textContent = text;
+  document.getElementById('loading').classList.add('active');
+}
+
+function hideLoading() { document.getElementById('loading').classList.remove('active'); }
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function clearForm(ids) { ids.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; }); }
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
+
+function fmtNum(n) { return Number(n).toLocaleString('id-ID'); }
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear().toString().substr(2)} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+
+// Close overlays on background tap
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) closeSheet(o.id); });
+});
+
+document.getElementById('confirm-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('confirm-overlay')) closeConfirm();
+});
+</script>
+</body>
+</html>
