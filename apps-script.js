@@ -27,6 +27,7 @@ function doPost(e) {
     switch(action) {
       case 'getAll':       result = getAll(); break;
       case 'getLogs':      result = getLogs(); break;
+      case 'validatePin':  result = validatePin(body); break;
       case 'addSupplier':  result = addSupplier(body); break;
       case 'updateSupplier': result = updateSupplier(body); break;
       case 'deleteSupplier': result = deleteSupplier(body.id); break;
@@ -49,6 +50,19 @@ function doPost(e) {
       .createTextOutput(JSON.stringify({ ok: false, error: err.message }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// ─────────────────────────────────────────
+// VALIDATE PIN (server-side)
+// ─────────────────────────────────────────
+function validatePin(body) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const settings = getSettings(ss);
+  const pinField = body.user === 'arie' ? 'pinArie' : 'pinAjin';
+  // Compare as strings, pad both to 4 digits for safety
+  const stored = String(settings[pinField] || '1234').padStart(4, '0');
+  const input  = String(body.pin || '').padStart(4, '0');
+  return { ok: true, valid: stored === input };
 }
 
 // ─────────────────────────────────────────
@@ -105,6 +119,10 @@ function getAll() {
 function addSupplier(data) {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const sheet = ss.getSheetByName(TABS.suppliers);
+  const nextRow = sheet.getLastRow() + 1;
+
+  // Force column C (kontak) to text format to preserve leading zeros
+  sheet.getRange(nextRow, 3).setNumberFormat('@');
 
   sheet.appendRow([
     data.id, data.name, String(data.kontak || ''), data.kota || '',
@@ -249,18 +267,27 @@ function updateSettings(data) {
   const keys = Object.keys(data).filter(k => k !== 'user');
   keys.forEach(key => {
     const vals = sheet.getDataRange().getValues();
-    // Force string storage for PIN fields to preserve leading zeros
+    // PIN fields: always store as padded 4-digit string
     const value = (key === 'pinArie' || key === 'pinAjin')
       ? String(data[key]).padStart(4, '0')
       : data[key];
+
     let found = false;
     for (let i = 1; i < vals.length; i++) {
       if (vals[i][0] === key) {
-        sheet.getRange(i+1, 2).setValue(value);
-        found = true; break;
+        const cell = sheet.getRange(i + 1, 2);
+        // Force text format before setting value to prevent leading zero stripping
+        cell.setNumberFormat('@');
+        cell.setValue(value);
+        found = true;
+        break;
       }
     }
-    if (!found) sheet.appendRow([key, value]);
+    if (!found) {
+      const newRow = sheet.getLastRow() + 1;
+      sheet.getRange(newRow, 2).setNumberFormat('@');
+      sheet.appendRow([key, value]);
+    }
   });
 
   return { ok: true };

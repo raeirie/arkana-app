@@ -1137,7 +1137,7 @@
         </div>
         <div class="strip-right">
           <div class="strip-app">Arkana App</div>
-          <div class="strip-version">v1.0.0</div>
+          <div class="strip-version">v1.1.3</div>
         </div>
       </div>
     </div>
@@ -1494,28 +1494,52 @@
     updateEnterBtn('pin-enter', pinBuffer);
   }
 
-  function pinEnter() {
+  async function pinEnter() {
     if (pinBuffer.length < 4) return;
-    const stored = localStorage.getItem(PIN_KEY(selectedUser));
-    if (pinBuffer === stored) {
-      loginSuccess(selectedUser, true);
-    } else {
-      // Error
-      const section = document.getElementById('pin-section');
-      section.classList.add('error');
-      for (let i = 0; i < 4; i++) {
-        document.getElementById('dot-' + i).classList.add('error-dot');
+
+    // Disable numpad during validation
+    document.getElementById('pin-enter').classList.add('disabled');
+
+    try {
+      // Validate PIN against Sheet (server-side)
+      const data = await api('validatePin', {
+        user: selectedUser,
+        pin: pinBuffer
+      });
+
+      if (data.valid) {
+        loginSuccess(selectedUser, true);
+      } else {
+        pinError();
       }
-      setTimeout(() => {
-        section.classList.remove('error');
-        for (let i = 0; i < 4; i++) {
-          document.getElementById('dot-' + i).classList.remove('error-dot');
-        }
-        pinBuffer = '';
-        updatePinDots('dot', pinBuffer);
-        updateEnterBtn('pin-enter', pinBuffer);
-      }, 900);
+    } catch(e) {
+      // Offline fallback — validate against localStorage
+      const stored = localStorage.getItem(PIN_KEY(selectedUser));
+      if (pinBuffer === stored) {
+        loginSuccess(selectedUser, true);
+      } else {
+        pinError();
+      }
+    } finally {
+      document.getElementById('pin-enter').classList.remove('disabled');
     }
+  }
+
+  function pinError() {
+    const section = document.getElementById('pin-section');
+    section.classList.add('error');
+    for (let i = 0; i < 4; i++) {
+      document.getElementById('dot-' + i).classList.add('error-dot');
+    }
+    setTimeout(() => {
+      section.classList.remove('error');
+      for (let i = 0; i < 4; i++) {
+        document.getElementById('dot-' + i).classList.remove('error-dot');
+      }
+      pinBuffer = '';
+      updatePinDots('dot', pinBuffer);
+      updateEnterBtn('pin-enter', pinBuffer);
+    }, 900);
   }
 
   function loginSuccess(userId, fromPin = false) {
@@ -1658,20 +1682,32 @@
     updateEnterBtn('modal-enter', modalPinBuffer);
   }
 
-  function modalEnter() {
+  async function modalEnter() {
     if (modalPinBuffer.length < 4) return;
     const session = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}');
     const userId = session.id;
 
     if (modalStep === 1) {
-      // Verify old PIN
-      const stored = localStorage.getItem(PIN_KEY(userId));
-      if (modalPinBuffer !== stored) {
-        showToast('PIN lama salah', 'error');
-        modalPinBuffer = '';
-        updatePinDots('mdot', '');
-        updateEnterBtn('modal-enter', '');
-        return;
+      // Verify old PIN against Sheet
+      try {
+        const data = await api('validatePin', { user: userId, pin: modalPinBuffer });
+        if (!data.valid) {
+          showToast('PIN lama salah', 'error');
+          modalPinBuffer = '';
+          updatePinDots('mdot', '');
+          updateEnterBtn('modal-enter', '');
+          return;
+        }
+      } catch(e) {
+        // Offline fallback
+        const stored = localStorage.getItem(PIN_KEY(userId));
+        if (modalPinBuffer !== stored) {
+          showToast('PIN lama salah', 'error');
+          modalPinBuffer = '';
+          updatePinDots('mdot', '');
+          updateEnterBtn('modal-enter', '');
+          return;
+        }
       }
       modalStep = 2;
       newPinTemp = '';
