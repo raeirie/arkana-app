@@ -12,7 +12,9 @@
 <script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+
+  input, textarea { user-select: text; -webkit-user-select: text; }
 
   :root {
     --bg: #080B12;
@@ -1228,7 +1230,7 @@
         <div class="app-info-card">
           <div class="app-info-logo">⚡</div>
           <div class="app-info-name">Arkana App</div>
-          <div class="app-info-version">Version 1.0.0 · PRD-01</div>
+          <div class="app-info-version">Version 1.1.3 · PRD-01</div>
           <div class="app-info-company">CV Arkana Trisinergi</div>
         </div>
 
@@ -1320,15 +1322,16 @@
     return data;
   }
 
-  // ── Sync PINs from Sheet into localStorage (called on load) ──
+  // ── Sync PINs from Sheet — blocking before login ──
   async function syncPINsFromSheet() {
     try {
       const data = await api('getAll');
       const settings = data.db?.settings || {};
-      if (settings.pinArie) localStorage.setItem(PIN_KEY('arie'), settings.pinArie);
-      if (settings.pinAjin) localStorage.setItem(PIN_KEY('ajin'), settings.pinAjin);
+      // Only update if sheet has plain 4-digit PIN
+      if (settings.pinArie && settings.pinArie.length === 4) localStorage.setItem(PIN_KEY('arie'), settings.pinArie);
+      if (settings.pinAjin && settings.pinAjin.length === 4) localStorage.setItem(PIN_KEY('ajin'), settings.pinAjin);
     } catch(e) {
-      // Offline fallback — use localStorage PINs
+      // Offline — keep using localStorage PINs
       console.warn('PIN sync failed, using local:', e.message);
     }
   }
@@ -1411,7 +1414,7 @@
     loadAvatars();
     setHomeDate();
 
-    // Sync PINs from Sheet (in background, non-blocking)
+    // Always sync PINs from Sheet in background (covers cross-device PIN changes)
     syncPINsFromSheet();
 
     // Check existing session
@@ -1419,11 +1422,13 @@
     if (session) {
       const user = JSON.parse(session);
       if (USERS[user.id]) {
-        loginSuccess(user.id);
+        loginSuccess(user.id, false); // false = session restore, don't log
         return;
       }
     }
 
+    // No session — wait for PIN sync before showing login
+    await syncPINsFromSheet();
     showScreen('login');
   };
 
@@ -1493,7 +1498,7 @@
     if (pinBuffer.length < 4) return;
     const stored = localStorage.getItem(PIN_KEY(selectedUser));
     if (pinBuffer === stored) {
-      loginSuccess(selectedUser);
+      loginSuccess(selectedUser, true);
     } else {
       // Error
       const section = document.getElementById('pin-section');
@@ -1513,7 +1518,7 @@
     }
   }
 
-  function loginSuccess(userId) {
+  function loginSuccess(userId, fromPin = false) {
     const user = USERS[userId];
     localStorage.setItem(SESSION_KEY, JSON.stringify({ id: userId, name: user.name }));
 
@@ -1523,7 +1528,10 @@
     updateStripAvatar(userId, photoUrl);
     document.getElementById('strip-name').textContent = user.name;
 
-    logActivity(userId, 'Login', `${user.name} masuk ke Arkana App`);
+    // Only log login when coming from actual PIN entry, not session restore
+    if (fromPin) {
+      logActivity(userId, 'Login', `${user.name} masuk ke Arkana App`);
+    }
     showScreen('home');
     pinBuffer = '';
     updatePinDots('dot', pinBuffer);
@@ -1724,15 +1732,17 @@
   window.navTo = async function(id) {
     origNavTo(id);
     if (id === 'aktivitas') {
-      renderActivityLog(); // show local first
+      renderActivityLog(); // show local cache first
       try {
         const data = await api('getLogs');
         if (data.logs) {
-          // Merge Sheet logs with local, deduplicate by time+action
+          // Map Sheet logs to local format
+          // Sheet log has: { timestamp, action, detail, user } where user = display name
+          const nameToId = {};
+          Object.entries(USERS).forEach(([id, u]) => { nameToId[u.name] = id; });
+
           const sheetLogs = data.logs.map(l => ({
-            userId: Object.values(USERS).find(u => u.name === l.user)?.name === l.user
-              ? Object.keys(USERS).find(k => USERS[k].name === l.user)
-              : l.user,
+            userId: nameToId[l.user] || l.user,
             action: l.action,
             detail: l.detail,
             time: l.timestamp
@@ -1740,7 +1750,7 @@
           localStorage.setItem(LOG_KEY, JSON.stringify(sheetLogs));
           renderActivityLog();
         }
-      } catch(e) { /* offline, show local */ }
+      } catch(e) { /* offline, keep showing local */ }
     }
   };
 </script>

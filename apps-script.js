@@ -19,14 +19,14 @@ const TABS = {
 // ─────────────────────────────────────────
 function doPost(e) {
   try {
-    const params = new URLSearchParams(e.queryString);
-    const action = params.get('action');
+    const action = e.parameter.action;
     const body = JSON.parse(e.postData.contents);
 
     let result;
 
     switch(action) {
       case 'getAll':       result = getAll(); break;
+      case 'getLogs':      result = getLogs(); break;
       case 'addSupplier':  result = addSupplier(body); break;
       case 'updateSupplier': result = updateSupplier(body); break;
       case 'deleteSupplier': result = deleteSupplier(body.id); break;
@@ -49,6 +49,24 @@ function doPost(e) {
       .createTextOutput(JSON.stringify({ ok: false, error: err.message }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// ─────────────────────────────────────────
+// GET LOGS
+// ─────────────────────────────────────────
+function getLogs() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName(TABS.log);
+  if (!sheet || sheet.getLastRow() < 2) return { ok: true, logs: [] };
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const logs = data.slice(1).reverse().slice(0, 100).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = row[i]; });
+    return obj;
+  });
+  return { ok: true, logs };
 }
 
 // ─────────────────────────────────────────
@@ -77,7 +95,7 @@ function getAll() {
 
   return {
     ok: true,
-    db: { suppliers, products, priceEntries, units: settings.units }
+    db: { suppliers, products, priceEntries, units: settings.units, settings }
   };
 }
 
@@ -89,13 +107,12 @@ function addSupplier(data) {
   const sheet = ss.getSheetByName(TABS.suppliers);
 
   sheet.appendRow([
-    data.id, data.name, data.kontak || '', data.kota || '',
+    data.id, data.name, String(data.kontak || ''), data.kota || '',
     data.level, JSON.stringify(data.units || []),
     data.authorized ? 'TRUE' : 'FALSE',
     data.catatan || '', data.createdBy, data.createdAt
   ]);
 
-  addLog({ action: 'Tambah Supplier', detail: `${data.user} menambah supplier: ${data.name}` });
   return { ok: true };
 }
 
@@ -106,13 +123,12 @@ function updateSupplier(data) {
   if (rowIdx < 0) return { ok: false, error: 'Supplier tidak ditemukan' };
 
   sheet.getRange(rowIdx, 1, 1, 10).setValues([[
-    data.id, data.name, data.kontak || '', data.kota || '',
+    data.id, data.name, String(data.kontak || ''), data.kota || '',
     data.level, JSON.stringify(data.units || []),
     data.authorized ? 'TRUE' : 'FALSE',
     data.catatan || '', data.createdBy, data.createdAt
   ]]);
 
-  addLog({ action: 'Edit Supplier', detail: `${data.user} mengedit supplier: ${data.name}` });
   return { ok: true };
 }
 
@@ -143,7 +159,6 @@ function addProduct(body) {
     addPrice(body.price);
   }
 
-  addLog({ action: 'Tambah Produk', detail: `${body.user} menambah produk: ${data.name}` });
   return { ok: true };
 }
 
@@ -160,7 +175,6 @@ function updateProduct(body) {
     data.createdBy, data.createdAt
   ]]);
 
-  addLog({ action: 'Edit Produk', detail: `${body.user} mengedit produk: ${data.name}` });
   return { ok: true };
 }
 
@@ -232,18 +246,21 @@ function updateSettings(data) {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const sheet = ss.getSheetByName(TABS.settings);
 
-  // Find or create row for each key
   const keys = Object.keys(data).filter(k => k !== 'user');
   keys.forEach(key => {
     const vals = sheet.getDataRange().getValues();
+    // Force string storage for PIN fields to preserve leading zeros
+    const value = (key === 'pinArie' || key === 'pinAjin')
+      ? String(data[key]).padStart(4, '0')
+      : data[key];
     let found = false;
     for (let i = 1; i < vals.length; i++) {
       if (vals[i][0] === key) {
-        sheet.getRange(i+1, 2).setValue(data[key]);
+        sheet.getRange(i+1, 2).setValue(value);
         found = true; break;
       }
     }
-    if (!found) sheet.appendRow([key, data[key]]);
+    if (!found) sheet.appendRow([key, value]);
   });
 
   return { ok: true };
@@ -273,11 +290,16 @@ function ensureSheets(ss) {
       sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
       sheet.setFrozenRows(1);
 
-      // Add default units to settings
+      // Force text format on kontak column (col 3) to preserve leading zeros
+      if (name === TABS.suppliers) {
+        sheet.getRange('C:C').setNumberFormat('@');
+      }
+
+      // Add default data to settings
       if (name === TABS.settings) {
         sheet.appendRow(['units', JSON.stringify(defaultUnits())]);
-        sheet.appendRow(['pinArie', '03ac674216f3e15c761ee1a5e255f067d9f7bff2']); // SHA1 of 1234
-        sheet.appendRow(['pinAjin',  '03ac674216f3e15c761ee1a5e255f067d9f7bff2']);
+        sheet.appendRow(['pinArie', '1234']);
+        sheet.appendRow(['pinAjin', '1234']);
       }
     }
   });
