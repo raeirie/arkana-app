@@ -99,6 +99,12 @@ function getAll() {
   suppliers.forEach(s => {
     try { s.units = JSON.parse(s.units || '[]'); } catch { s.units = []; }
     s.authorized = s.authorized === 'TRUE' || s.authorized === true;
+    // Strip apostrophe prefix from kontak (used to force text format in Sheets)
+    if (s.kontak && String(s.kontak).startsWith("'")) {
+      s.kontak = String(s.kontak).substring(1);
+    } else {
+      s.kontak = String(s.kontak || '');
+    }
   });
 
   // Parse moq as number
@@ -119,19 +125,14 @@ function getAll() {
 function addSupplier(data) {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const sheet = ss.getSheetByName(TABS.suppliers);
-
-  // Use getLastRow + setValues instead of appendRow
-  // appendRow commits value before Table column format applies — loses leading zeros
-  // setValues respects existing column text format set in the Table
   const newRow = sheet.getLastRow() + 1;
   const rowData = [
-    data.id, data.name, data.kontak || '', data.kota || '',
+    data.id, data.name, "'" + (data.kontak || ''), data.kota || '',
     data.level, JSON.stringify(data.units || []),
     data.authorized ? 'TRUE' : 'FALSE',
     data.catatan || '', data.createdBy, data.createdAt
   ];
   sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
-
   return { ok: true };
 }
 
@@ -142,12 +143,11 @@ function updateSupplier(data) {
   if (rowIdx < 0) return { ok: false, error: 'Supplier tidak ditemukan: ' + data.id };
 
   const rowData = [
-    data.id, data.name, data.kontak || '', data.kota || '',
+    data.id, data.name, "'" + (data.kontak || ''), data.kota || '',
     data.level, JSON.stringify(data.units || []),
     data.authorized ? 'TRUE' : 'FALSE',
     data.catatan || '', data.createdBy, data.createdAt
   ];
-
   sheet.getRange(rowIdx, 1, 1, rowData.length).setValues([rowData]);
   return { ok: true };
 }
