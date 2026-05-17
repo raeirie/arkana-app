@@ -120,9 +120,6 @@ function addSupplier(data) {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const sheet = ss.getSheetByName(TABS.suppliers);
 
-  // Set entire column C to text format BEFORE appending — prevents leading zero strip
-  sheet.getRange('C:C').setNumberFormat('@');
-
   sheet.appendRow([
     data.id, data.name, data.kontak || '', data.kota || '',
     data.level, JSON.stringify(data.units || []),
@@ -146,11 +143,7 @@ function updateSupplier(data) {
     data.catatan || '', data.createdBy, data.createdAt
   ];
 
-  // Write data first, then force text format on kontak cell only
   sheet.getRange(rowIdx, 1, 1, rowData.length).setValues([rowData]);
-  sheet.getRange(rowIdx, 3).setNumberFormat('@');
-  sheet.getRange(rowIdx, 3).setValue(data.kontak || '');
-
   return { ok: true };
 }
 
@@ -320,11 +313,6 @@ function ensureSheets(ss) {
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
       sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
       sheet.setFrozenRows(1);
-
-      // Force text format on kontak column (col 3) to preserve leading zeros
-      if (name === TABS.suppliers) {
-        sheet.getRange('C:C').setNumberFormat('@');
-      }
 
       // Add default data to settings
       if (name === TABS.settings) {
