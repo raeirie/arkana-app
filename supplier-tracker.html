@@ -700,6 +700,18 @@
   </div>
 </div>
 
+<!-- ══ JASA DETAIL SHEET ══ -->
+<div class="overlay" id="overlay-jasa-detail">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="jasa-detail-title">Detail Jasa</div>
+    <div class="sheet-sub" id="jasa-detail-count"></div>
+    <div id="jasa-detail-content" style="margin:16px 0;display:flex;flex-direction:column;gap:8px;"></div>
+    <button class="btn btn-primary" id="jasa-detail-add-btn" style="margin-bottom:8px;">+ Tambah Penyedia Lain</button>
+    <button class="btn btn-secondary" onclick="closeSheet('overlay-jasa-detail')">Tutup</button>
+  </div>
+</div>
+
 <!-- ══ ADD JASA ENTRY SHEET ══ -->
 <div class="overlay" id="overlay-jasa">
   <div class="sheet">
@@ -1019,7 +1031,7 @@ function renderCompare() {
     }).join('');
 
     return `
-    <div class="compare-card">
+    <div class="compare-card" onclick="openProductDetail('${p.id}')">
       <div class="compare-name">${p.name}</div>
       <div class="compare-cat">${p.category||''} · ${p.satuan||'pcs'}</div>
       <div class="compare-suppliers">${rows}</div>
@@ -1089,17 +1101,69 @@ function renderJasa() {
     }).join('');
 
     return `
-    <div class="jasa-card">
+    <div class="jasa-card" onclick="openJasaDetail('${encodeURIComponent(g.name)}')">
       <div class="jasa-card-header">
         <div class="jasa-card-name">${g.name}</div>
         <div class="jasa-card-count">${g.entries.length} penyedia</div>
       </div>
       <div class="jasa-best-rate">Rp ${fmtNum(best.harga)}/${best.satuan||'project'}</div>
       <div class="jasa-best-supplier">${bestSup?.name||'?'}</div>
-      ${g.entries.length > 1 ? `<div style="margin-top:10px;">${rows}</div>` : ''}
-      ${g.entries.length === 1 ? `<div style="margin-top:8px;">${rows}</div>` : ''}
     </div>`;
   }).join('');
+}
+
+// ─────────────────────────────────────────
+// JASA DETAIL SHEET
+// ─────────────────────────────────────────
+function openJasaDetail(encodedName) {
+  const namaJasa = decodeURIComponent(encodedName);
+  const entries = DB.priceEntries.filter(e =>
+    (e.type === 'jasa' || e.namaJasa) &&
+    (e.namaJasa||'').trim().toLowerCase() === namaJasa.trim().toLowerCase()
+  ).sort((a,b) => a.harga - b.harga);
+
+  const bestPrice = entries[0]?.harga;
+
+  document.getElementById('jasa-detail-title').textContent = namaJasa;
+  document.getElementById('jasa-detail-count').textContent = `${entries.length} penyedia jasa`;
+
+  document.getElementById('jasa-detail-content').innerHTML = entries.map(e => {
+    const sup = DB.suppliers.find(s => s.id === e.supplierId);
+    const isBest = e.harga === bestPrice;
+    return `
+    <div class="detail-card" style="${isBest?'border-color:rgba(139,92,246,.35);':''}">
+      <div class="price-entry-row">
+        <div>
+          <div class="price-entry-name">${sup?.name||'?'}
+            <span class="level-badge ${sup?.level==='Jasa'?'jasa':(sup?.level||'').toLowerCase()}" style="font-size:9px">${sup?.level==='Jasa'?'🔧':(sup?.level||'')}</span>
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">${sup?.kota||''}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="price-entry-price" style="color:${isBest?'var(--purple)':'var(--text)'}">Rp ${fmtNum(e.harga)}</div>
+          <div style="font-size:10px;color:var(--muted);">${e.satuan||'per project'}</div>
+          ${isBest?'<div style="font-size:9px;color:var(--purple);">Terbaik</div>':''}
+        </div>
+      </div>
+      ${e.catatan?`<div class="price-entry-meta" style="margin-top:6px;">${e.catatan}</div>`:''}
+      <div class="price-entry-moq" style="margin-top:6px;">
+        Update: ${fmtDate(e.updatedAt)} · ${e.updatedBy}
+        <span style="margin-left:8px;cursor:pointer;color:var(--red);font-size:10px;"
+          onclick="event.stopPropagation();closeSheet('overlay-jasa-detail');confirmDeletePrice('${e.id}')">Hapus</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Add button pre-fills namaJasa
+  document.getElementById('jasa-detail-add-btn').onclick = () => {
+    closeSheet('overlay-jasa-detail');
+    openAddJasa(null);
+    setTimeout(() => {
+      document.getElementById('f-jasa-nama').value = namaJasa;
+    }, 100);
+  };
+
+  openSheet('overlay-jasa-detail');
 }
 
 function populateSupplierDropdowns() {
