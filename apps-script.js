@@ -119,18 +119,16 @@ function getAll() {
 function addSupplier(data) {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const sheet = ss.getSheetByName(TABS.suppliers);
-  const rowData = [
+
+  // Set entire column C to text format BEFORE appending — prevents leading zero strip
+  sheet.getRange('C:C').setNumberFormat('@');
+
+  sheet.appendRow([
     data.id, data.name, data.kontak || '', data.kota || '',
     data.level, JSON.stringify(data.units || []),
     data.authorized ? 'TRUE' : 'FALSE',
     data.catatan || '', data.createdBy, data.createdAt
-  ];
-
-  // Append row first, then fix kontak cell format
-  sheet.appendRow(rowData);
-  const newRow = sheet.getLastRow();
-  sheet.getRange(newRow, 3).setNumberFormat('@');
-  sheet.getRange(newRow, 3).setValue(data.kontak || '');
+  ]);
 
   return { ok: true };
 }

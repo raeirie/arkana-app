@@ -1139,6 +1139,10 @@ async function saveSupplier() {
     }
     logActivity(editMode ? 'Edit Supplier' : 'Tambah Supplier', `${getUser().name} ${editMode?'mengedit':'menambah'} supplier: ${name}`);
     showToast(editMode ? 'Supplier diperbarui ✓' : 'Supplier ditambahkan ✓', 'success');
+    // Refresh detail screen if we just edited (user is still on detail screen)
+    if (editMode && currentSupplierId) {
+      openSupplierDetail(currentSupplierId);
+    }
   } catch(e) {
     showToast('Gagal: ' + e.message, 'error');
   } finally { hideLoading(); }

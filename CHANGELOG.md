@@ -2,6 +2,14 @@
 
 ---
 
+## v1.1.6 — Add Supplier Phone Fix & Detail Refresh
+**Files:** `config.js`, `supplier-tracker.html`, `apps-script.js`
+
+- fix: New supplier phone leading zero stripped — set entire column C to text format BEFORE appendRow (idempotent, covers all future rows)
+- fix: Supplier detail screen not refreshing after edit — now calls openSupplierDetail() after successful save
+
+---
+
 ## v1.1.5 — Edit Supplier Fix & Filter Improvement
 **Files:** `config.js`, `supplier-tracker.html`, `apps-script.js`
 

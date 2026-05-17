@@ -4,5 +4,5 @@
 // Update APP_VERSION setiap kali ada update
 // ═══════════════════════════════════════════════════════════
 
-const ARKANA_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby4CyNIExqCmZw5SPB_NjPxlIjuZvOD78Nt_sufAe6dU2JUcCHOOI3XM_Rf77B8iaT5-g/exec';
-const APP_VERSION = 'v1.1.5';
+const ARKANA_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0zpcQ3reO7ln0R5M3uDA_8GYKmtJV7i2iI3e7ji5QsppYYxE06o_bsYXwOwHAsGEa/exec';
+const APP_VERSION = 'v1.1.6';
