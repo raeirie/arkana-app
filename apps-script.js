@@ -99,12 +99,7 @@ function getAll() {
   suppliers.forEach(s => {
     try { s.units = JSON.parse(s.units || '[]'); } catch { s.units = []; }
     s.authorized = s.authorized === 'TRUE' || s.authorized === true;
-    // Strip apostrophe prefix from kontak (used to force text format in Sheets)
-    if (s.kontak && String(s.kontak).startsWith("'")) {
-      s.kontak = String(s.kontak).substring(1);
-    } else {
-      s.kontak = String(s.kontak || '');
-    }
+    s.kontak = String(s.kontak || '');
   });
 
   // Parse moq as number
@@ -126,8 +121,12 @@ function addSupplier(data) {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const sheet = ss.getSheetByName(TABS.suppliers);
   const newRow = sheet.getLastRow() + 1;
+
+  // Set kontak cell to plain text BEFORE writing — preserves leading zeros
+  sheet.getRange(newRow, 3).setNumberFormat('@');
+
   const rowData = [
-    data.id, data.name, "'" + (data.kontak || ''), data.kota || '',
+    data.id, data.name, data.kontak || '', data.kota || '',
     data.level, JSON.stringify(data.units || []),
     data.authorized ? 'TRUE' : 'FALSE',
     data.catatan || '', data.createdBy, data.createdAt
@@ -142,8 +141,11 @@ function updateSupplier(data) {
   const rowIdx = findRow(sheet, data.id);
   if (rowIdx < 0) return { ok: false, error: 'Supplier tidak ditemukan: ' + data.id };
 
+  // Set kontak cell to plain text BEFORE writing — preserves leading zeros
+  sheet.getRange(rowIdx, 3).setNumberFormat('@');
+
   const rowData = [
-    data.id, data.name, "'" + (data.kontak || ''), data.kota || '',
+    data.id, data.name, data.kontak || '', data.kota || '',
     data.level, JSON.stringify(data.units || []),
     data.authorized ? 'TRUE' : 'FALSE',
     data.catatan || '', data.createdBy, data.createdAt
