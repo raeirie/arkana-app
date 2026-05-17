@@ -472,7 +472,7 @@
       <div class="tab active" id="tab-suppliers" onclick="switchTab('suppliers')">Supplier</div>
       <div class="tab" id="tab-products" onclick="switchTab('products')">Produk</div>
       <div class="tab" id="tab-jasa" onclick="switchTab('jasa')">Jasa</div>
-      <div class="tab" id="tab-compare" onclick="switchTab('compare')">Compare</div>
+      <div class="tab" id="tab-compare" onclick="switchTab('compare')">Komparasi</div>
     </div>
 
     <!-- Suppliers Tab -->
@@ -1616,6 +1616,7 @@ function setCityFilter(el, city) {
 function openAddSheet() {
   if (currentTab === 'suppliers') openAddSupplier();
   else if (currentTab === 'products') openAddProduct();
+  else if (currentTab === 'jasa') openAddJasa(null);
 }
 
 function toggleChip(el) { el.classList.toggle('selected'); }
