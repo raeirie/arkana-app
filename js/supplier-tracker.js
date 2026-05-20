@@ -956,13 +956,14 @@ const SupplierTracker = (() => {
   // ─────────────────────────────────────────
   // ADD / EDIT PRODUCT
   // ─────────────────────────────────────────
-  function openAddProduct() {
+  function openAddProduct(supplierId) {
     editMode = false;
     currentProductId = null;
     document.getElementById('sheet-product-title').textContent = 'Tambah Produk';
-    clearForm(['f-product-name','f-product-category','f-product-catatan','f-price-harga','f-price-moq']);
-    document.getElementById('f-product-satuan').value        = 'pcs';
-    document.getElementById('f-price-supplier').value        = '';
+    clearForm(['f-product-name','f-product-category','f-product-catatan','f-price-moq']);
+    document.getElementById('f-product-satuan').value          = 'pcs';
+    document.getElementById('f-price-supplier').value          = supplierId || '';
+    document.getElementById('f-price-harga').value             = '';
     document.getElementById('price-entry-group').style.display = '';
     openSheet('overlay-product');
   }
@@ -1001,7 +1002,7 @@ const SupplierTracker = (() => {
     if (!editMode && supplierId && hargaVal) {
       pricePayload = {
         id: genId(), productId: payload.id, supplierId,
-        harga: parseFloat(hargaVal), moq: moqVal ? parseInt(moqVal) : null,
+        harga: parseRp(hargaVal), moq: moqVal ? parseInt(moqVal) : null,
         catatan: '', updatedBy: getUser().name, updatedAt: new Date().toISOString()
       };
     }
@@ -1029,6 +1030,7 @@ const SupplierTracker = (() => {
       );
       showToast(editMode ? 'Produk diperbarui ✓' : 'Produk ditambahkan ✓', 'success');
       if (editMode && currentProductId) openProductDetail(currentProductId);
+      else if (!editMode && currentSupplierId) openSupplierDetail(currentSupplierId);
     } catch (e) {
       showToast('Gagal: ' + e.message, 'error');
     } finally { hideLoading(); }
@@ -1115,7 +1117,7 @@ const SupplierTracker = (() => {
     if (supplierId && hargaVal) {
       pricePayload = {
         id: genId(), productId: productPayload.id, supplierId,
-        harga: parseFloat(hargaVal),
+        harga: parseRp(hargaVal),
         satuan: productPayload.satuan,
         catatan: '', updatedBy: getUser().name, updatedAt: new Date().toISOString()
       };
@@ -1246,7 +1248,7 @@ const SupplierTracker = (() => {
       `${p.name} · ${DB.suppliers.find(s => s.id === e.supplierId)?.name || ''}`;
     document.getElementById('f-pe-supplier').value   = e.supplierId;
     document.getElementById('f-pe-supplier').disabled = true;
-    document.getElementById('f-pe-harga').value  = e.harga;
+    document.getElementById('f-pe-harga').value  = e.harga ? formatRp(String(e.harga)) : '';
     document.getElementById('f-pe-moq').value    = e.moq   || '';
     document.getElementById('f-pe-catatan').value = e.catatan || '';
     document.getElementById('pe-satuan-group').style.display = 'none';
@@ -1267,7 +1269,7 @@ const SupplierTracker = (() => {
 
     const payload = {
       id: genId(), productId: priceEntryProductId, supplierId,
-      harga: parseFloat(hargaVal),
+      harga: parseRp(hargaVal),
       moq:   document.getElementById('f-pe-moq').value ? parseInt(document.getElementById('f-pe-moq').value) : null,
       catatan: document.getElementById('f-pe-catatan').value.trim(),
       updatedBy: getUser().name, updatedAt: new Date().toISOString()
@@ -1293,10 +1295,10 @@ const SupplierTracker = (() => {
 
     const oldEntry = DB.priceEntries.find(x => x.id === updatePriceEntryId);
     const payload  = {
-      id: genId(), // new row — old row stays as history
+      id: genId(),
       productId:  updatePriceProductId,
       supplierId: oldEntry.supplierId,
-      harga:      parseFloat(hargaVal),
+      harga:      parseRp(hargaVal),
       moq:        document.getElementById('f-pe-moq').value ? parseInt(document.getElementById('f-pe-moq').value) : null,
       catatan:    document.getElementById('f-pe-catatan').value.trim(),
       updatedBy:  getUser().name,
@@ -1447,7 +1449,7 @@ const SupplierTracker = (() => {
       const jasaCard = e.target.closest('.js-open-jasa-detail');
       if (jasaCard) { openJasaDetail(jasaCard.dataset.id); return; }
       const addPrice = e.target.closest('.js-add-price-for-supplier');
-      if (addPrice) { openAddProduct(); return; }
+      if (addPrice) { openAddProduct(currentSupplierId); return; }
       const addJasa  = e.target.closest('.js-add-jasa-for-supplier');
       if (addJasa)  { openAddJasa(addJasa.dataset.id); return; }
     });
@@ -1565,6 +1567,9 @@ const SupplierTracker = (() => {
 
     // ── Contact overlay ──
     document.getElementById('btn-close-contact').addEventListener('click', () => closeSheet('overlay-supplier-contact'));
+
+    // ── Rp currency formatting on all money inputs ──
+    bindRpInputs('f-price-harga', 'f-pe-harga', 'f-jasa-harga');
 
     // ── Overlay background tap to close ──
     document.querySelectorAll('.overlay').forEach(o => {

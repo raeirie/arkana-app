@@ -83,8 +83,53 @@ function clearForm(ids) {
 }
 
 // ─────────────────────────────────────────
-// PIN DOT HELPERS  (used by index.js)
+// CURRENCY INPUT HELPERS
+// Frontend display only — data sent to API always uses parseRp().
 // ─────────────────────────────────────────
+
+/**
+ * Formats a raw number string into "Rp 1.500.000" display format.
+ */
+function formatRp(raw) {
+  const digits = raw.replace(/\D/g, '');
+  if (!digits) return '';
+  return 'Rp ' + Number(digits).toLocaleString('id-ID');
+}
+
+/**
+ * Strips "Rp " prefix and thousand separators, returns plain float.
+ * Use this before sending any money value to the API.
+ */
+function parseRp(val) {
+  return parseFloat(String(val).replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+}
+
+/**
+ * Attaches Rp live-formatting to one or more input elements by ID.
+ * Switches input type to 'text' automatically.
+ */
+function bindRpInputs(...ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.type = 'text';
+    el.inputMode = 'numeric';
+    el.addEventListener('input', () => {
+      const pos = el.selectionStart;
+      const prev = el.value.length;
+      el.value = formatRp(el.value);
+      // Keep cursor roughly in place after reformatting
+      const diff = el.value.length - prev;
+      el.setSelectionRange(pos + diff, pos + diff);
+    });
+    el.addEventListener('focus', () => {
+      if (!el.value) el.value = 'Rp ';
+    });
+    el.addEventListener('blur', () => {
+      if (el.value === 'Rp ' || el.value === 'Rp') el.value = '';
+    });
+  });
+}
 
 function updatePinDots(dotsId, len) {
   document.querySelectorAll(`#${dotsId} .pin-dot`).forEach((dot, i) => {
