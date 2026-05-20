@@ -1028,6 +1028,7 @@ const SupplierTracker = (() => {
         `${getUser().name} ${editMode ? 'mengedit' : 'menambah'} produk: ${name}`
       );
       showToast(editMode ? 'Produk diperbarui ✓' : 'Produk ditambahkan ✓', 'success');
+      if (editMode && currentProductId) openProductDetail(currentProductId);
     } catch (e) {
       showToast('Gagal: ' + e.message, 'error');
     } finally { hideLoading(); }
@@ -1446,17 +1447,14 @@ const SupplierTracker = (() => {
       const jasaCard = e.target.closest('.js-open-jasa-detail');
       if (jasaCard) { openJasaDetail(jasaCard.dataset.id); return; }
       const addPrice = e.target.closest('.js-add-price-for-supplier');
-      if (addPrice) { openAddPrice(null); return; } // opens sheet; supplier pre-fills from context
+      if (addPrice) { openAddProduct(); return; }
       const addJasa  = e.target.closest('.js-add-jasa-for-supplier');
       if (addJasa)  { openAddJasa(addJasa.dataset.id); return; }
     });
 
     // ── Product detail content (delegation) ──
     document.getElementById('product-detail-content').addEventListener('click', e => {
-      if (e.target.closest('.js-open-supplier-contact')) {
-        const el = e.target.closest('.js-open-supplier-contact');
-        openSupplierContact(el.dataset.id); return;
-      }
+      // Check specific targets FIRST — supplier contact is the fallback (entire card)
       const toggle = e.target.closest('.js-toggle-history');
       if (toggle) {
         e.stopPropagation();
@@ -1479,14 +1477,14 @@ const SupplierTracker = (() => {
       }
       const addPrice = e.target.closest('.js-add-price');
       if (addPrice) { openAddPrice(addPrice.dataset.id); return; }
+      // Supplier contact last — matches the whole card, only if nothing else matched
+      const contactCard = e.target.closest('.js-open-supplier-contact');
+      if (contactCard) { openSupplierContact(contactCard.dataset.id); return; }
     });
 
     // ── Jasa detail content (delegation — mirrors product detail) ──
     document.getElementById('jasa-detail-content').addEventListener('click', e => {
-      if (e.target.closest('.js-open-supplier-contact')) {
-        const el = e.target.closest('.js-open-supplier-contact');
-        openSupplierContact(el.dataset.id); return;
-      }
+      // Check specific targets FIRST — supplier contact is the fallback (entire card)
       const toggle = e.target.closest('.js-toggle-history');
       if (toggle) {
         e.stopPropagation();
@@ -1509,6 +1507,9 @@ const SupplierTracker = (() => {
       }
       const addJasaPrice = e.target.closest('.js-add-price-for-jasa');
       if (addJasaPrice) { openAddPriceForJasa(addJasaPrice.dataset.id); return; }
+      // Supplier contact last — fallback for tapping the card body
+      const contactCard = e.target.closest('.js-open-supplier-contact');
+      if (contactCard) { openSupplierContact(contactCard.dataset.id); return; }
     });
 
     // ── Back buttons (static) ──
