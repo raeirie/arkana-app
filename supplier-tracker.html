@@ -8,625 +8,112 @@
 <meta name="theme-color" content="#080B12">
 <title>Supplier & Price — Arkana App</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="config.js"></script>
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
-
-  input, textarea { user-select:text; -webkit-user-select:text; }
-
-  :root {
-    --bg:#080B12; --surface:#0F1320; --surface2:#161C2E;
-    --border:#1E2640; --border2:#2A3352;
-    --accent:#3B82F6; --accent2:#6366F1;
-    --green:#10B981; --orange:#F59E0B; --red:#EF4444; --purple:#8B5CF6;
-    --l1:#F59E0B; --l2:#3B82F6; --l3:#10B981; --l4:#6B7280;
-    --muted:#4B5680; --text:#F0F2FA; --text2:#8B93B4; --text3:#4B5680;
-  }
-
-  html,body { height:100%; overflow:hidden; background:var(--bg); font-family:'Plus Jakarta Sans',sans-serif; color:var(--text); }
-
-  #app { height:100%; display:flex; flex-direction:column; max-width:480px; margin:0 auto; position:relative; overflow:hidden; }
-
-  /* ── Screens ── */
-  .screen { position:absolute; inset:0; display:flex; flex-direction:column; opacity:0; pointer-events:none; transition:opacity .25s,transform .25s; transform:translateX(30px); }
-  .screen.active { opacity:1; pointer-events:all; transform:translateX(0); }
-  .screen.prev { transform:translateX(-30px); opacity:0; }
-
-  /* ── Top bar ── */
-  .topbar {
-    padding: max(env(safe-area-inset-top),44px) 18px 12px;
-    flex-shrink:0; display:flex; align-items:center; gap:12px;
-    background:var(--bg); border-bottom:1px solid var(--border);
-    position:relative; z-index:10;
-  }
-
-  .back-btn {
-    width:34px; height:34px; border-radius:10px;
-    background:var(--surface); border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center;
-    font-size:16px; cursor:pointer; flex-shrink:0;
-    text-decoration:none; color:var(--text2);
-  }
-
-  .topbar-title { font-size:17px; font-weight:800; color:var(--text); flex:1; letter-spacing:-0.01em; }
-  .topbar-sub { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); }
-
-  .topbar-action {
-    width:34px; height:34px; border-radius:10px;
-    background:var(--accent); border:none;
-    display:flex; align-items:center; justify-content:center;
-    font-size:18px; cursor:pointer; flex-shrink:0; color:white;
-  }
-
-  /* ── Tab bar ── */
-  .tab-bar {
-    flex-shrink:0; display:flex;
-    background:var(--surface); border-bottom:1px solid var(--border);
-    position:relative; z-index:9;
-  }
-
-  .tab {
-    flex:1; padding:11px 4px 10px; text-align:center; cursor:pointer;
-    font-size:11px; font-weight:600; color:var(--text3);
-    letter-spacing:0.04em; position:relative; transition:color .2s;
-  }
-
-  .tab.active { color:var(--accent); }
-
-  .tab.active::after {
-    content:''; position:absolute; bottom:0; left:20%; right:20%;
-    height:2px; background:var(--accent); border-radius:2px;
-  }
-
-  /* ── Scrollable content ── */
-  .scroll-content {
-    flex:1; overflow-y:auto; scrollbar-width:none;
-    padding:14px 16px 80px;
-  }
-  .scroll-content::-webkit-scrollbar { display:none; }
-
-  /* ── Search bar ── */
-  .search-wrap { margin-bottom:14px; position:relative; }
-
-  .search-input {
-    width:100%; background:var(--surface); border:1.5px solid var(--border);
-    border-radius:12px; padding:11px 14px 11px 38px;
-    font-size:13px; color:var(--text); font-family:inherit;
-    outline:none; transition:border-color .2s;
-  }
-
-  .search-input:focus { border-color:var(--accent); }
-  .search-input::placeholder { color:var(--text3); }
-
-  .search-icon {
-    position:absolute; left:12px; top:50%; transform:translateY(-50%);
-    font-size:14px; pointer-events:none;
-  }
-
-  /* ── Filter chips ── */
-  .filter-row {
-    display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;
-    scrollbar-width:none; margin-bottom:14px;
-  }
-  .filter-row::-webkit-scrollbar { display:none; }
-
-  .chip {
-    flex-shrink:0; background:var(--surface); border:1.5px solid var(--border);
-    border-radius:20px; padding:6px 12px; font-size:11px; font-weight:600;
-    color:var(--text3); cursor:pointer; transition:all .15s; white-space:nowrap;
-  }
-
-  .chip.active { border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,0.08); }
-
-  /* ── Cards ── */
-  .card-list { display:flex; flex-direction:column; gap:10px; }
-
-  .supplier-card {
-    background:var(--surface); border:1.5px solid var(--border);
-    border-radius:14px; padding:14px 16px; cursor:pointer;
-    transition:border-color .2s;
-  }
-
-  .supplier-card:active { opacity:.85; }
-
-  .supplier-card-top { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
-
-  .supplier-initial {
-    width:40px; height:40px; border-radius:12px; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center;
-    font-size:14px; font-weight:800; color:white;
-    background:linear-gradient(135deg,#1D4ED8,#3B82F6);
-  }
-
-  .supplier-info { flex:1; min-width:0; }
-
-  .supplier-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
-  .supplier-meta { font-size:11px; color:var(--text3); }
-
-  .supplier-badges { display:flex; gap:6px; flex-wrap:wrap; }
-
-  .level-badge {
-    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:500;
-    padding:3px 8px; border-radius:20px; letter-spacing:.04em;
-  }
-
-  .l1 { background:rgba(245,158,11,.12); color:var(--l1); border:1px solid rgba(245,158,11,.2); }
-  .l2 { background:rgba(59,130,246,.12); color:var(--l2); border:1px solid rgba(59,130,246,.2); }
-  .l3 { background:rgba(16,185,129,.12); color:var(--l3); border:1px solid rgba(16,185,129,.2); }
-  .l4 { background:rgba(107,114,128,.12); color:var(--l4); border:1px solid rgba(107,114,128,.2); }
-  .jasa { background:rgba(139,92,246,.12); color:var(--purple); border:1px solid rgba(139,92,246,.2); }
-
-  .auth-badge {
-    font-size:10px; font-weight:600; padding:3px 8px; border-radius:20px;
-    background:rgba(16,185,129,.1); color:var(--green); border:1px solid rgba(16,185,129,.2);
-  }
-
-  .unit-badge {
-    font-size:10px; font-weight:500; padding:3px 8px; border-radius:20px;
-    background:rgba(79,127,255,.08); color:var(--accent); border:1px solid rgba(79,127,255,.15);
-  }
-
-  .stat-chip {
-    flex-shrink:0; background:var(--surface); border:1px solid var(--border);
-    border-radius:10px; padding:5px 12px; font-size:11px; font-weight:600;
-    color:var(--text2); white-space:nowrap;
-  }
-
-  .stat-chip span { color:var(--accent); font-family:'JetBrains Mono',monospace; }
-
-  /* ── Product cards ── */
-  .product-card {
-    background:var(--surface); border:1.5px solid var(--border);
-    border-radius:14px; padding:14px 16px; cursor:pointer; transition:border-color .2s;
-  }
-
-  .product-card:active { opacity:.85; }
-
-  .product-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
-
-  .product-name { font-size:14px; font-weight:700; color:var(--text); flex:1; margin-right:8px; line-height:1.3; }
-
-  .product-category {
-    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted);
-    background:var(--surface2); padding:3px 8px; border-radius:4px; white-space:nowrap;
-  }
-
-  .product-price-row { display:flex; justify-content:space-between; align-items:center; }
-
-  .product-best-price { font-size:15px; font-weight:700; color:var(--green); }
-
-  .product-supplier-count { font-size:11px; color:var(--text3); }
-
-  .product-updated { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); margin-top:4px; }
-
-  /* ── Compare cards ── */
-  .compare-card {
-    background:var(--surface); border:1.5px solid var(--border);
-    border-radius:14px; padding:14px 16px; cursor:pointer; transition:border-color .2s;
-  }
-
-  .compare-card:active { opacity:.85; }
-
-  .compare-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:4px; }
-  .compare-cat { font-size:11px; color:var(--text3); margin-bottom:10px; }
-
-  .compare-suppliers { display:flex; flex-direction:column; gap:6px; }
-
-  .compare-row {
-    display:flex; align-items:center; gap:8px; padding:8px 10px;
-    background:var(--surface2); border-radius:8px; position:relative;
-  }
-
-  .compare-row.best { border:1px solid rgba(16,185,129,.3); background:rgba(16,185,129,.05); }
-
-  .compare-supplier-name { flex:1; font-size:12px; font-weight:600; color:var(--text); }
-  .compare-price { font-size:13px; font-weight:700; color:var(--text); }
-  .compare-row.best .compare-price { color:var(--green); }
-  .best-label { font-size:9px; font-weight:700; color:var(--green); background:rgba(16,185,129,.12); padding:2px 6px; border-radius:10px; }
-
-  /* ── Jasa cards ── */
-  .jasa-card {
-    background:var(--surface); border:1.5px solid var(--border);
-    border-radius:14px; padding:14px 16px; cursor:pointer; transition:border-color .2s;
-  }
-  .jasa-card:active { opacity:.85; }
-  .jasa-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; }
-  .jasa-card-name { font-size:14px; font-weight:700; color:var(--text); flex:1; margin-right:8px; line-height:1.3; }
-  .jasa-card-count { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); white-space:nowrap; }
-  .jasa-best-rate { font-size:15px; font-weight:700; color:var(--purple); margin-bottom:2px; }
-  .jasa-best-supplier { font-size:11px; color:var(--text3); }
-
-  /* Jasa compare rows */
-  .jasa-compare-row {
-    display:flex; align-items:center; gap:8px; padding:8px 10px;
-    background:var(--surface2); border-radius:8px; margin-bottom:6px;
-  }
-  .jasa-compare-row.best { border:1px solid rgba(139,92,246,.3); background:rgba(139,92,246,.05); }
-  .jasa-compare-row.best .jasa-compare-rate { color:var(--purple); }
-  .jasa-compare-supplier { flex:1; font-size:12px; font-weight:600; color:var(--text); }
-  .jasa-compare-rate { font-size:13px; font-weight:700; color:var(--text); }
-  .jasa-best-label { font-size:9px; font-weight:700; color:var(--purple); background:rgba(139,92,246,.12); padding:2px 6px; border-radius:10px; }
-
-  /* ── Empty state ── */
-  .empty-state {
-    display:flex; flex-direction:column; align-items:center;
-    justify-content:center; padding:60px 20px; gap:12px; text-align:center;
-  }
-
-  .empty-icon { font-size:40px; opacity:.3; }
-  .empty-text { font-size:13px; color:var(--text3); line-height:1.6; }
-  .empty-btn {
-    margin-top:8px; background:var(--accent); border:none; border-radius:12px;
-    padding:10px 20px; font-size:13px; font-weight:700; color:white;
-    cursor:pointer; font-family:inherit;
-  }
-
-  /* ── FAB ── */
-  .fab {
-    position:fixed; bottom:24px; right:max(calc(50% - 240px + 16px), 16px);
-    width:52px; height:52px; border-radius:16px;
-    background:var(--accent); border:none; color:white;
-    font-size:22px; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; box-shadow:0 8px 24px rgba(59,130,246,.4);
-    z-index:50; transition:transform .15s;
-  }
-
-  .fab:active { transform:scale(.93); }
-
-  /* ── Bottom nav ── */
-  .bottom-nav {
-    flex-shrink:0; background:var(--surface); border-top:1px solid var(--border);
-    display:flex; padding:10px 0 max(env(safe-area-inset-bottom),10px);
-    position:relative; z-index:10;
-  }
-
-  .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; padding:4px 0; }
-  .nav-item:active { opacity:.7; }
-  .nav-icon { font-size:20px; line-height:1; }
-  .nav-label { font-size:9px; font-weight:600; color:var(--text3); letter-spacing:.06em; text-transform:uppercase; }
-  .nav-item.active .nav-label { color:var(--accent); }
-  .nav-indicator { width:4px; height:4px; border-radius:50%; background:transparent; margin-top:1px; }
-  .nav-item.active .nav-indicator { background:var(--accent); }
-
-  /* ── Modal / Bottom Sheet ── */
-  .overlay {
-    position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:100;
-    opacity:0; pointer-events:none; transition:opacity .3s;
-  }
-
-  .overlay.active { opacity:1; pointer-events:all; }
-
-  .sheet {
-    position:fixed; bottom:0; left:50%; transform:translateX(-50%) translateY(100%);
-    width:100%; max-width:480px; background:var(--surface);
-    border:1px solid var(--border); border-radius:24px 24px 0 0;
-    padding:20px 20px max(env(safe-area-inset-bottom),24px);
-    z-index:101; transition:transform .35s cubic-bezier(.32,.72,0,1);
-    max-height:90vh; overflow-y:auto; scrollbar-width:none;
-  }
-
-  .sheet::-webkit-scrollbar { display:none; }
-  .overlay.active .sheet { transform:translateX(-50%) translateY(0); }
-
-  .sheet-handle { width:36px; height:4px; background:var(--border2); border-radius:2px; margin:0 auto 18px; }
-
-  .sheet-title { font-size:18px; font-weight:800; color:var(--text); margin-bottom:4px; letter-spacing:-.01em; }
-  .sheet-sub { font-size:12px; color:var(--text3); margin-bottom:20px; }
-
-  /* ── Form fields ── */
-  .form-group { margin-bottom:14px; }
-
-  .form-label {
-    display:block; font-size:11px; font-weight:700; text-transform:uppercase;
-    letter-spacing:.1em; color:var(--text3); margin-bottom:6px;
-  }
-
-  .form-input, .form-select, .form-textarea {
-    width:100%; background:var(--surface2); border:1.5px solid var(--border);
-    border-radius:10px; padding:11px 14px; font-size:14px; color:var(--text);
-    font-family:inherit; outline:none; transition:border-color .2s;
-    -webkit-appearance:none; appearance:none;
-  }
-
-  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--accent); }
-  .form-input::placeholder, .form-textarea::placeholder { color:var(--text3); }
-
-  .form-textarea { resize:none; min-height:80px; line-height:1.5; }
-
-  .form-select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234B5680' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; }
-
-  .form-select option { background:#161C2E; }
-
-  /* Toggle */
-  .toggle-row { display:flex; justify-content:space-between; align-items:center; }
-  .toggle-label { font-size:14px; color:var(--text); }
-  .toggle { position:relative; width:44px; height:26px; }
-  .toggle input { display:none; }
-  .toggle-track {
-    position:absolute; inset:0; background:var(--border2);
-    border-radius:13px; cursor:pointer; transition:background .2s;
-  }
-  .toggle input:checked + .toggle-track { background:var(--accent); }
-  .toggle-thumb {
-    position:absolute; top:3px; left:3px; width:20px; height:20px;
-    background:white; border-radius:50%; transition:transform .2s; pointer-events:none;
-  }
-  .toggle input:checked ~ .toggle-thumb { transform:translateX(18px); }
-
-  /* Multi-select chips */
-  .multi-chips { display:flex; flex-wrap:wrap; gap:8px; }
-
-  .multi-chip {
-    background:var(--surface2); border:1.5px solid var(--border);
-    border-radius:20px; padding:7px 12px; font-size:12px; font-weight:600;
-    color:var(--text3); cursor:pointer; transition:all .15s;
-  }
-
-  .multi-chip.selected { border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08); }
-
-  /* Buttons */
-  .btn-row { display:flex; gap:10px; margin-top:20px; }
-
-  .btn {
-    flex:1; padding:14px; border-radius:12px; font-size:14px;
-    font-weight:700; font-family:inherit; cursor:pointer; border:none; transition:opacity .2s;
-  }
-
-  .btn:active { opacity:.8; }
-  .btn-primary { background:var(--accent); color:white; }
-  .btn-secondary { background:var(--surface2); color:var(--text2); border:1px solid var(--border); }
-  .btn-danger { background:rgba(239,68,68,.1); color:var(--red); border:1px solid rgba(239,68,68,.2); }
-
-  /* ── Detail screen ── */
-  .detail-section { margin-bottom:20px; }
-
-  .detail-section-title {
-    font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase;
-    letter-spacing:.14em; color:var(--muted); margin-bottom:10px;
-  }
-
-  .detail-field { margin-bottom:10px; }
-  .detail-field-label { font-size:11px; color:var(--text3); margin-bottom:2px; }
-  .detail-field-value { font-size:14px; color:var(--text); font-weight:500; line-height:1.5; }
-
-  .detail-card {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:12px; padding:14px 16px; margin-bottom:10px;
-  }
-
-  .price-entry-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px; }
-  .price-entry-name { font-size:13px; font-weight:700; color:var(--text); }
-  .price-entry-price { font-size:14px; font-weight:800; color:var(--green); }
-  .price-entry-meta { font-size:11px; color:var(--text3); }
-  .price-entry-moq { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); margin-top:2px; }
-
-  /* ── PRD-01.1 Price History ── */
-  .trend-badge {
-    display:inline-flex; align-items:center; gap:3px;
-    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600;
-    padding:2px 7px; border-radius:10px; flex-shrink:0; vertical-align:middle;
-  }
-  .trend-up   { background:rgba(239,68,68,.1);  color:var(--red);   border:1px solid rgba(239,68,68,.2); }
-  .trend-down { background:rgba(16,185,129,.1); color:var(--green); border:1px solid rgba(16,185,129,.2); }
-  .trend-stable { background:rgba(75,86,128,.1); color:var(--muted); border:1px solid rgba(75,86,128,.2); }
-
-  .history-toggle {
-    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600;
-    color:var(--accent); cursor:pointer; padding:2px 0; flex-shrink:0;
-    transition:opacity .15s;
-  }
-  .history-toggle:active { opacity:.6; }
-
-  .history-timeline {
-    margin-top:10px; background:var(--surface2); border-radius:10px;
-    border:1px solid var(--border); overflow:hidden;
-    display:none; /* toggled via JS */
-  }
-  .history-timeline.open { display:block; }
-
-  .history-row {
-    display:flex; align-items:center; gap:8px;
-    padding:9px 12px; border-bottom:1px solid var(--border);
-    position:relative;
-  }
-  .history-row:last-child { border-bottom:none; }
-  .history-row.latest { background:rgba(59,130,246,.04); }
-
-  .history-row-price {
-    font-size:13px; font-weight:700; color:var(--text); flex:1;
-  }
-  .history-row.latest .history-row-price { color:var(--accent); }
-
-  .history-row-meta {
-    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted);
-    text-align:right; line-height:1.5;
-  }
-
-  .history-latest-tag {
-    font-size:9px; font-weight:700; color:var(--accent);
-    background:rgba(59,130,246,.1); border:1px solid rgba(59,130,246,.2);
-    padding:1px 6px; border-radius:8px; margin-left:4px; flex-shrink:0;
-  }
-
-  .history-del {
-    font-size:10px; color:var(--red); cursor:pointer; padding:2px 6px;
-    border-radius:6px; flex-shrink:0; font-family:'JetBrains Mono',monospace;
-    font-weight:500;
-  }
-  .history-del:active { background:rgba(239,68,68,.1); }
-
-  /* ── Toast ── */
-  .toast {
-    position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
-    background:var(--surface2); border:1px solid var(--border2);
-    border-radius:12px; padding:10px 20px; font-size:13px; font-weight:600;
-    color:var(--text); z-index:200; opacity:0; transition:all .3s; white-space:nowrap;
-  }
-
-  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-  .toast.success { border-color:var(--green); color:var(--green); }
-  .toast.error { border-color:var(--red); color:var(--red); }
-
-  /* ── Loading ── */
-  .loading-overlay {
-    position:fixed; inset:0; background:rgba(8,11,18,.85);
-    z-index:300; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:16px;
-    opacity:0; pointer-events:none; transition:opacity .3s;
-  }
-
-  .loading-overlay.active { opacity:1; pointer-events:all; }
-
-  .spinner {
-    width:36px; height:36px; border:3px solid var(--border2);
-    border-top-color:var(--accent); border-radius:50%;
-    animation:spin .8s linear infinite;
-  }
-
-  @keyframes spin { to { transform:rotate(360deg); } }
-
-  .loading-text { font-size:13px; color:var(--text3); }
-
-  /* ── Confirm dialog ── */
-  .confirm-overlay {
-    position:fixed; inset:0; background:rgba(0,0,0,.8);
-    z-index:200; display:flex; align-items:center; justify-content:center;
-    padding:24px; opacity:0; pointer-events:none; transition:opacity .2s;
-  }
-
-  .confirm-overlay.active { opacity:1; pointer-events:all; }
-
-  .confirm-box {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:20px; padding:24px; width:100%; max-width:320px;
-    transform:scale(.95); transition:transform .2s;
-  }
-
-  .confirm-overlay.active .confirm-box { transform:scale(1); }
-
-  .confirm-title { font-size:16px; font-weight:800; color:var(--text); margin-bottom:8px; }
-  .confirm-msg { font-size:13px; color:var(--text2); line-height:1.5; margin-bottom:20px; }
-  .confirm-btns { display:flex; gap:10px; }
-</style>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/supplier-tracker.css">
 </head>
 <body>
 <div id="app">
 
-  <!-- ══ MAIN SCREEN ══ -->
+  <!-- MAIN SCREEN -->
   <div id="screen-main" class="screen active">
     <div class="topbar">
-      <a href="index.html" class="back-btn">←</a>
+      <div id="btn-back-to-home" class="back-btn">←</div>
       <div>
         <div class="topbar-title">Supplier & Price</div>
         <div class="topbar-sub" id="topbar-user">Loading...</div>
       </div>
     </div>
-
     <div class="tab-bar">
-      <div class="tab active" id="tab-suppliers" onclick="switchTab('suppliers')">Supplier</div>
-      <div class="tab" id="tab-products" onclick="switchTab('products')">Produk</div>
-      <div class="tab" id="tab-jasa" onclick="switchTab('jasa')">Jasa</div>
-      <div class="tab" id="tab-compare" onclick="switchTab('compare')">Komparasi</div>
+      <div class="tab active" id="tab-suppliers">Supplier</div>
+      <div class="tab"        id="tab-products">Produk</div>
+      <div class="tab"        id="tab-jasa">Jasa</div>
+      <div class="tab"        id="tab-compare">Komparasi</div>
     </div>
-
-    <!-- Suppliers Tab -->
     <div id="pane-suppliers" class="scroll-content">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" placeholder="Cari supplier atau kota..." id="search-suppliers" oninput="renderSuppliers()">
+        <input type="text" class="search-input" placeholder="Cari supplier atau kota..." id="search-suppliers">
       </div>
-      <!-- Stats bar -->
       <div id="supplier-stats" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
-      <!-- Level filter -->
       <div class="filter-row" id="filter-level">
-        <div class="chip active" onclick="setLevelFilter(this,'')">Semua</div>
-        <div class="chip" onclick="setLevelFilter(this,'L1')">L1 Pabrik</div>
-        <div class="chip" onclick="setLevelFilter(this,'L2')">L2 Distributor</div>
-        <div class="chip" onclick="setLevelFilter(this,'L3')">L3 Grosir</div>
-        <div class="chip" onclick="setLevelFilter(this,'L4')">L4 Retail</div>
-        <div class="chip" onclick="setLevelFilter(this,'Jasa')">🔧 Jasa</div>
+        <div class="chip active" data-level="">Semua</div>
+        <div class="chip" data-level="L1">L1 Pabrik</div>
+        <div class="chip" data-level="L2">L2 Distributor</div>
+        <div class="chip" data-level="L3">L3 Grosir</div>
+        <div class="chip" data-level="L4">L4 Retail</div>
+        <div class="chip" data-level="Jasa">🔧 Jasa</div>
       </div>
-      <!-- Unit bisnis filter -->
       <div class="filter-row" id="filter-unit" style="margin-bottom:8px;"></div>
-      <!-- City filter -->
       <div class="filter-row" id="filter-city" style="margin-bottom:12px;"></div>
       <div class="card-list" id="list-suppliers"></div>
     </div>
-
-    <!-- Products Tab -->
     <div id="pane-products" class="scroll-content" style="display:none">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" placeholder="Cari produk..." id="search-products" oninput="renderProducts()">
+        <input type="text" class="search-input" placeholder="Cari produk..." id="search-products">
       </div>
       <div class="card-list" id="list-products"></div>
     </div>
-
-    <!-- Jasa Tab -->
     <div id="pane-jasa" class="scroll-content" style="display:none">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" placeholder="Cari layanan jasa..." id="search-jasa" oninput="renderJasa()">
+        <input type="text" class="search-input" placeholder="Cari layanan jasa..." id="search-jasa">
       </div>
       <div class="card-list" id="list-jasa"></div>
     </div>
-
-    <!-- Compare Tab -->
     <div id="pane-compare" class="scroll-content" style="display:none">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" placeholder="Cari produk untuk compare..." id="search-compare" oninput="renderCompare()">
+        <input type="text" class="search-input" placeholder="Cari produk untuk compare..." id="search-compare">
       </div>
       <div class="card-list" id="list-compare"></div>
     </div>
-
-    <button class="fab" id="fab-btn" onclick="openAddSheet()">+</button>
+    <button class="fab" id="fab-btn">+</button>
   </div>
 
-  <!-- ══ SUPPLIER DETAIL SCREEN ══ -->
+  <!-- SUPPLIER DETAIL SCREEN -->
   <div id="screen-supplier-detail" class="screen">
     <div class="topbar">
-      <div class="back-btn" onclick="goBack('screen-main')">←</div>
+      <div id="back-to-main-supplier" class="back-btn">←</div>
       <div style="flex:1">
         <div class="topbar-title" id="detail-supplier-name">Supplier</div>
-        <div class="topbar-sub" id="detail-supplier-level"></div>
+        <div class="topbar-sub"   id="detail-supplier-level"></div>
       </div>
       <div style="display:flex;gap:8px;">
-        <div class="back-btn" onclick="openEditSupplier()" style="background:var(--surface2)">✏️</div>
-        <div class="back-btn" onclick="confirmDeleteSupplier()" style="background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2)">🗑️</div>
+        <div id="btn-edit-supplier"   class="back-btn" style="background:var(--surface2)">✏️</div>
+        <div id="btn-delete-supplier" class="back-btn" style="background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2)">🗑️</div>
       </div>
     </div>
     <div class="scroll-content" id="supplier-detail-content"></div>
   </div>
 
-  <!-- ══ PRODUCT DETAIL SCREEN ══ -->
+  <!-- PRODUCT DETAIL SCREEN -->
   <div id="screen-product-detail" class="screen">
     <div class="topbar">
-      <div class="back-btn" onclick="goBack('screen-main')">←</div>
+      <div id="back-to-main-product" class="back-btn">←</div>
       <div style="flex:1">
         <div class="topbar-title" id="detail-product-name">Produk</div>
-        <div class="topbar-sub" id="detail-product-cat"></div>
+        <div class="topbar-sub"   id="detail-product-cat"></div>
       </div>
       <div style="display:flex;gap:8px;">
-        <div class="back-btn" onclick="openEditProduct()" style="background:var(--surface2)">✏️</div>
-        <div class="back-btn" onclick="confirmDeleteProduct()" style="background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2)">🗑️</div>
+        <div id="btn-edit-product"   class="back-btn" style="background:var(--surface2)">✏️</div>
+        <div id="btn-delete-product" class="back-btn" style="background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2)">🗑️</div>
       </div>
     </div>
     <div class="scroll-content" id="product-detail-content"></div>
   </div>
 
-  <!-- ══ JASA DETAIL SCREEN ══ -->
+  <!-- JASA DETAIL SCREEN -->
   <div id="screen-jasa-detail" class="screen">
     <div class="topbar">
-      <div class="back-btn" onclick="goBack('screen-main')">←</div>
+      <div id="back-to-main-jasa" class="back-btn">←</div>
       <div style="flex:1">
         <div class="topbar-title" id="detail-jasa-name">Layanan Jasa</div>
-        <div class="topbar-sub" id="detail-jasa-cat"></div>
+        <div class="topbar-sub"   id="detail-jasa-cat"></div>
       </div>
       <div style="display:flex;gap:8px;">
-        <div class="back-btn" onclick="openEditJasa()" style="background:var(--surface2)">✏️</div>
-        <div class="back-btn" onclick="confirmDeleteJasa()" style="background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2)">🗑️</div>
+        <div id="btn-edit-jasa"   class="back-btn" style="background:var(--surface2)">✏️</div>
+        <div id="btn-delete-jasa" class="back-btn" style="background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2)">🗑️</div>
       </div>
     </div>
     <div class="scroll-content" id="jasa-detail-content"></div>
@@ -634,13 +121,12 @@
 
 </div>
 
-<!-- ══ ADD/EDIT SUPPLIER SHEET ══ -->
+<!-- ADD/EDIT SUPPLIER SHEET -->
 <div class="overlay" id="overlay-supplier">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="sheet-supplier-title">Tambah Supplier</div>
     <div class="sheet-sub">Data akan tersimpan ke Google Sheet</div>
-
     <div class="form-group">
       <label class="form-label">Nama Supplier *</label>
       <input type="text" class="form-input" id="f-supplier-name" placeholder="Nama perusahaan / toko">
@@ -683,21 +169,19 @@
       <label class="form-label">Catatan</label>
       <textarea class="form-textarea" id="f-supplier-catatan" placeholder="Info tambahan tentang supplier ini..."></textarea>
     </div>
-
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="closeSheet('overlay-supplier')">Batal</button>
-      <button class="btn btn-primary" onclick="saveSupplier()">Simpan</button>
+      <button class="btn btn-secondary" id="btn-cancel-supplier">Batal</button>
+      <button class="btn btn-primary"   id="btn-save-supplier">Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- ══ ADD/EDIT PRODUCT SHEET ══ -->
+<!-- ADD/EDIT PRODUCT SHEET -->
 <div class="overlay" id="overlay-product">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="sheet-product-title">Tambah Produk</div>
     <div class="sheet-sub">Data akan tersimpan ke Google Sheet</div>
-
     <div class="form-group">
       <label class="form-label">Nama Produk *</label>
       <input type="text" class="form-input" id="f-product-name" placeholder="Nama lengkap produk">
@@ -730,23 +214,21 @@
         <option value="">Pilih supplier...</option>
       </select>
       <input type="number" class="form-input" id="f-price-harga" placeholder="Harga beli (Rp)" style="margin-bottom:8px">
-      <input type="number" class="form-input" id="f-price-moq" placeholder="MOQ (opsional)">
+      <input type="number" class="form-input" id="f-price-moq"   placeholder="MOQ (opsional)">
     </div>
-
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="closeSheet('overlay-product')">Batal</button>
-      <button class="btn btn-primary" onclick="saveProduct()">Simpan</button>
+      <button class="btn btn-secondary" id="btn-cancel-product">Batal</button>
+      <button class="btn btn-primary"   id="btn-save-product">Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- ══ ADD PRICE ENTRY SHEET ══ -->
+<!-- ADD PRICE ENTRY SHEET -->
 <div class="overlay" id="overlay-price">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="price-sheet-title">Tambah Harga</div>
-    <div class="sheet-sub" id="price-sheet-sub">untuk produk ini</div>
-
+    <div class="sheet-sub"   id="price-sheet-sub">untuk produk ini</div>
     <div class="form-group">
       <label class="form-label">Supplier *</label>
       <select class="form-select" id="f-pe-supplier"></select>
@@ -767,15 +249,14 @@
       <label class="form-label">Catatan</label>
       <textarea class="form-textarea" id="f-pe-catatan" placeholder="Syarat, diskon, info khusus..."></textarea>
     </div>
-
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="closeSheet('overlay-price')">Batal</button>
-      <button class="btn btn-primary" id="price-save-btn" onclick="savePriceEntry()">Simpan</button>
+      <button class="btn btn-secondary" id="btn-cancel-price">Batal</button>
+      <button class="btn btn-primary"   id="btn-save-price">Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- ══ SUPPLIER CONTACT OVERLAY ══ -->
+<!-- SUPPLIER CONTACT OVERLAY -->
 <div class="overlay" id="overlay-supplier-contact">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -796,29 +277,16 @@
         <div id="contact-info" style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--text2);"></div>
       </div>
     </div>
-    <button class="btn btn-secondary" onclick="closeSheet('overlay-supplier-contact')">Tutup</button>
+    <button class="btn btn-secondary" id="btn-close-contact">Tutup</button>
   </div>
 </div>
 
-<!-- ══ JASA DETAIL SHEET ══ -->
-<div class="overlay" id="overlay-jasa-detail">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title" id="jasa-detail-title">Detail Jasa</div>
-    <div class="sheet-sub" id="jasa-detail-count"></div>
-    <div id="jasa-detail-content" style="margin:16px 0;display:flex;flex-direction:column;gap:8px;"></div>
-    <button class="btn btn-primary" id="jasa-detail-add-btn" style="margin-bottom:8px;">+ Tambah Penyedia Lain</button>
-    <button class="btn btn-secondary" onclick="closeSheet('overlay-jasa-detail')">Tutup</button>
-  </div>
-</div>
-
-<!-- ══ ADD JASA ENTRY SHEET ══ -->
+<!-- ADD JASA SHEET -->
 <div class="overlay" id="overlay-jasa">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Tambah Layanan Jasa</div>
     <div class="sheet-sub" id="jasa-sheet-sub">Data akan tersimpan ke Google Sheet</div>
-
     <div class="form-group">
       <label class="form-label">Nama Layanan *</label>
       <input type="text" class="form-input" id="f-jasa-nama" placeholder="e.g. Website Development, Jahit Seragam">
@@ -850,1476 +318,69 @@
       </select>
       <input type="number" class="form-input" id="f-jasa-harga" placeholder="Rate (Rp)">
     </div>
-
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="closeSheet('overlay-jasa')">Batal</button>
-      <button class="btn btn-primary" onclick="saveJasaEntry()">Simpan</button>
+      <button class="btn btn-secondary" id="btn-cancel-jasa">Batal</button>
+      <button class="btn btn-primary"   id="btn-save-jasa">Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- ══ ADD: CHOOSE WHAT TO ADD ══ -->
+<!-- ADD CHOICE SHEET -->
 <div class="overlay" id="overlay-add-choice">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Tambah Baru</div>
     <div class="sheet-sub">Pilih yang ingin ditambahkan</div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
-      <button class="btn btn-secondary" style="text-align:left;padding:16px 18px;" onclick="closeSheet('overlay-add-choice');openAddSupplier()">
+      <button class="btn btn-secondary" id="btn-add-choice-supplier" style="text-align:left;padding:16px 18px;">
         <div style="font-size:16px;margin-bottom:2px;">🏪 Supplier Baru</div>
         <div style="font-size:12px;font-weight:400;color:var(--text3)">Tambah supplier ke database</div>
       </button>
-      <button class="btn btn-secondary" style="text-align:left;padding:16px 18px;" onclick="closeSheet('overlay-add-choice');openAddProduct()">
+      <button class="btn btn-secondary" id="btn-add-choice-product" style="text-align:left;padding:16px 18px;">
         <div style="font-size:16px;margin-bottom:2px;">📦 Produk Baru</div>
         <div style="font-size:12px;font-weight:400;color:var(--text3)">Tambah produk + harga awal</div>
       </button>
-      <button class="btn btn-secondary" style="text-align:left;padding:16px 18px;" onclick="closeSheet('overlay-add-choice');openAddJasa(null)">
+      <button class="btn btn-secondary" id="btn-add-choice-jasa" style="text-align:left;padding:16px 18px;">
         <div style="font-size:16px;margin-bottom:2px;">🔧 Jasa Baru</div>
         <div style="font-size:12px;font-weight:400;color:var(--text3)">Tambah layanan jasa dari supplier</div>
       </button>
     </div>
     <div class="btn-row" style="margin-top:12px;">
-      <button class="btn btn-secondary" onclick="closeSheet('overlay-add-choice')">Batal</button>
+      <button class="btn btn-secondary" id="btn-cancel-add-choice">Batal</button>
     </div>
   </div>
 </div>
 
-<!-- ══ LOADING ══ -->
+<!-- LOADING -->
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
   <div class="loading-text" id="loading-text">Menyimpan...</div>
 </div>
 
-<!-- ══ CONFIRM DIALOG ══ -->
+<!-- CONFIRM DIALOG -->
 <div class="confirm-overlay" id="confirm-overlay">
   <div class="confirm-box">
     <div class="confirm-title" id="confirm-title">Hapus?</div>
-    <div class="confirm-msg" id="confirm-msg">Yakin ingin menghapus data ini?</div>
+    <div class="confirm-msg"   id="confirm-msg">Yakin ingin menghapus data ini?</div>
     <div class="confirm-btns">
-      <button class="btn btn-secondary" onclick="closeConfirm()">Batal</button>
-      <button class="btn btn-danger" id="confirm-ok-btn">Hapus</button>
+      <button class="btn btn-secondary" id="btn-confirm-cancel">Batal</button>
+      <button class="btn btn-danger"    id="confirm-ok-btn">Hapus</button>
     </div>
   </div>
 </div>
 
-<!-- ══ TOAST ══ -->
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- SCRIPTS: strict load order -->
+<script src="config.js"></script>
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/app.js"></script>
+<script src="js/supplier-tracker.js"></script>
 <script>
-// ═══════════════════════════════════════════════════
-// CONFIG — ganti SCRIPT_URL setelah deploy Apps Script
-// ═══════════════════════════════════════════════════
-const SCRIPT_URL = ARKANA_SCRIPT_URL;
-const SESSION_KEY = 'arkana_session';
-const CACHE_KEY = 'arkana_cache';
-
-// ── State ──
-let currentTab = 'suppliers';
-let levelFilter = '';
-let unitFilter  = '';
-let cityFilter  = '';
-let currentSupplierId = null;
-let currentProductId = null;
-let editMode = false;
-let priceEntryProductId = null;
-
-let DB = { suppliers:[], products:[], priceEntries:[], units:[] };
-
-// ── User ──
-function getUser() {
-  try { return JSON.parse(localStorage.getItem(SESSION_KEY)) || {}; } catch { return {}; }
-}
-
-// ── Init ──
-window.onload = async function() {
-  const user = getUser();
-  if (!user.id) { window.location.href = 'index.html'; return; }
-  document.getElementById('topbar-user').textContent = `Login sebagai ${user.name}`;
-
-  loadFromCache();
-  renderAll();
-
-  if (SCRIPT_URL) {
-    await fetchAll();
-  }
-};
-
-// ─────────────────────────────────────────
-// API CALLS
-// ─────────────────────────────────────────
-async function api(action, payload = {}) {
-  if (!SCRIPT_URL) throw new Error('No script URL');
-  const url = SCRIPT_URL + '?action=' + encodeURIComponent(action);
-  const res = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify({ ...payload, user: getUser().name })
-  });
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || 'API error');
-  return data;
-}
-
-async function fetchAll() {
-  showLoading('Memuat data...');
-  try {
-    const data = await api('getAll');
-    DB = data.db;
-    saveToCache();
-    renderAll();
-  } catch(e) {
-    showToast('Gagal memuat data: ' + e.message, 'error');
-  } finally {
-    hideLoading();
-  }
-}
-
-// ─────────────────────────────────────────
-// CACHE
-// ─────────────────────────────────────────
-function saveToCache() { localStorage.setItem(CACHE_KEY, JSON.stringify(DB)); }
-function loadFromCache() {
-  const c = localStorage.getItem(CACHE_KEY);
-  if (c) DB = JSON.parse(c);
-}
-
-// ─────────────────────────────────────────
-// DATA HELPERS  (PRD-01.1 — reusable across modules)
-// ─────────────────────────────────────────
-
-/**
- * Returns ONE active PriceEntry per supplier for a given productId.
- * "Active" = the entry with the most recent updatedAt for that supplierId.
- * This is the canonical source of truth for current prices.
- * Used by: renderItemCard, openProductDetail, openJasaDetail,
- *          openSupplierDetail, renderCompare, and future modules.
- */
-function latestPricePerSupplier(productId) {
-  const map = {};
-  DB.priceEntries.forEach(e => {
-    if (e.productId !== productId) return;
-    const existing = map[e.supplierId];
-    if (!existing || new Date(e.updatedAt) > new Date(existing.updatedAt)) {
-      map[e.supplierId] = e;
-    }
-  });
-  return Object.values(map);
-}
-
-/**
- * Returns ALL PriceEntries for a given productId + supplierId,
- * sorted newest-first. This is the price history timeline.
- */
-function priceHistoryForSupplier(productId, supplierId) {
-  return DB.priceEntries
-    .filter(e => e.productId === productId && e.supplierId === supplierId)
-    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-}
-
-/**
- * Returns trend direction based on two most recent entries in a history array.
- * Input: history array sorted newest-first (output of priceHistoryForSupplier).
- * Returns: 'up' | 'down' | 'stable' | null (null = insufficient data)
- */
-function getTrend(history) {
-  if (!history || history.length < 2) return null;
-  const latest = parseFloat(history[0].harga);
-  const prev   = parseFloat(history[1].harga);
-  if (latest > prev) return 'up';
-  if (latest < prev) return 'down';
-  return 'stable';
-}
-
-/**
- * Renders a trend badge HTML string.
- * Returns empty string if trend is null.
- */
-function renderTrendBadge(trend) {
-  if (!trend) return '';
-  const map = {
-    up:     { cls:'trend-up',     icon:'↑', label:'Naik' },
-    down:   { cls:'trend-down',   icon:'↓', label:'Turun' },
-    stable: { cls:'trend-stable', icon:'→', label:'Stabil' }
-  };
-  const t = map[trend];
-  return `<span class="trend-badge ${t.cls}">${t.icon} ${t.label}</span>`;
-}
-
-/**
- * Renders the expandable history timeline for one supplier row.
- * panelId: unique DOM id for the collapsible div.
- * history: array sorted newest-first.
- * productId: used by delete to refresh the right screen after deletion.
- * isJasa: drives color and type label.
- */
-function renderHistoryTimeline(panelId, history, productId, isJasa) {
-  if (history.length < 2) return ''; // Only show if there's actual history
-  const accentColor = isJasa ? 'var(--purple)' : 'var(--green)';
-  const rows = history.map((e, idx) => {
-    const isLatest = idx === 0;
-    return `
-    <div class="history-row${isLatest ? ' latest' : ''}">
-      <div class="history-row-price">
-        Rp ${fmtNum(e.harga)}
-        ${isLatest ? `<span class="history-latest-tag" style="border-color:${isLatest && isJasa ? 'rgba(139,92,246,.3)' : ''};color:${isLatest && isJasa ? 'var(--purple)' : ''}">Terkini</span>` : ''}
-      </div>
-      <div class="history-row-meta">
-        ${fmtDate(e.updatedAt)}<br>${e.updatedBy||'—'}
-      </div>
-      ${!isLatest ? `<span class="history-del" onclick="event.stopPropagation();confirmDeletePrice('${e.id}','${productId}')">✕</span>` : ''}
-    </div>`;
-  }).join('');
-  return `
-  <div class="history-timeline" id="${panelId}">
-    <div style="padding:10px 12px 0;">${renderPriceChart(history)}</div>
-    ${rows}
-  </div>`;
-}
-
-/**
- * Renders an inline SVG line chart for a price history array.
- * Input: history array sorted newest-first (output of priceHistoryForSupplier).
- * Chart renders oldest→newest left to right.
- * Returns SVG string, or '' if fewer than 2 entries.
- */
-function renderPriceChart(history) {
-  if (!history || history.length < 2) return '';
-
-  // Reverse to chronological order for chart (oldest left, newest right)
-  const chrono = [...history].reverse();
-  const prices = chrono.map(e => parseFloat(e.harga));
-  const dates  = chrono.map(e => fmtDateShort(e.updatedAt));
-
-  const W = 400, H = 80, padX = 28, padY = 14;
-  const chartW = W - padX * 2;
-  const chartH = H - padY * 2;
-
-  const minP = Math.min(...prices);
-  const maxP = Math.max(...prices);
-  const range = maxP - minP || 1; // avoid div by zero if all prices equal
-
-  // Map price to Y (higher price = lower Y value = higher on chart)
-  const toY = p => padY + chartH - ((p - minP) / range) * chartH;
-  const toX = i => padX + (i / (chrono.length - 1)) * chartW;
-
-  const points = chrono.map((_, i) => `${toX(i)},${toY(prices[i])}`).join(' ');
-  // Closed area path: line points + bottom-right + bottom-left
-  const areaPath = `M ${points.split(' ').join(' L ')} L ${toX(chrono.length-1)},${H-padY+4} L ${toX(0)},${H-padY+4} Z`;
-
-  const dotRadius = 3;
-  const dots = chrono.map((_, i) => {
-    const isLatest = i === chrono.length - 1;
-    return isLatest
-      ? `<circle cx="${toX(i)}" cy="${toY(prices[i])}" r="4.5" fill="var(--accent)"/>`
-      : `<circle cx="${toX(i)}" cy="${toY(prices[i])}" r="${dotRadius}" fill="var(--surface2)" stroke="var(--border2)" stroke-width="1.5"/>`;
-  }).join('');
-
-  // Date labels: always show first and last; middle only if 3+ points and space allows
-  const labelIndices = chrono.length <= 3
-    ? chrono.map((_,i) => i)
-    : [0, chrono.length - 1];
-
-  const labels = labelIndices.map(i => {
-    const anchor = i === 0 ? 'start' : i === chrono.length - 1 ? 'end' : 'middle';
-    return `<text x="${toX(i)}" y="${H}" text-anchor="${anchor}" font-size="8" fill="var(--muted)" font-family="'JetBrains Mono',monospace">${dates[i]}</text>`;
-  }).join('');
-
-  const gradId = `cg${Math.random().toString(36).slice(2,7)}`;
-
-  return `
-  <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;margin-bottom:10px;overflow:visible;">
-    <defs>
-      <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.15"/>
-        <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    <path d="${areaPath}" fill="url(#${gradId})"/>
-    <polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
-    ${dots}
-    ${labels}
-  </svg>`;
-}
-
-/**
- * Toggles the history timeline panel open/closed.
- * Called from inline onclick in history toggle links.
- */
-function toggleHistory(panelId, toggleId) {
-  const panel  = document.getElementById(panelId);
-  const toggle = document.getElementById(toggleId);
-  if (!panel) return;
-  const isOpen = panel.classList.toggle('open');
-  if (toggle) toggle.textContent = isOpen
-    ? '▲ Sembunyikan'
-    : `▼ ${panel.querySelectorAll('.history-row').length} riwayat`;
-}
-
-// ─────────────────────────────────────────
-// RENDER
-// ─────────────────────────────────────────
-function renderAll() {
-  renderSuppliers();
-  renderProducts();
-  if (currentTab === 'jasa') renderJasa();
-  renderCompare();
-  renderUnitChips();
-  populateSupplierDropdowns();
-}
-
-function renderSuppliers() {
-  const q = document.getElementById('search-suppliers').value.toLowerCase();
-
-  // Apply all filters
-  let list = DB.suppliers.filter(s =>
-    (!levelFilter || s.level === levelFilter) &&
-    (!unitFilter  || (s.units||[]).includes(unitFilter)) &&
-    (!cityFilter  || (s.kota||'').toLowerCase() === cityFilter.toLowerCase()) &&
-    (!q || s.name.toLowerCase().includes(q) || (s.kota||'').toLowerCase().includes(q))
-  );
-
-  // Sort by name A-Z
-  list.sort((a, b) => a.name.localeCompare(b.name, 'id'));
-
-  // Render stats bar
-  const statsEl = document.getElementById('supplier-stats');
-  const total = DB.suppliers.length;
-  const filtered = list.length;
-  const cities = [...new Set(DB.suppliers.map(s => s.kota).filter(Boolean))].length;
-  statsEl.innerHTML = `
-    <div class="stat-chip">Total: <span>${total}</span></div>
-    ${filtered !== total ? `<div class="stat-chip">Filter: <span>${filtered}</span></div>` : ''}
-    <div class="stat-chip">Kota: <span>${cities}</span></div>
-  `;
-
-  // Render unit bisnis filter chips (dynamic from DB)
-  const unitEl = document.getElementById('filter-unit');
-  const allUnits = [...new Set(DB.suppliers.flatMap(s => s.units||[]))].sort();
-  unitEl.innerHTML = allUnits.length ? `
-    <div class="chip ${!unitFilter?'active':''}" onclick="setUnitFilter(this,'')">Semua Unit</div>
-    ${allUnits.map(u => `<div class="chip ${unitFilter===u?'active':''}" onclick="setUnitFilter(this,'${u}')">${u}</div>`).join('')}
-  ` : '';
-
-  // Render city filter chips — count based on level+unit filtered list (before city filter)
-  const preCity = DB.suppliers.filter(s =>
-    (!levelFilter || s.level === levelFilter) &&
-    (!unitFilter  || (s.units||[]).includes(unitFilter))
-  );
-  const cityEl = document.getElementById('filter-city');
-  const allCities = [...new Set(preCity.map(s => s.kota).filter(Boolean))].sort();
-  cityEl.innerHTML = allCities.length ? `
-    <div class="chip ${!cityFilter?'active':''}" onclick="setCityFilter(this,'')">Semua Kota</div>
-    ${allCities.map(c => {
-      const count = preCity.filter(s => s.kota === c).length;
-      return `<div class="chip ${cityFilter===c?'active':''}" onclick="setCityFilter(this,'${c}')">${c} (${count})</div>`;
-    }).join('')}
-  ` : '';
-
-  const el = document.getElementById('list-suppliers');
-  if (!list.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🏪</div><div class="empty-text">Belum ada supplier.<br>Tap + untuk tambah supplier baru.</div></div>`;
-    return;
-  }
-
-  // Build reverse lookup: supplierId → { produk: N, jasa: N }
-  // Computed once here (not per card) for performance — O(products × entries)
-  const supplierCountMap = {};
-  DB.products.forEach(p => {
-    latestPricePerSupplier(p.id).forEach(e => {
-      if (!supplierCountMap[e.supplierId]) supplierCountMap[e.supplierId] = { produk: 0, jasa: 0 };
-      if (p.type === 'jasa') supplierCountMap[e.supplierId].jasa++;
-      else supplierCountMap[e.supplierId].produk++;
-    });
-  });
-
-  el.innerHTML = list.map(s => {
-    const initials = s.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-    const colors = ['linear-gradient(135deg,#1D4ED8,#3B82F6)','linear-gradient(135deg,#065F46,#10B981)','linear-gradient(135deg,#7C3AED,#8B5CF6)','linear-gradient(135deg,#B45309,#F59E0B)'];
-    const color = colors[s.name.charCodeAt(0) % colors.length];
-    const phone = s.kontak ? String(s.kontak) : '—';
-    const counts = supplierCountMap[s.id] || { produk: 0, jasa: 0 };
-    const countChips = [
-      counts.produk > 0 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(59,130,246,.08);color:var(--accent);border:1px solid rgba(59,130,246,.18);font-weight:500;">📦 ${counts.produk} produk</span>` : '',
-      counts.jasa   > 0 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(139,92,246,.08);color:var(--purple);border:1px solid rgba(139,92,246,.18);font-weight:500;">🔧 ${counts.jasa} jasa</span>` : ''
-    ].filter(Boolean).join('');
-    return `
-    <div class="supplier-card" onclick="openSupplierDetail('${s.id}')">
-      <div class="supplier-card-top">
-        <div class="supplier-initial" style="background:${color}">${initials}</div>
-        <div class="supplier-info">
-          <div class="supplier-name">${s.name}</div>
-          <div class="supplier-meta">${phone} ${s.kota ? '· '+s.kota : ''}</div>
-        </div>
-      </div>
-      <div class="supplier-badges">
-        <span class="level-badge ${s.level === 'Jasa' ? 'jasa' : s.level.toLowerCase()}">${s.level === 'Jasa' ? '🔧 Jasa' : s.level}</span>
-        ${s.authorized && s.level !== 'Jasa' ? '<span class="auth-badge">✓ Authorized</span>' : ''}
-        ${(s.units||[]).map(u=>`<span class="unit-badge">${u}</span>`).join('')}
-      </div>
-      ${countChips ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">${countChips}</div>` : ''}
-    </div>`;
-  }).join('');
-}
-
-function renderProducts() {
-  const q = document.getElementById('search-products').value.toLowerCase();
-  let list = DB.products.filter(p =>
-    p.type !== 'jasa' &&
-    (!q || p.name.toLowerCase().includes(q) || (p.category||'').toLowerCase().includes(q))
-  );
-
-  const el = document.getElementById('list-products');
-  const total = DB.products.filter(p => p.type !== 'jasa').length;
-
-  // Stats bar
-  const statsHtml = `<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-    <div class="stat-chip">Total: <span>${total}</span></div>
-    ${q && list.length !== total ? `<div class="stat-chip">Filter: <span>${list.length}</span></div>` : ''}
-  </div>`;
-
-  if (!list.length) {
-    el.innerHTML = statsHtml + `<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Belum ada produk.<br>Tap + untuk tambah produk baru.</div></div>`;
-    return;
-  }
-
-  el.innerHTML = statsHtml + list.map(p => renderItemCard(p)).join('');
-}
-
-function renderCompare() {
-  const q = document.getElementById('search-compare').value.toLowerCase();
-
-  const allWithEntries = DB.products.filter(p => {
-    const hasEntries = latestPricePerSupplier(p.id).length > 0;
-    return hasEntries && (!q || p.name.toLowerCase().includes(q) || (p.category||'').toLowerCase().includes(q));
-  });
-
-  const el = document.getElementById('list-compare');
-  if (!allWithEntries.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚖️</div><div class="empty-text">Belum ada data harga untuk dibandingkan.<br>Tambah produk atau jasa + harga dari tab Produk / Jasa.</div></div>`;
-    return;
-  }
-
-  const produkList = allWithEntries.filter(p => p.type !== 'jasa');
-  const jasaList   = allWithEntries.filter(p => p.type === 'jasa');
-
-  function renderCompareCard(p) {
-    const isJasa = p.type === 'jasa';
-    // Deduplicated: one active price per supplier, sorted cheapest first
-    const entries = latestPricePerSupplier(p.id).sort((a,b) => parseFloat(a.harga) - parseFloat(b.harga));
-    const bestPrice = entries[0] ? parseFloat(entries[0].harga) : null;
-    const accentColor = isJasa ? 'var(--purple)' : 'var(--green)';
-    const bestLabelColor = isJasa ? 'rgba(139,92,246,.12)' : 'rgba(16,185,129,.12)';
-    const bestTextColor  = isJasa ? 'var(--purple)' : 'var(--green)';
-
-    const rows = entries.map(e => {
-      const sup = DB.suppliers.find(s => s.id === e.supplierId);
-      const isBest = parseFloat(e.harga) === bestPrice;
-      const history = priceHistoryForSupplier(p.id, e.supplierId);
-      const trend = getTrend(history);
-      return `
-      <div class="compare-row ${isBest?'best':''}" style="${isBest?'border-color:'+accentColor+';background:'+bestLabelColor.replace(',.12',',0.05')+';':''}">
-        <span class="level-badge ${sup?.level==='Jasa'?'jasa':(sup?.level||'').toLowerCase()}" style="flex-shrink:0">${sup?.level==='Jasa'?'🔧':(sup?.level||'?')}</span>
-        <span class="compare-supplier-name">${sup?.name||'?'}</span>
-        ${trend ? renderTrendBadge(trend) : ''}
-        <span class="compare-price" style="${isBest?'color:'+accentColor:''}">Rp ${fmtNum(e.harga)}</span>
-        ${isBest ? `<span class="best-label" style="background:${bestLabelColor};color:${bestTextColor}">Terbaik</span>` : ''}
-      </div>`;
-    }).join('');
-
-    return `
-    <div class="compare-card" onclick="${isJasa?`openJasaDetail('${p.id}')`:`openProductDetail('${p.id}')`}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-        <div class="compare-name">${p.name}</div>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 7px;border-radius:10px;background:${isJasa?'rgba(139,92,246,.1)':'rgba(59,130,246,.1)'};color:${isJasa?'var(--purple)':'var(--accent)'};border:1px solid ${isJasa?'rgba(139,92,246,.2)':'rgba(59,130,246,.2)'};white-space:nowrap;flex-shrink:0;margin-left:8px;">${isJasa?'🔧 Jasa':'📦 Produk'}</span>
-      </div>
-      <div class="compare-cat">${p.category||''} · ${p.satuan||'pcs'}</div>
-      <div class="compare-suppliers" style="margin-top:10px;">${rows}</div>
-    </div>`;
-  }
-
-  let html = '';
-
-  if (produkList.length) {
-    html += `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:10px;margin-top:4px;">📦 Produk (${produkList.length})</div>`;
-    html += produkList.map(p => renderCompareCard(p)).join('');
-  }
-
-  if (jasaList.length) {
-    html += `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:10px;margin-top:${produkList.length?'20px':'4px'};">🔧 Jasa (${jasaList.length})</div>`;
-    html += jasaList.map(p => renderCompareCard(p)).join('');
-  }
-
-  el.innerHTML = html;
-}
-
-function renderUnitChips() {
-  const el = document.getElementById('f-supplier-units');
-  if (!el) return;
-  el.innerHTML = DB.units.map(u =>
-    `<div class="multi-chip" onclick="toggleChip(this)">${u}</div>`
-  ).join('');
-}
-
-// ─────────────────────────────────────────
-// REUSABLE ITEM CARD (Produk & Jasa)
-// ─────────────────────────────────────────
-function renderItemCard(p) {
-  const isJasa = p.type === 'jasa';
-  // Use deduplicated active prices (one per supplier, newest wins)
-  const activeEntries = latestPricePerSupplier(p.id);
-  const bestPrice = activeEntries.length ? Math.min(...activeEntries.map(e => parseFloat(e.harga))) : null;
-  const bestEntry = activeEntries.find(e => parseFloat(e.harga) === bestPrice);
-  // Trend on the best-priced supplier's history
-  const bestHistory = bestEntry ? priceHistoryForSupplier(p.id, bestEntry.supplierId) : [];
-  const trend = getTrend(bestHistory);
-  const accentColor = isJasa ? 'var(--purple)' : 'var(--green)';
-  const satuan = p.satuan || (isJasa ? 'per project' : 'pcs');
-  const onclick = isJasa ? `openJasaDetail('${p.id}')` : `openProductDetail('${p.id}')`;
-  // Latest update: most recent across all active entries
-  const latestUpdate = activeEntries.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
-
-  return `
-  <div class="product-card" onclick="${onclick}">
-    <div class="product-header">
-      <div class="product-name">${p.name}</div>
-      <div class="product-category">${p.category||'—'}</div>
-    </div>
-    <div class="product-price-row">
-      <div class="product-best-price" style="color:${bestPrice ? accentColor : 'var(--text3)'}">
-        ${bestPrice ? 'Rp '+fmtNum(bestPrice)+'<span style="font-size:10px;font-weight:400;color:var(--muted)"> /'+satuan+'</span>' : 'Belum ada harga'}
-        ${trend ? ' '+renderTrendBadge(trend) : ''}
-      </div>
-      <div class="product-supplier-count">${activeEntries.length} supplier</div>
-    </div>
-    ${latestUpdate ? `<div class="product-updated">Update: ${fmtDate(latestUpdate.updatedAt)} · ${latestUpdate.updatedBy}</div>` : ''}
-  </div>`;
-}
-
-function renderJasa() {
-  const q = (document.getElementById('search-jasa')?.value || '').toLowerCase();
-  const el = document.getElementById('list-jasa');
-  if (!el) return;
-
-  const total = DB.products.filter(p => p.type === 'jasa').length;
-  const jasaProducts = DB.products.filter(p =>
-    p.type === 'jasa' &&
-    (!q || p.name.toLowerCase().includes(q) || (p.category||'').toLowerCase().includes(q))
-  ).sort((a,b) => a.name.localeCompare(b.name, 'id'));
-
-  const statsHtml = `<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-    <div class="stat-chip">Total: <span>${total}</span></div>
-    ${q && jasaProducts.length !== total ? `<div class="stat-chip">Filter: <span>${jasaProducts.length}</span></div>` : ''}
-  </div>`;
-
-  if (!jasaProducts.length) {
-    el.innerHTML = statsHtml + `<div class="empty-state"><div class="empty-icon">🔧</div><div class="empty-text">Belum ada layanan jasa.<br>Tap + untuk tambah jasa baru.</div></div>`;
-    return;
-  }
-
-  el.innerHTML = statsHtml + jasaProducts.map(p => renderItemCard(p)).join('');
-}
-
-// ─────────────────────────────────────────
-// JASA DETAIL SCREEN
-// ─────────────────────────────────────────
-let currentJasaId = null;
-
-function openJasaDetail(productId) {
-  currentJasaId = productId;
-  const p = DB.products.find(x => x.id === productId);
-  if (!p) return;
-
-  document.getElementById('detail-jasa-name').textContent = p.name;
-  document.getElementById('detail-jasa-cat').textContent = `${p.category||''} · ${p.satuan||'per project'}`;
-
-  // Active entries: one per supplier, sorted cheapest first
-  const activeEntries = latestPricePerSupplier(productId).sort((a,b) => parseFloat(a.harga) - parseFloat(b.harga));
-  const bestPrice = activeEntries[0] ? parseFloat(activeEntries[0].harga) : null;
-
-  const priceCards = activeEntries.map(e => {
-    const s = DB.suppliers.find(x => x.id === e.supplierId);
-    const isBest = parseFloat(e.harga) === bestPrice;
-    const history = priceHistoryForSupplier(productId, e.supplierId);
-    const trend = getTrend(history);
-    const panelId  = `hist-panel-j-${e.supplierId}`;
-    const toggleId = `hist-toggle-j-${e.supplierId}`;
-    const histCount = history.length;
-
-    return `
-    <div class="detail-card" style="${isBest?'border-color:rgba(139,92,246,.35);':''}" onclick="openSupplierContact('${s?.id}')">
-      <div class="price-entry-row">
-        <div>
-          <div class="price-entry-name">${s?.name||'?'}
-            <span class="level-badge ${s?.level==='Jasa'?'jasa':(s?.level||'').toLowerCase()}" style="font-size:9px">${s?.level==='Jasa'?'🔧':(s?.level||'')}</span>
-          </div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;">${s?.kota||''}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="price-entry-price" style="color:${isBest?'var(--purple)':'var(--text)'}">Rp ${fmtNum(e.harga)}</div>
-          <div style="font-size:10px;color:var(--muted)">${e.satuan||p.satuan||'per project'}</div>
-          ${trend ? renderTrendBadge(trend) : ''}
-          ${isBest ? '<div style="font-size:9px;color:var(--purple);margin-top:2px;">Terbaik</div>' : ''}
-        </div>
-      </div>
-      ${e.catatan ? `<div class="price-entry-meta" style="margin-top:6px">${e.catatan}</div>` : ''}
-      <div class="price-entry-moq" style="margin-top:6px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-        <span>Update: ${fmtDate(e.updatedAt)} · ${e.updatedBy}</span>
-        ${histCount >= 2 ? `<span class="history-toggle" id="${toggleId}" onclick="event.stopPropagation();toggleHistory('${panelId}','${toggleId}')">▼ ${histCount} riwayat</span>` : ''}
-        <span style="cursor:pointer;color:var(--accent);margin-left:auto;" onclick="event.stopPropagation();openUpdatePrice('${e.id}','${productId}')">Update Harga</span>
-        <span style="cursor:pointer;color:var(--red);" onclick="event.stopPropagation();confirmDeletePrice('${e.id}','${productId}')">Hapus</span>
-      </div>
-      ${renderHistoryTimeline(panelId, history, productId, true)}
-    </div>`;
-  }).join('') || '<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Belum ada harga.</div></div>';
-
-  document.getElementById('jasa-detail-content').innerHTML = `
-    <div class="detail-section">
-      <div class="detail-section-title">Informasi Layanan</div>
-      <div class="detail-card">
-        <div class="detail-field"><div class="detail-field-label">Kategori</div><div class="detail-field-value">${p.category||'—'}</div></div>
-        <div class="detail-field"><div class="detail-field-label">Unit Rate</div><div class="detail-field-value">${p.satuan||'—'}</div></div>
-        ${p.catatan?`<div class="detail-field"><div class="detail-field-label">Catatan / Scope</div><div class="detail-field-value">${p.catatan}</div></div>`:''}
-        <div class="detail-field"><div class="detail-field-label">Ditambahkan oleh</div><div class="detail-field-value">${p.createdBy||'—'} · ${fmtDate(p.createdAt)}</div></div>
-      </div>
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title" style="display:flex;justify-content:space-between;align-items:center">
-        <span>Penyedia Jasa (${activeEntries.length})</span>
-        <span style="font-size:18px;cursor:pointer;color:var(--purple)" onclick="openAddPriceForJasa('${productId}')">+</span>
-      </div>
-      ${priceCards}
-    </div>`;
-
-  showScreen('screen-jasa-detail');
-}
-
-function openEditJasa() {
-  const p = DB.products.find(x => x.id === currentJasaId);
-  if (!p) return;
-  document.getElementById('f-jasa-nama').value = p.name;
-  document.getElementById('f-jasa-category').value = p.category||'';
-  document.getElementById('f-jasa-satuan').value = p.satuan||'per project';
-  document.getElementById('f-jasa-catatan').value = p.catatan||'';
-  document.getElementById('f-jasa-supplier').value = '';
-  document.getElementById('f-jasa-harga').value = '';
-  document.getElementById('jasa-sheet-sub').textContent = 'Edit layanan jasa';
-  document.getElementById('jasa-price-group').style.display = 'none';
-  // Override save to update mode
-  document.querySelector('#overlay-jasa .btn-primary').onclick = saveJasaEdit;
-  openSheet('overlay-jasa');
-}
-
-async function saveJasaEdit() {
-  const p = DB.products.find(x => x.id === currentJasaId);
-  if (!p) return;
-  const name = document.getElementById('f-jasa-nama').value.trim();
-  if (!name) { showToast('Nama layanan wajib diisi', 'error'); return; }
-
-  const payload = {
-    id: currentJasaId,
-    name,
-    category: document.getElementById('f-jasa-category').value.trim(),
-    satuan: document.getElementById('f-jasa-satuan').value,
-    catatan: document.getElementById('f-jasa-catatan').value.trim(),
-    type: 'jasa',
-    createdBy: p.createdBy,
-    createdAt: p.createdAt
-  };
-
-  closeSheet('overlay-jasa');
-  // Restore save button
-  document.querySelector('#overlay-jasa .btn-primary').onclick = saveJasaEntry;
-  document.getElementById('jasa-price-group').style.display = '';
-  showLoading('Menyimpan...');
-
-  try {
-    if (SCRIPT_URL) { await api('updateProduct', { product: payload }); await fetchAll(); }
-    else {
-      const idx = DB.products.findIndex(x => x.id === currentJasaId);
-      if (idx >= 0) DB.products[idx] = payload;
-      saveToCache(); renderAll();
-    }
-    logActivity('Edit Jasa', `${getUser().name} mengedit layanan: ${name}`);
-    showToast('Layanan diperbarui ✓', 'success');
-    openJasaDetail(currentJasaId);
-  } catch(e) { showToast('Gagal: '+e.message,'error'); }
-  finally { hideLoading(); }
-}
-
-function confirmDeleteJasa() {
-  const p = DB.products.find(x => x.id === currentJasaId);
-  showConfirm('Hapus Layanan', `Hapus "${p?.name}"? Semua data harga juga akan dihapus.`, async () => {
-    showLoading('Menghapus...');
-    try {
-      if (SCRIPT_URL) { await api('deleteProduct', { id: currentJasaId }); await fetchAll(); }
-      else {
-        DB.products = DB.products.filter(x => x.id !== currentJasaId);
-        DB.priceEntries = DB.priceEntries.filter(x => x.productId !== currentJasaId);
-        saveToCache(); renderAll();
-      }
-      logActivity('Hapus Jasa', `${getUser().name} menghapus layanan: ${p?.name}`);
-      showToast('Layanan dihapus', 'success');
-      goBack('screen-main');
-    } catch(e) { showToast('Gagal: '+e.message,'error'); }
-    finally { hideLoading(); }
-  });
-}
-
-// ─────────────────────────────────────────
-// SUPPLIER CONTACT OVERLAY
-// ─────────────────────────────────────────
-function openSupplierContact(supplierId) {
-  const s = DB.suppliers.find(x => x.id === supplierId);
-  if (!s) return;
-
-  document.getElementById('contact-supplier-name').textContent = s.name;
-
-  const phone = String(s.kontak || '');
-  document.getElementById('contact-phone').textContent = phone || '—';
-
-  // Build WA link: strip non-digits, replace leading 0 with 62
-  const waBtn = document.getElementById('contact-wa-btn');
-  if (phone) {
-    const digits = phone.replace(/\D/g, '');
-    const waNumber = digits.startsWith('0') ? '62' + digits.slice(1) : digits;
-    waBtn.href = `https://wa.me/${waNumber}`;
-    waBtn.style.display = 'flex';
-  } else {
-    waBtn.style.display = 'none';
-  }
-
-  document.getElementById('contact-info').innerHTML = `
-    <div><span style="color:var(--muted)">Level:</span> ${s.level}</div>
-    <div><span style="color:var(--muted)">Kota:</span> ${s.kota||'—'}</div>
-    ${s.authorized ? '<div style="color:var(--green)">✓ Authorized / Ada SPD</div>' : ''}
-    ${(s.units||[]).length ? `<div><span style="color:var(--muted)">Unit:</span> ${s.units.join(', ')}</div>` : ''}
-    ${s.catatan ? `<div><span style="color:var(--muted)">Catatan:</span> ${s.catatan}</div>` : ''}
-  `;
-
-  openSheet('overlay-supplier-contact');
-}
-
-// ─────────────────────────────────────────
-// UPDATE PRICE (adds new row — keeps history)
-// ─────────────────────────────────────────
-let updatePriceEntryId = null;
-let updatePriceProductId = null;
-
-function openUpdatePrice(entryId, productId) {
-  const e = DB.priceEntries.find(x => x.id === entryId);
-  const p = DB.products.find(x => x.id === productId);
-  if (!e || !p) return;
-
-  updatePriceEntryId = entryId;
-  updatePriceProductId = productId;
-
-  document.getElementById('price-sheet-title').textContent = 'Update Harga';
-  document.getElementById('price-sheet-sub').textContent = `${p.name} · ${DB.suppliers.find(s=>s.id===e.supplierId)?.name||''}`;
-  document.getElementById('f-pe-supplier').value = e.supplierId;
-  document.getElementById('f-pe-supplier').disabled = true;
-  document.getElementById('f-pe-harga').value = e.harga;
-  document.getElementById('f-pe-moq').value = e.moq||'';
-  document.getElementById('f-pe-catatan').value = e.catatan||'';
-  document.getElementById('pe-satuan-group').style.display = 'none';
-
-  // Hide MOQ for jasa
-  document.getElementById('pe-moq-group').style.display = p.type === 'jasa' ? 'none' : '';
-
-  document.getElementById('price-save-btn').onclick = saveUpdatePrice;
-  openSheet('overlay-price');
-}
-
-async function saveUpdatePrice() {
-  const hargaVal = document.getElementById('f-pe-harga').value;
-  if (!hargaVal) { showToast('Harga wajib diisi', 'error'); return; }
-
-  const oldEntry = DB.priceEntries.find(x => x.id === updatePriceEntryId);
-  const payload = {
-    id: genId(), // NEW row — old row stays as history
-    productId: updatePriceProductId,
-    supplierId: oldEntry.supplierId,
-    harga: parseFloat(hargaVal),
-    moq: document.getElementById('f-pe-moq').value ? parseInt(document.getElementById('f-pe-moq').value) : null,
-    catatan: document.getElementById('f-pe-catatan').value.trim(),
-    updatedBy: getUser().name,
-    updatedAt: new Date().toISOString()
-  };
-
-  closeSheet('overlay-price');
-  document.getElementById('f-pe-supplier').disabled = false;
-  document.getElementById('price-save-btn').onclick = savePriceEntry;
-  document.getElementById('price-sheet-title').textContent = 'Tambah Harga';
-  showLoading('Menyimpan harga baru...');
-
-  try {
-    if (SCRIPT_URL) { await api('addPrice', payload); await fetchAll(); }
-    else { DB.priceEntries.push(payload); saveToCache(); renderAll(); }
-
-    const p = DB.products.find(x => x.id === updatePriceProductId);
-    const sup = DB.suppliers.find(s => s.id === oldEntry.supplierId);
-    logActivity('Update Harga', `${getUser().name} update harga ${p?.name||''} dari ${sup?.name||''}: Rp ${fmtNum(payload.harga)}`);
-    showToast('Harga diperbarui ✓', 'success');
-
-    if (p?.type === 'jasa') openJasaDetail(updatePriceProductId);
-    else openProductDetail(updatePriceProductId);
-  } catch(e) { showToast('Gagal: '+e.message,'error'); }
-  finally { hideLoading(); }
-}
-
-// ─────────────────────────────────────────
-// ADD PRICE FOR JASA (from jasa detail "+")
-// ─────────────────────────────────────────
-function openAddPriceForJasa(productId) {
-  const p = DB.products.find(x => x.id === productId);
-  priceEntryProductId = productId;
-
-  document.getElementById('price-sheet-title').textContent = 'Tambah Penyedia Jasa';
-  document.getElementById('price-sheet-sub').textContent = `untuk: ${p?.name||''}`;
-  document.getElementById('f-pe-supplier').value = '';
-  document.getElementById('f-pe-supplier').disabled = false;
-  document.getElementById('f-pe-harga').value = '';
-  document.getElementById('f-pe-moq').value = '';
-  document.getElementById('f-pe-catatan').value = '';
-  document.getElementById('pe-moq-group').style.display = 'none';
-
-  const satuanEl = document.getElementById('f-pe-satuan');
-  satuanEl.innerHTML = `
-    <option value="per project">per project</option>
-    <option value="per jam">per jam</option>
-    <option value="per hari">per hari</option>
-    <option value="per bulan">per bulan</option>
-    <option value="per m²">per m²</option>
-    <option value="per unit">per unit</option>
-    <option value="per pcs">per pcs</option>`;
-  satuanEl.value = p?.satuan || 'per project';
-
-  document.getElementById('price-save-btn').onclick = savePriceEntry;
-  openSheet('overlay-price');
-}
-
-function populateSupplierDropdowns() {
-  const opts = '<option value="">Pilih supplier...</option>' +
-    DB.suppliers.map(s => `<option value="${s.id}">${s.name} (${s.level})</option>`).join('');
-  ['f-price-supplier','f-pe-supplier','f-jasa-supplier'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = opts;
-  });
-}
-
-// ─────────────────────────────────────────
-// SUPPLIER DETAIL
-// ─────────────────────────────────────────
-function openSupplierDetail(id) {
-  currentSupplierId = id;
-  const s = DB.suppliers.find(x => x.id === id);
-  if (!s) return;
-
-  document.getElementById('detail-supplier-name').textContent = s.name;
-  document.getElementById('detail-supplier-level').textContent =
-    s.level === 'Jasa'
-      ? '🔧 Jasa / Service Provider'
-      : `${s.level} ${s.authorized ? '· ✓ Authorized' : ''}`;
-
-  // Get all products this supplier has ACTIVE prices for (one per product, newest wins)
-  const allActiveForSupplier = DB.products.reduce((acc, prod) => {
-    const active = latestPricePerSupplier(prod.id).find(e => e.supplierId === id);
-    if (active) acc.push({ product: prod, entry: active });
-    return acc;
-  }, []);
-
-  const produkEntries = allActiveForSupplier.filter(({product}) => product.type !== 'jasa');
-  const jasaEntries   = allActiveForSupplier.filter(({product}) => product.type === 'jasa');
-
-  // Produk section
-  const produkCards = produkEntries.map(({product: p, entry: e}) => {
-    return `
-    <div class="detail-card" onclick="openProductDetail('${p.id}')">
-      <div class="price-entry-row">
-        <div class="price-entry-name">${p?.name||'?'}</div>
-        <div class="price-entry-price">Rp ${fmtNum(e.harga)}</div>
-      </div>
-      <div class="price-entry-meta">${p?.category||''} · ${p?.satuan||'pcs'}</div>
-      ${e.moq ? `<div class="price-entry-moq">MOQ: ${e.moq}</div>` : ''}
-      <div class="price-entry-moq">Update: ${fmtDate(e.updatedAt)} · ${e.updatedBy}</div>
-    </div>`;
-  }).join('') || '<div style="font-size:12px;color:var(--text3);padding:8px 0;">Belum ada produk.</div>';
-
-  // Jasa section
-  const jasaCards = jasaEntries.map(({product: p, entry: e}) => {
-    return `
-    <div class="detail-card" onclick="openJasaDetail('${p.id}')">
-      <div class="price-entry-row">
-        <div class="price-entry-name">${p?.name||'?'}</div>
-        <div class="price-entry-price" style="color:var(--purple)">Rp ${fmtNum(e.harga)}</div>
-      </div>
-      <div class="price-entry-meta">${p?.satuan||'per project'}</div>
-      ${e.catatan ? `<div class="price-entry-meta" style="margin-top:2px">${e.catatan}</div>` : ''}
-      <div class="price-entry-moq" style="margin-top:4px">Update: ${fmtDate(e.updatedAt)} · ${e.updatedBy}</div>
-    </div>`;
-  }).join('') || '<div style="font-size:12px;color:var(--text3);padding:8px 0;">Belum ada layanan jasa.</div>';
-
-  document.getElementById('supplier-detail-content').innerHTML = `
-    <div class="detail-section">
-      <div class="detail-section-title">Informasi Supplier</div>
-      <div class="detail-card">
-        <div class="detail-field"><div class="detail-field-label">Kontak</div><div class="detail-field-value">${s.kontak ? String(s.kontak) : '—'}</div></div>
-        <div class="detail-field"><div class="detail-field-label">Kota</div><div class="detail-field-value">${s.kota||'—'}</div></div>
-        <div class="detail-field"><div class="detail-field-label">Unit Bisnis</div><div class="detail-field-value">${(s.units||[]).join(', ')||'—'}</div></div>
-        ${s.catatan ? `<div class="detail-field"><div class="detail-field-label">Catatan</div><div class="detail-field-value">${s.catatan}</div></div>` : ''}
-        <div class="detail-field"><div class="detail-field-label">Ditambahkan oleh</div><div class="detail-field-value">${s.createdBy||'—'} · ${fmtDate(s.createdAt)}</div></div>
-      </div>
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title" style="display:flex;justify-content:space-between;align-items:center">
-        <span>📦 Produk (${produkEntries.length})</span>
-        <span style="font-size:18px;cursor:pointer;color:var(--accent)" onclick="openAddPrice('${id}')">+</span>
-      </div>
-      ${produkCards}
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title" style="display:flex;justify-content:space-between;align-items:center">
-        <span>🔧 Jasa (${jasaEntries.length})</span>
-        <span style="font-size:18px;cursor:pointer;color:var(--purple)" onclick="openAddJasa('${id}')">+</span>
-      </div>
-      ${jasaCards}
-    </div>`;
-
-  showScreen('screen-supplier-detail');
-}
-
-// ─────────────────────────────────────────
-// PRODUCT DETAIL
-// ─────────────────────────────────────────
-function openProductDetail(id) {
-  currentProductId = id;
-  const p = DB.products.find(x => x.id === id);
-  if (!p) return;
-
-  // If it's a jasa product, redirect to jasa detail screen
-  if (p.type === 'jasa') { openJasaDetail(id); return; }
-
-  document.getElementById('detail-product-name').textContent = p.name;
-  document.getElementById('detail-product-cat').textContent = `${p.category||''} · ${p.satuan||'pcs'}`;
-
-  // Active entries: one per supplier, sorted cheapest first
-  const activeEntries = latestPricePerSupplier(id).sort((a,b) => parseFloat(a.harga) - parseFloat(b.harga));
-  const bestPrice = activeEntries[0] ? parseFloat(activeEntries[0].harga) : null;
-
-  const priceCards = activeEntries.map(e => {
-    const s = DB.suppliers.find(x => x.id === e.supplierId);
-    const isBest = parseFloat(e.harga) === bestPrice;
-    const history = priceHistoryForSupplier(id, e.supplierId);
-    const trend = getTrend(history);
-    const panelId  = `hist-panel-${e.supplierId}`;
-    const toggleId = `hist-toggle-${e.supplierId}`;
-    const histCount = history.length;
-
-    return `
-    <div class="detail-card" style="${isBest?'border-color:rgba(16,185,129,.3);':''}" onclick="openSupplierContact('${s?.id}')">
-      <div class="price-entry-row">
-        <div>
-          <div class="price-entry-name">${s?.name||'?'} <span class="level-badge ${s?.level==='Jasa'?'jasa':(s?.level||'').toLowerCase()}" style="font-size:9px">${s?.level||''}</span></div>
-          ${s?.authorized ? '<div style="font-size:10px;color:var(--green);margin-top:2px;">✓ Authorized</div>' : ''}
-          <div style="font-size:11px;color:var(--text3);margin-top:2px">${s?.kota||''}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="price-entry-price" style="${isBest?'':'color:var(--text)'}">Rp ${fmtNum(e.harga)}</div>
-          ${trend ? renderTrendBadge(trend) : ''}
-          ${isBest ? '<div style="font-size:9px;color:var(--green);margin-top:2px;">Terbaik</div>' : ''}
-        </div>
-      </div>
-      ${e.moq ? `<div class="price-entry-moq">MOQ: ${e.moq} ${p.satuan||'pcs'}</div>` : ''}
-      ${e.catatan ? `<div class="price-entry-meta" style="margin-top:4px">${e.catatan}</div>` : ''}
-      <div class="price-entry-moq" style="margin-top:6px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-        <span>Update: ${fmtDate(e.updatedAt)} · ${e.updatedBy}</span>
-        ${histCount >= 2 ? `<span class="history-toggle" id="${toggleId}" onclick="event.stopPropagation();toggleHistory('${panelId}','${toggleId}')">▼ ${histCount} riwayat</span>` : ''}
-        <span style="cursor:pointer;color:var(--accent);margin-left:auto;" onclick="event.stopPropagation();openUpdatePrice('${e.id}','${id}')">Update Harga</span>
-        <span style="cursor:pointer;color:var(--red);" onclick="event.stopPropagation();confirmDeletePrice('${e.id}','${id}')">Hapus</span>
-      </div>
-      ${renderHistoryTimeline(panelId, history, id, false)}
-    </div>`;
-  }).join('') || '<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Belum ada harga.</div></div>';
-
-  document.getElementById('product-detail-content').innerHTML = `
-    <div class="detail-section">
-      <div class="detail-section-title">Informasi Produk</div>
-      <div class="detail-card">
-        <div class="detail-field"><div class="detail-field-label">Kategori</div><div class="detail-field-value">${p.category||'—'}</div></div>
-        <div class="detail-field"><div class="detail-field-label">Satuan</div><div class="detail-field-value">${p.satuan||'—'}</div></div>
-        ${p.catatan ? `<div class="detail-field"><div class="detail-field-label">Spesifikasi / Catatan</div><div class="detail-field-value">${p.catatan}</div></div>` : ''}
-        <div class="detail-field"><div class="detail-field-label">Ditambahkan oleh</div><div class="detail-field-value">${p.createdBy||'—'} · ${fmtDate(p.createdAt)}</div></div>
-      </div>
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title" style="display:flex;justify-content:space-between;align-items:center">
-        <span>Harga dari Supplier (${activeEntries.length})</span>
-        <span style="font-size:18px;cursor:pointer;color:var(--accent)" onclick="openAddPrice('${id}')">+</span>
-      </div>
-      ${priceCards}
-    </div>`;
-
-  showScreen('screen-product-detail');
-}
-
-// ─────────────────────────────────────────
-// ADD / EDIT SUPPLIER
-// ─────────────────────────────────────────
-function openAddSupplier() {
-  editMode = false;
-  currentSupplierId = null;
-  document.getElementById('sheet-supplier-title').textContent = 'Tambah Supplier';
-  clearForm(['f-supplier-name','f-supplier-kontak','f-supplier-kota','f-supplier-catatan']);
-  document.getElementById('f-supplier-level').value = '';
-  document.getElementById('f-supplier-auth').checked = false;
-  renderUnitChips();
-  openSheet('overlay-supplier');
-}
-
-function openEditSupplier() {
-  editMode = true;
-  const s = DB.suppliers.find(x => x.id === currentSupplierId);
-  if (!s) return;
-  document.getElementById('sheet-supplier-title').textContent = 'Edit Supplier';
-  document.getElementById('f-supplier-name').value = s.name;
-  document.getElementById('f-supplier-kontak').value = s.kontak||'';
-  document.getElementById('f-supplier-kota').value = s.kota||'';
-  document.getElementById('f-supplier-level').value = s.level;
-  document.getElementById('f-supplier-auth').checked = !!s.authorized;
-  document.getElementById('f-supplier-catatan').value = s.catatan||'';
-  renderUnitChips();
-  setTimeout(() => {
-    document.querySelectorAll('#f-supplier-units .multi-chip').forEach(chip => {
-      if ((s.units||[]).includes(chip.textContent)) chip.classList.add('selected');
-    });
-  }, 50);
-  openSheet('overlay-supplier');
-}
-
-async function saveSupplier() {
-  const name = document.getElementById('f-supplier-name').value.trim();
-  const level = document.getElementById('f-supplier-level').value;
-  if (!name || !level) { showToast('Nama & level wajib diisi', 'error'); return; }
-
-  const units = [...document.querySelectorAll('#f-supplier-units .multi-chip.selected')].map(c=>c.textContent);
-
-  // On edit, preserve original createdBy & createdAt
-  const original = editMode ? DB.suppliers.find(x => x.id === currentSupplierId) : null;
-  const payload = {
-    id: editMode ? currentSupplierId : genId(),
-    name, level,
-    kontak: document.getElementById('f-supplier-kontak').value.trim(),
-    kota: document.getElementById('f-supplier-kota').value.trim(),
-    authorized: document.getElementById('f-supplier-auth').checked,
-    catatan: document.getElementById('f-supplier-catatan').value.trim(),
-    units,
-    createdBy: original ? original.createdBy : getUser().name,
-    createdAt: original ? original.createdAt : new Date().toISOString()
-  };
-
-  closeSheet('overlay-supplier');
-  showLoading(editMode ? 'Menyimpan perubahan...' : 'Menambah supplier...');
-
-  try {
-    if (SCRIPT_URL) {
-      await api(editMode ? 'updateSupplier' : 'addSupplier', payload);
-      await fetchAll();
-    } else {
-      if (editMode) {
-        const idx = DB.suppliers.findIndex(x => x.id === currentSupplierId);
-        if (idx >= 0) DB.suppliers[idx] = payload;
-      } else {
-        DB.suppliers.push(payload);
-      }
-      saveToCache(); renderAll();
-    }
-    logActivity(editMode ? 'Edit Supplier' : 'Tambah Supplier', `${getUser().name} ${editMode?'mengedit':'menambah'} supplier: ${name}`);
-    showToast(editMode ? 'Supplier diperbarui ✓' : 'Supplier ditambahkan ✓', 'success');
-    // Refresh detail screen if we just edited (user is still on detail screen)
-    if (editMode && currentSupplierId) {
-      openSupplierDetail(currentSupplierId);
-    }
-  } catch(e) {
-    showToast('Gagal: ' + e.message, 'error');
-  } finally { hideLoading(); }
-}
-
-// ─────────────────────────────────────────
-// ADD / EDIT PRODUCT
-// ─────────────────────────────────────────
-function openAddProduct() {
-  editMode = false;
-  currentProductId = null;
-  document.getElementById('sheet-product-title').textContent = 'Tambah Produk';
-  clearForm(['f-product-name','f-product-category','f-product-catatan','f-price-harga','f-price-moq']);
-  document.getElementById('f-product-satuan').value = 'pcs';
-  document.getElementById('f-price-supplier').value = '';
-  document.getElementById('price-entry-group').style.display = '';
-  openSheet('overlay-product');
-}
-
-function openEditProduct() {
-  editMode = true;
-  const p = DB.products.find(x => x.id === currentProductId);
-  if (!p) return;
-  document.getElementById('sheet-product-title').textContent = 'Edit Produk';
-  document.getElementById('f-product-name').value = p.name;
-  document.getElementById('f-product-category').value = p.category||'';
-  document.getElementById('f-product-satuan').value = p.satuan||'pcs';
-  document.getElementById('f-product-catatan').value = p.catatan||'';
-  document.getElementById('price-entry-group').style.display = 'none';
-  openSheet('overlay-product');
-}
-
-async function saveProduct() {
-  const name = document.getElementById('f-product-name').value.trim();
-  if (!name) { showToast('Nama produk wajib diisi', 'error'); return; }
-
-  const payload = {
-    id: editMode ? currentProductId : genId(),
-    name, category: document.getElementById('f-product-category').value.trim(),
-    satuan: document.getElementById('f-product-satuan').value,
-    catatan: document.getElementById('f-product-catatan').value.trim(),
-    createdBy: getUser().name, createdAt: new Date().toISOString()
-  };
-
-  const supplierId = document.getElementById('f-price-supplier')?.value;
-  const hargaVal = document.getElementById('f-price-harga')?.value;
-  const moqVal = document.getElementById('f-price-moq')?.value;
-
-  let pricePayload = null;
-  if (!editMode && supplierId && hargaVal) {
-    pricePayload = {
-      id: genId(), productId: payload.id, supplierId,
-      harga: parseFloat(hargaVal), moq: moqVal ? parseInt(moqVal) : null,
-      catatan: '', updatedBy: getUser().name, updatedAt: new Date().toISOString()
-    };
-  }
-
-  closeSheet('overlay-product');
-  showLoading('Menyimpan produk...');
-
-  try {
-    if (SCRIPT_URL) {
-      await api(editMode ? 'updateProduct' : 'addProduct', { product: payload, price: pricePayload });
-      await fetchAll();
-    } else {
-      if (editMode) {
-        const idx = DB.products.findIndex(x => x.id === currentProductId);
-        if (idx >= 0) DB.products[idx] = payload;
-      } else {
-        DB.products.push(payload);
-        if (pricePayload) DB.priceEntries.push(pricePayload);
-      }
-      saveToCache(); renderAll();
-    }
-    logActivity(editMode ? 'Edit Produk' : 'Tambah Produk', `${getUser().name} ${editMode?'mengedit':'menambah'} produk: ${name}`);
-    showToast(editMode ? 'Produk diperbarui ✓' : 'Produk ditambahkan ✓', 'success');
-  } catch(e) {
-    showToast('Gagal: ' + e.message, 'error');
-  } finally { hideLoading(); }
-}
-
-// ─────────────────────────────────────────
-// ADD PRICE ENTRY
-// ─────────────────────────────────────────
-function openAddPrice(productId) {
-  priceEntryProductId = productId;
-  const p = DB.products.find(x => x.id === productId);
-  document.getElementById('price-sheet-title').textContent = 'Tambah Harga';
-  document.getElementById('price-sheet-sub').textContent = `untuk: ${p?.name||''}`;
-  clearForm(['f-pe-harga','f-pe-moq','f-pe-catatan']);
-  document.getElementById('f-pe-supplier').value = '';
-  document.getElementById('f-pe-supplier').disabled = false;
-  document.getElementById('pe-moq-group').style.display = '';
-  document.getElementById('pe-satuan-group').style.display = 'none';
-  document.getElementById('price-save-btn').onclick = savePriceEntry;
-  openSheet('overlay-price');
-}
-
-async function savePriceEntry() {
-  const supplierId = document.getElementById('f-pe-supplier').value;
-  const hargaVal = document.getElementById('f-pe-harga').value;
-  if (!supplierId || !hargaVal) { showToast('Supplier & harga wajib diisi', 'error'); return; }
-
-  const payload = {
-    id: genId(),
-    productId: priceEntryProductId,
-    supplierId,
-    harga: parseFloat(hargaVal),
-    moq: document.getElementById('f-pe-moq').value ? parseInt(document.getElementById('f-pe-moq').value) : null,
-    catatan: document.getElementById('f-pe-catatan').value.trim(),
-    updatedBy: getUser().name,
-    updatedAt: new Date().toISOString()
-  };
-
-  closeSheet('overlay-price');
-  showLoading('Menyimpan harga...');
-
-  try {
-    if (SCRIPT_URL) { await api('addPrice', payload); await fetchAll(); }
-    else { DB.priceEntries.push(payload); saveToCache(); renderAll(); }
-    const sup = DB.suppliers.find(s => s.id === supplierId);
-    const prod = DB.products.find(p => p.id === priceEntryProductId);
-    logActivity('Tambah Harga', `${getUser().name} menambah harga ${prod?.name||''} dari ${sup?.name||''}: Rp ${fmtNum(payload.harga)}`);
-    showToast('Harga ditambahkan ✓', 'success');
-    if (currentProductId) openProductDetail(currentProductId);
-  } catch(e) { showToast('Gagal: ' + e.message, 'error'); }
-  finally { hideLoading(); }
-}
-
-function openAddJasa(supplierId) {
-  clearForm(['f-jasa-nama','f-jasa-category','f-jasa-harga','f-jasa-catatan']);
-  document.getElementById('f-jasa-satuan').value = 'per project';
-  populateSupplierDropdowns();
-  if (supplierId) {
-    document.getElementById('f-jasa-supplier').value = supplierId;
-    document.getElementById('jasa-sheet-sub').textContent =
-      'Harga awal dari: ' + (DB.suppliers.find(s => s.id === supplierId)?.name || 'supplier ini');
-  } else {
-    document.getElementById('f-jasa-supplier').value = '';
-    document.getElementById('jasa-sheet-sub').textContent = 'Data akan tersimpan ke Google Sheet';
-  }
-  openSheet('overlay-jasa');
-}
-
-async function saveJasaEntry() {
-  const namaJasa = document.getElementById('f-jasa-nama').value.trim();
-  if (!namaJasa) { showToast('Nama layanan wajib diisi', 'error'); return; }
-
-  const productPayload = {
-    id: genId(),
-    name: namaJasa,
-    category: document.getElementById('f-jasa-category').value.trim(),
-    satuan: document.getElementById('f-jasa-satuan').value,
-    catatan: document.getElementById('f-jasa-catatan').value.trim(),
-    type: 'jasa',
-    createdBy: getUser().name,
-    createdAt: new Date().toISOString()
-  };
-
-  const supplierId = document.getElementById('f-jasa-supplier').value;
-  const hargaVal = document.getElementById('f-jasa-harga').value;
-  let pricePayload = null;
-  if (supplierId && hargaVal) {
-    pricePayload = {
-      id: genId(),
-      productId: productPayload.id,
-      supplierId,
-      harga: parseFloat(hargaVal),
-      moq: null,
-      satuan: productPayload.satuan,
-      catatan: '',
-      updatedBy: getUser().name,
-      updatedAt: new Date().toISOString()
-    };
-  }
-
-  closeSheet('overlay-jasa');
-  showLoading('Menyimpan layanan jasa...');
-
-  try {
-    if (SCRIPT_URL) {
-      await api('addProduct', { product: productPayload, price: pricePayload });
-      await fetchAll();
-    } else {
-      DB.products.push(productPayload);
-      if (pricePayload) DB.priceEntries.push(pricePayload);
-      saveToCache(); renderAll();
-    }
-    logActivity('Tambah Jasa', `${getUser().name} menambah layanan jasa: ${namaJasa}`);
-    showToast('Layanan jasa ditambahkan ✓', 'success');
-    renderJasa();
-    if (currentSupplierId) openSupplierDetail(currentSupplierId);
-  } catch(e) {
-    showToast('Gagal: ' + e.message, 'error');
-  } finally { hideLoading(); }
-}
-
-// ─────────────────────────────────────────
-// DELETE
-// ─────────────────────────────────────────
-function confirmDeleteSupplier() {
-  const s = DB.suppliers.find(x => x.id === currentSupplierId);
-  showConfirm('Hapus Supplier', `Hapus "${s?.name}"? Semua data harga dari supplier ini juga akan dihapus.`, async () => {
-    showLoading('Menghapus...');
-    try {
-      if (SCRIPT_URL) { await api('deleteSupplier', { id: currentSupplierId }); await fetchAll(); }
-      else {
-        DB.suppliers = DB.suppliers.filter(x => x.id !== currentSupplierId);
-        DB.priceEntries = DB.priceEntries.filter(x => x.supplierId !== currentSupplierId);
-        saveToCache(); renderAll();
-      }
-      logActivity('Hapus Supplier', `${getUser().name} menghapus supplier: ${s?.name}`);
-      showToast('Supplier dihapus', 'success');
-      goBack('screen-main');
-    } catch(e) { showToast('Gagal: '+e.message,'error'); }
-    finally { hideLoading(); }
-  });
-}
-
-function confirmDeleteProduct() {
-  const p = DB.products.find(x => x.id === currentProductId);
-  showConfirm('Hapus Produk', `Hapus "${p?.name}"? Semua data harga produk ini juga akan dihapus.`, async () => {
-    showLoading('Menghapus...');
-    try {
-      if (SCRIPT_URL) { await api('deleteProduct', { id: currentProductId }); await fetchAll(); }
-      else {
-        DB.products = DB.products.filter(x => x.id !== currentProductId);
-        DB.priceEntries = DB.priceEntries.filter(x => x.productId !== currentProductId);
-        saveToCache(); renderAll();
-      }
-      logActivity('Hapus Produk', `${getUser().name} menghapus produk: ${p?.name}`);
-      showToast('Produk dihapus', 'success');
-      goBack('screen-main');
-    } catch(e) { showToast('Gagal: '+e.message,'error'); }
-    finally { hideLoading(); }
-  });
-}
-
-function confirmDeletePrice(priceId, productId) {
-  showConfirm('Hapus Harga', 'Hapus data harga ini?', async () => {
-    showLoading('Menghapus...');
-    try {
-      if (SCRIPT_URL) { await api('deletePrice', { id: priceId }); await fetchAll(); }
-      else {
-        DB.priceEntries = DB.priceEntries.filter(x => x.id !== priceId);
-        saveToCache(); renderAll();
-      }
-      logActivity('Hapus Harga', `${getUser().name} menghapus data harga`);
-      showToast('Harga dihapus', 'success');
-      // Refresh the correct detail screen
-      const pid = productId || currentProductId;
-      if (pid) {
-        const p = DB.products.find(x => x.id === pid);
-        if (p?.type === 'jasa') openJasaDetail(pid);
-        else openProductDetail(pid);
-      }
-    } catch(e) { showToast('Gagal: '+e.message,'error'); }
-    finally { hideLoading(); }
-  });
-}
-
-// ─────────────────────────────────────────
-// ACTIVITY LOG
-// ─────────────────────────────────────────
-function logActivity(action, detail) {
-  const logs = JSON.parse(localStorage.getItem('arkana_activity_log') || '[]');
-  logs.unshift({ userId: getUser().id, action, detail, time: new Date().toISOString() });
-  if (logs.length > 200) logs.pop();
-  localStorage.setItem('arkana_activity_log', JSON.stringify(logs));
-  if (SCRIPT_URL) api('addLog', { action, detail }).catch(()=>{});
-}
-
-// ─────────────────────────────────────────
-// UI HELPERS
-// ─────────────────────────────────────────
-function switchTab(tab) {
-  currentTab = tab;
-  ['suppliers','products','jasa','compare'].forEach(t => {
-    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
-    document.getElementById('pane-'+t).style.display = t===tab ? '' : 'none';
-  });
-  // FAB hidden on compare only
-  document.getElementById('fab-btn').style.display = tab==='compare' ? 'none' : '';
-  // Render jasa when switching to it
-  if (tab === 'jasa') renderJasa();
-}
-
-function setLevelFilter(el, level) {
-  levelFilter = level;
-  document.querySelectorAll('#filter-level .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderSuppliers();
-}
-
-function setUnitFilter(el, unit) {
-  unitFilter = unit;
-  renderSuppliers();
-}
-
-function setCityFilter(el, city) {
-  cityFilter = city;
-  renderSuppliers();
-}
-
-function openAddSheet() {
-  if (currentTab === 'suppliers') openAddSupplier();
-  else if (currentTab === 'products') openAddProduct();
-  else if (currentTab === 'jasa') openAddJasa(null);
-}
-
-function toggleChip(el) { el.classList.toggle('selected'); }
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function goBack(screenId) {
-  showScreen(screenId);
-  renderAll();
-}
-
-function openSheet(id) {
-  document.getElementById(id).classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeSheet(id) {
-  document.getElementById(id).classList.remove('active');
-  document.body.style.overflow = '';
-}
-
-function showConfirm(title, msg, onOk) {
-  document.getElementById('confirm-title').textContent = title;
-  document.getElementById('confirm-msg').textContent = msg;
-  const btn = document.getElementById('confirm-ok-btn');
-  btn.onclick = () => { closeConfirm(); onOk(); };
-  document.getElementById('confirm-overlay').classList.add('active');
-}
-
-function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('active'); }
-
-function showLoading(text='Loading...') {
-  document.getElementById('loading-text').textContent = text;
-  document.getElementById('loading').classList.add('active');
-}
-
-function hideLoading() { document.getElementById('loading').classList.remove('active'); }
-
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast ' + type;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-function clearForm(ids) { ids.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; }); }
-
-function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
-
-function fmtNum(n) { return Number(n).toLocaleString('id-ID'); }
-
-function fmtDate(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear().toString().substr(2)} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-}
-
-// Compact date for chart labels: "18/05"
-function fmtDateShort(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
-}
-
-// Close overlays on background tap
-document.querySelectorAll('.overlay').forEach(o => {
-  o.addEventListener('click', e => { if (e.target === o) closeSheet(o.id); });
-});
-
-document.getElementById('confirm-overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('confirm-overlay')) closeConfirm();
-});
+  document.getElementById('btn-confirm-cancel').addEventListener('click', closeConfirm);
+  SupplierTracker.init();
 </script>
 </body>
 </html>

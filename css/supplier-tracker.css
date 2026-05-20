@@ -1,0 +1,495 @@
+/* ═══════════════════════════════════════════════════
+   Arkana App — Supplier Tracker CSS
+   Styles specific to supplier-tracker.html.
+   Extends base.css — does not override :root vars.
+   ═══════════════════════════════════════════════════ */
+
+/* ── App shell ── */
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Top bar ── */
+.topbar {
+  padding: max(env(safe-area-inset-top), 44px) 18px 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 10;
+}
+
+.back-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+  text-decoration: none;
+  color: var(--text2);
+}
+
+.topbar-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+  flex: 1;
+  letter-spacing: -0.01em;
+}
+
+.topbar-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.topbar-action {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--accent);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: white;
+}
+
+/* ── Tab bar ── */
+.tab-bar {
+  flex-shrink: 0;
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 9;
+}
+
+.tab {
+  flex: 1;
+  padding: 11px 4px 10px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.04em;
+  position: relative;
+  transition: color .2s;
+}
+
+.tab.active { color: var(--accent); }
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* ── Scrollable content ── */
+.scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 14px 16px 80px;
+}
+
+.scroll-content::-webkit-scrollbar { display: none; }
+
+/* ── Search bar ── */
+.search-wrap {
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 14px 11px 38px;
+  font-size: 13px;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.search-input:focus         { border-color: var(--accent); }
+.search-input::placeholder  { color: var(--text3); }
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* ── Filter chips ── */
+.filter-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  margin-bottom: 14px;
+}
+
+.filter-row::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+
+.chip.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* ── Stats bar ── */
+.stats-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.stat-chip {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.stat-chip span {
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Section label (compare groups) ── */
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--muted);
+  margin-bottom: 10px;
+  margin-top: 4px;
+}
+
+/* ── Card list ── */
+.card-list { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── Supplier card ── */
+.supplier-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color .2s;
+}
+
+.supplier-card:active { opacity: .85; }
+
+.supplier-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.supplier-initial {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: white;
+}
+
+.supplier-info    { flex: 1; min-width: 0; }
+.supplier-name    { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.supplier-meta    { font-size: 11px; color: var(--text3); }
+.supplier-badges  { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.unit-badge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(79, 127, 255, .08);
+  color: var(--accent);
+  border: 1px solid rgba(79, 127, 255, .15);
+}
+
+/* Supplier count chips (PRD-01.3) */
+.supplier-count-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.count-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.count-produk {
+  background: rgba(59, 130, 246, .08);
+  color: var(--accent);
+  border: 1px solid rgba(59, 130, 246, .18);
+}
+
+.count-jasa {
+  background: rgba(139, 92, 246, .08);
+  color: var(--purple);
+  border: 1px solid rgba(139, 92, 246, .18);
+}
+
+/* ── Product card ── */
+.product-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color .2s;
+}
+
+.product-card:active { opacity: .85; }
+
+.product-header         { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.product-name           { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; margin-right: 8px; line-height: 1.3; }
+.product-category       { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); background: var(--surface2); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+.product-price-row      { display: flex; justify-content: space-between; align-items: center; }
+.product-best-price     { font-size: 15px; font-weight: 700; color: var(--green); }
+.product-supplier-count { font-size: 11px; color: var(--text3); }
+.product-updated        { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+/* ── Compare card ── */
+.compare-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color .2s;
+}
+
+.compare-card:active       { opacity: .85; }
+.compare-name              { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.compare-cat               { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+.compare-suppliers         { display: flex; flex-direction: column; gap: 6px; }
+
+.compare-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border-radius: 8px;
+  position: relative;
+}
+
+.compare-row.best          { border: 1px solid rgba(16,185,129,.3); background: rgba(16,185,129,.05); }
+.compare-supplier-name     { flex: 1; font-size: 12px; font-weight: 600; color: var(--text); }
+.compare-price             { font-size: 13px; font-weight: 700; color: var(--text); }
+.compare-row.best .compare-price { color: var(--green); }
+.best-label                { font-size: 9px; font-weight: 700; color: var(--green); background: rgba(16,185,129,.12); padding: 2px 6px; border-radius: 10px; }
+
+/* ── FAB ── */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: max(calc(50% - 240px + 16px), 16px);
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--accent);
+  border: none;
+  color: white;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, .4);
+  z-index: 50;
+  transition: transform .15s;
+}
+
+.fab:active { transform: scale(.93); }
+
+/* ── Detail screens ── */
+.detail-section       { margin-bottom: 20px; }
+
+.detail-section-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.detail-field         { margin-bottom: 10px; }
+.detail-field-label   { font-size: 11px; color: var(--text3); margin-bottom: 2px; }
+.detail-field-value   { font-size: 14px; color: var(--text); font-weight: 500; line-height: 1.5; }
+
+.detail-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.detail-action-btn {
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.detail-action-link {
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+}
+
+.price-entry-row    { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.price-entry-name   { font-size: 13px; font-weight: 700; color: var(--text); }
+.price-entry-price  { font-size: 14px; font-weight: 800; color: var(--green); }
+.price-entry-meta   { font-size: 11px; color: var(--text3); }
+.price-entry-moq    { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* ── Price History (PRD-01.1) ── */
+.trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.trend-up     { background: rgba(239,68,68,.1);  color: var(--red);   border: 1px solid rgba(239,68,68,.2); }
+.trend-down   { background: rgba(16,185,129,.1); color: var(--green); border: 1px solid rgba(16,185,129,.2); }
+.trend-stable { background: rgba(75,86,128,.1);  color: var(--muted); border: 1px solid rgba(75,86,128,.2); }
+
+.history-toggle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 2px 0;
+  flex-shrink: 0;
+  transition: opacity .15s;
+}
+
+.history-toggle:active { opacity: .6; }
+
+.history-timeline {
+  margin-top: 10px;
+  background: var(--surface2);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: none;
+}
+
+.history-timeline.open { display: block; }
+
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.history-row:last-child      { border-bottom: none; }
+.history-row.latest          { background: rgba(59,130,246,.04); }
+.history-row-price           { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+.history-row.latest .history-row-price { color: var(--accent); }
+.history-row-meta            { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; line-height: 1.5; }
+
+.history-latest-tag {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(59,130,246,.1);
+  border: 1px solid rgba(59,130,246,.2);
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.history-del {
+  font-size: 10px;
+  color: var(--red);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+}
+
+.history-del:active { background: rgba(239,68,68,.1); }
