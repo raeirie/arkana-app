@@ -8,10 +8,22 @@
 // ─────────────────────────────────────────
 // USERS REGISTRY
 // Single source of truth for user definitions.
+// avatar = initials string (fallback when no photo uploaded).
+// color  = gradient string for avatar backgrounds.
 // ─────────────────────────────────────────
 const USERS = {
-  arie: { id: 'arie', name: 'Arie', avatar: null },
-  ajin: { id: 'ajin', name: 'Ajin', avatar: null }
+  arie: {
+    id:     'arie',
+    name:   'Arie',
+    avatar: 'AR',
+    color:  'linear-gradient(135deg,#1D4ED8,#3B82F6)'
+  },
+  ajin: {
+    id:     'ajin',
+    name:   'Ajin',
+    avatar: 'AJ',
+    color:  'linear-gradient(135deg,#065F46,#10B981)'
+  }
 };
 
 // ─────────────────────────────────────────
