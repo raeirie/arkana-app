@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="css/index.css">
 
   <!-- JS load order: config → constants → utils → app → index -->
-  <script src="config.js?v=1.2.0"></script>
+  <script src="config.js?v=1.8.0"></script>
   <script src="js/constants.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/app.js"></script>
@@ -114,17 +114,22 @@
         <div class="section-head">Menu Utama</div>
         <div class="feature-grid">
 
-          <div class="feat-card c-blue active-card">
+          <div class="feat-card c-blue active-card" data-nav-page="supplier-tracker.html">
             <span class="feat-icon">🏪</span>
             <div class="feat-name">Supplier &amp; Price</div>
             <div class="feat-desc">Database supplier &amp; histori harga</div>
           </div>
 
-          <div class="feat-card c-green coming">
+          <div class="feat-card c-green active-card" data-nav-page="expense-tracker.html">
             <span class="feat-icon">💸</span>
             <div class="feat-name">Expense Tracker</div>
             <div class="feat-desc">Catat pengeluaran operasional</div>
-            <span class="feat-badge badge-soon">Coming Soon</span>
+          </div>
+
+          <div class="feat-card c-purple active-card" data-nav-page="project-manager.html">
+            <span class="feat-icon">📁</span>
+            <div class="feat-name">Project Manager</div>
+            <div class="feat-desc">Kelola proyek &amp; tim</div>
           </div>
 
           <div class="feat-card c-orange coming">
