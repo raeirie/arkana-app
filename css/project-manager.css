@@ -235,6 +235,18 @@
   padding: 14px 16px;
   display: flex;
   gap: 0;
+  margin-bottom: 20px;
+}
+
+.detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.detail-actions .btn-row {
+  margin-top: 0;
 }
 
 .stat-item {

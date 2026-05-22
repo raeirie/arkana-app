@@ -284,8 +284,13 @@ const ExpenseApp = (() => {
     );
     if (reimburseItems.length) {
       const grouped = _groupBy(reimburseItems, e => e.dibayarOleh);
+      const grandTotal = reimburseItems.reduce((s, e) => s + (parseFloat(e.jumlah) || 0), 0);
       html += `<div class="summary-section">
-        <div class="summary-section-title">⚠️ Reimburse Outstanding</div>`;
+        <div class="summary-section-title">⚠️ Reimburse Outstanding</div>
+        <div class="reimburse-grand-total">
+          <span>Total perlu direimburse</span>
+          <span>${_fmtRp(grandTotal)}</span>
+        </div>`;
       Object.entries(grouped).forEach(([nama, items]) => {
         const subtotal = items.reduce((s, e) => s + (parseFloat(e.jumlah) || 0), 0);
         html += `
@@ -481,9 +486,17 @@ const ExpenseApp = (() => {
   }
 
   function _populateKategoriSelect() {
+    _filterKategoriByTipe(document.getElementById('f-tipe').value);
+  }
+
+  function _filterKategoriByTipe(tipe) {
     const sel = document.getElementById('f-kategori');
+    const current = sel.value;
     let opts = `<option value="">Pilih kategori...</option>`;
     KATEGORI_EXPENSE.forEach(grup => {
+      // Show Operasional Umum only for tipe=umum, Project only for tipe=proyek, Lainnya always
+      if (grup.grup === 'Operasional Umum' && tipe === EXPENSE_TYPE.PROYEK) return;
+      if (grup.grup === 'Project' && tipe === EXPENSE_TYPE.UMUM) return;
       opts += `<optgroup label="${grup.grup}">`;
       grup.items.forEach(item => {
         opts += `<option value="${item}">${item}</option>`;
@@ -491,6 +504,11 @@ const ExpenseApp = (() => {
       opts += `</optgroup>`;
     });
     sel.innerHTML = opts;
+    // Restore previous value if still valid
+    if (current && sel.querySelector(`option[value="${current}"]`)) {
+      sel.value = current;
+    }
+    _onKategoriChange();
   }
 
   function _populateProyekSelect() {
@@ -508,6 +526,7 @@ const ExpenseApp = (() => {
     const tipe = document.getElementById('f-tipe').value;
     document.getElementById('group-proyek').style.display =
       tipe === EXPENSE_TYPE.PROYEK ? '' : 'none';
+    _filterKategoriByTipe(tipe);
   }
 
   function _onMetodeChange() {
@@ -561,6 +580,7 @@ const ExpenseApp = (() => {
       ? VENDOR_PAY_STATUS.BELUM : '';
 
     showLoading('Menyimpan...');
+    _hideOverlay('overlay-expense');
 
     try {
       if (_editingId) {
@@ -602,7 +622,6 @@ const ExpenseApp = (() => {
       }
 
       saveToCache({ expenses: _expenses }, CACHE_KEY_EXPENSES);
-      _hideOverlay('overlay-expense');
       _buildMonthFilter();
       _renderExpenses();
       _renderRingkasan();

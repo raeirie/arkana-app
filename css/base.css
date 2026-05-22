@@ -50,9 +50,20 @@ input, textarea {
 html, body {
   height: 100%;
   overflow: hidden;
-  background: var(--bg);
+  background: #000;
   font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--text);
+}
+
+/* PWA mobile-width container — max 480px, centered on desktop */
+#app {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  margin: 0 auto;
+  background: var(--bg);
+  overflow: hidden;
 }
 
 /* ── Screen transitions ── */

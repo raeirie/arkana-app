@@ -80,11 +80,21 @@
 
 .scroll-content::-webkit-scrollbar { display: none; }
 
+/* ── Filters wrap — shared across tabs ── */
+.filters-wrap {
+  padding: 10px 20px 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
 /* ── Filter chips (horizontal scroll) ── */
 .filter-scroll {
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -226,7 +236,7 @@
   width: 56px;
   height: 56px;
   border-radius: 18px;
-  background: var(--green);
+  background: var(--accent);
   border: none;
   color: white;
   font-size: 28px;
@@ -235,7 +245,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(16, 185, 129, .35);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, .35);
   transition: transform .15s, box-shadow .15s;
   z-index: 50;
   font-family: inherit;
@@ -243,7 +253,7 @@
 
 .fab:active {
   transform: scale(.92);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, .25);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, .25);
 }
 
 /* ── Detail sheet ── */
@@ -400,6 +410,20 @@
 }
 
 /* Reimburse outstanding highlight */
+.reimburse-grand-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(245, 158, 11, .12);
+  border: 1px solid rgba(245, 158, 11, .3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--orange);
+}
+
 .reimburse-card {
   background: rgba(245, 158, 11, .06);
   border: 1px solid rgba(245, 158, 11, .2);

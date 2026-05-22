@@ -220,6 +220,7 @@ const ProjectApp = (() => {
     }
 
     showLoading('Menyimpan...');
+    _hideOverlay('overlay-project');
 
     try {
       if (_editingId) {
@@ -250,7 +251,6 @@ const ProjectApp = (() => {
         showToast('Proyek ditambahkan', 'success');
       }
 
-      _hideOverlay('overlay-project');
       _renderList();
     } catch (err) {
       showToast('Gagal menyimpan: ' + err.message, 'error');

@@ -40,28 +40,26 @@
       <div class="tab"        id="tab-ringkasan">Ringkasan</div>
     </div>
 
-    <!-- ── PANE: PENGELUARAN ── -->
-    <div id="pane-pengeluaran" class="scroll-content">
-
-      <!-- Filter bar -->
+    <!-- Filter bars — shared across both tabs -->
+    <div class="filters-wrap">
       <div class="filter-scroll" id="filter-bulan-wrap">
         <button class="filter-chip active" data-bulan="">Semua</button>
-        <!-- Month chips injected by JS -->
       </div>
-
-      <div class="filter-scroll" style="margin-bottom:4px;" id="filter-tipe-wrap">
+      <div class="filter-scroll" id="filter-tipe-wrap">
         <button class="filter-chip active" data-tipe="">Semua Tipe</button>
         <button class="filter-chip" data-tipe="umum">Umum</button>
         <button class="filter-chip" data-tipe="proyek">Proyek</button>
       </div>
-
-      <div class="filter-scroll" style="margin-bottom:12px;" id="filter-metode-wrap">
+      <div class="filter-scroll" id="filter-metode-wrap">
         <button class="filter-chip active" data-metode="">Semua Metode</button>
         <button class="filter-chip" data-metode="kas_perusahaan">Kas Perusahaan</button>
         <button class="filter-chip" data-metode="personal">Personal</button>
         <button class="filter-chip" data-metode="vendor_paylater">Vendor Paylater</button>
       </div>
+    </div>
 
+    <!-- ── PANE: PENGELUARAN ── -->
+    <div id="pane-pengeluaran" class="scroll-content">
       <!-- Expense list -->
       <div class="card-list" id="list-expenses"></div>
     </div>
