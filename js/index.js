@@ -530,13 +530,12 @@ const IndexApp = (() => {
     // Logout button
     document.querySelector('.logout-btn').addEventListener('click', logout);
 
-    // Feature card navigation
-    const supplierCard = document.querySelector('.feat-card.c-blue.active-card');
-    if (supplierCard) {
-      supplierCard.addEventListener('click', () => {
-        window.location.href = 'supplier-tracker.html';
+    // Feature card navigation — generic, driven by data-nav-page attribute
+    document.querySelectorAll('.feat-card[data-nav-page]').forEach(card => {
+      card.addEventListener('click', () => {
+        window.location.href = card.dataset.navPage;
       });
-    }
+    });
 
     // Bottom nav (all nav bars — home, aktivitas, setting screens each have one)
     document.querySelectorAll('.nav-item').forEach(item => {

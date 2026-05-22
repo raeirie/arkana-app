@@ -58,7 +58,7 @@ async function api(action, payload = {}) {
   const endpoint = url + '?action=' + encodeURIComponent(action);
   const res = await fetch(endpoint, {
     method: 'POST',
-    body: JSON.stringify({ ...payload, user: getUser().name })
+    body: JSON.stringify({ ...payload, user: getUser().id })
   });
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || 'API error');
@@ -67,18 +67,68 @@ async function api(action, payload = {}) {
 
 // ─────────────────────────────────────────
 // CACHE
+// TTL-based. Each cache key stores { data, savedAt }.
+// Default TTL: 5 minutes — balances freshness vs speed.
+// stale-while-revalidate: UI shows cached data instantly,
+// background fetch updates cache silently.
 // ─────────────────────────────────────────
 
-function saveToCache(db) {
-  localStorage.setItem(STORAGE_KEY.CACHE, JSON.stringify(db));
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function saveToCache(db, key) {
+  const cacheKey = key
+    ? STORAGE_KEY.CACHE + '_' + key
+    : STORAGE_KEY.CACHE;
+  localStorage.setItem(cacheKey, JSON.stringify({
+    data:    db,
+    savedAt: Date.now()
+  }));
 }
 
-function loadFromCache() {
+function loadFromCache(key) {
+  const cacheKey = key
+    ? STORAGE_KEY.CACHE + '_' + key
+    : STORAGE_KEY.CACHE;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY.CACHE);
-    return raw ? JSON.parse(raw) : null;
+    const raw = localStorage.getItem(cacheKey);
+    if (!raw) return null;
+    const { data, savedAt } = JSON.parse(raw);
+    const age = Date.now() - savedAt;
+    // Return data regardless of age — caller decides what to do.
+    // isFresh flag lets caller decide whether to refetch.
+    return { data, isFresh: age < CACHE_TTL_MS, age };
   } catch {
     return null;
+  }
+}
+
+function clearCache(key) {
+  if (key) {
+    localStorage.removeItem(STORAGE_KEY.CACHE + '_' + key);
+  } else {
+    localStorage.removeItem(STORAGE_KEY.CACHE);
+  }
+}
+
+// Stale-while-revalidate loader.
+// - Shows cached data instantly via onData(data, isStale).
+// - If stale or no cache, fetches in background and calls onData again with fresh data.
+// - onError called only if no cache AND fetch fails.
+async function loadWithCache(action, payload = {}, cacheKey, onData, onError) {
+  const cached = loadFromCache(cacheKey);
+
+  if (cached) {
+    onData(cached.data, !cached.isFresh);
+    if (cached.isFresh) return; // Fresh — no need to refetch
+  }
+
+  // No cache or stale — fetch from API
+  try {
+    const result = await api(action, payload);
+    saveToCache(result, cacheKey);
+    onData(result, false);
+  } catch (err) {
+    if (!cached) onError(err); // Only surface error if nothing to show
   }
 }
 

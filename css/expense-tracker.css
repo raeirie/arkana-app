@@ -1,0 +1,440 @@
+/* ═══════════════════════════════════════════════════
+   Arkana App — Expense Tracker CSS
+   Page-specific styles. base.css loaded first.
+   ═══════════════════════════════════════════════════ */
+
+/* ── Topbar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 52px 20px 12px;
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+.back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.topbar-body { flex: 1; min-width: 0; }
+
+.topbar-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+
+.topbar-sub {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tab {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all .15s;
+  white-space: nowrap;
+}
+
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ── Scroll content pane ── */
+.scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 20px 100px;
+  scrollbar-width: none;
+}
+
+.scroll-content::-webkit-scrollbar { display: none; }
+
+/* ── Filter chips (horizontal scroll) ── */
+.filter-scroll {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filter-scroll::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+
+.filter-chip.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(59, 130, 246, .08);
+}
+
+/* ── Expense card ── */
+.card-list { display: flex; flex-direction: column; gap: 10px; }
+
+.expense-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+
+.expense-card:active { border-color: var(--accent); }
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.card-left { flex: 1; min-width: 0; }
+
+.card-desc {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-date {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.card-amount {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.card-bottom {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Badges ── */
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.badge-kategori {
+  background: var(--surface2);
+  color: var(--text3);
+  border: 1px solid var(--border);
+}
+
+.badge-kas {
+  background: rgba(16, 185, 129, .1);
+  color: var(--green);
+  border: 1px solid rgba(16, 185, 129, .2);
+}
+
+.badge-personal {
+  background: rgba(245, 158, 11, .1);
+  color: var(--orange);
+  border: 1px solid rgba(245, 158, 11, .2);
+}
+
+.badge-paylater {
+  background: rgba(239, 68, 68, .1);
+  color: var(--red);
+  border: 1px solid rgba(239, 68, 68, .2);
+}
+
+.badge-reimburse {
+  background: rgba(245, 158, 11, .15);
+  color: var(--orange);
+  border: 1px solid rgba(245, 158, 11, .3);
+}
+
+.badge-proyek {
+  background: rgba(99, 102, 241, .1);
+  color: var(--accent2);
+  border: 1px solid rgba(99, 102, 241, .2);
+}
+
+.badge-user {
+  background: var(--surface2);
+  color: var(--text3);
+  border: 1px solid var(--border);
+}
+
+/* ── FAB ── */
+.fab {
+  position: fixed;
+  bottom: max(env(safe-area-inset-bottom), 24px);
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: var(--green);
+  border: none;
+  color: white;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, .35);
+  transition: transform .15s, box-shadow .15s;
+  z-index: 50;
+  font-family: inherit;
+}
+
+.fab:active {
+  transform: scale(.92);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, .25);
+}
+
+/* ── Detail sheet ── */
+.detail-desc {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.detail-amount {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 12px;
+  letter-spacing: -.02em;
+}
+
+.detail-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.detail-rows {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 14px;
+  gap: 12px;
+}
+
+.detail-row:not(:last-child) {
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-row-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text3);
+  flex-shrink: 0;
+}
+
+.detail-row-value {
+  font-size: 13px;
+  color: var(--text);
+  text-align: right;
+  font-weight: 500;
+}
+
+/* ── Form optional label ── */
+.form-optional {
+  font-size: 10px;
+  color: var(--text3);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Ringkasan ── */
+.summary-section { margin-bottom: 24px; }
+
+.summary-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+
+.summary-totals {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.summary-total-card {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+}
+
+.summary-total-num {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 4px;
+  letter-spacing: -.02em;
+}
+
+.summary-total-label {
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.summary-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  gap: 12px;
+}
+
+.summary-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+
+.summary-row-label {
+  font-size: 13px;
+  color: var(--text2);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary-row-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+
+.summary-row-sub {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+/* Reimburse outstanding highlight */
+.reimburse-card {
+  background: rgba(245, 158, 11, .06);
+  border: 1px solid rgba(245, 158, 11, .2);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.reimburse-card .summary-row { padding: 12px 14px; }
+.reimburse-card .summary-row:not(:last-child) { border-bottom: 1px solid rgba(245, 158, 11, .15); }
+.reimburse-card .summary-row-label { color: var(--text); font-weight: 600; }
+.reimburse-card .summary-row-value { color: var(--orange); }
+
+/* Vendor paylater outstanding */
+.paylater-card {
+  background: rgba(239, 68, 68, .04);
+  border: 1px solid rgba(239, 68, 68, .15);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.paylater-card .summary-row:not(:last-child) { border-bottom: 1px solid rgba(239, 68, 68, .1); }
+.paylater-card .summary-row-label { color: var(--text); font-weight: 600; }
+.paylater-card .summary-row-value { color: var(--red); }
+
+.btn-lunas {
+  background: rgba(16, 185, 129, .1);
+  border: 1px solid rgba(16, 185, 129, .2);
+  color: var(--green);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}

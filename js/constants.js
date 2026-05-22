@@ -5,6 +5,10 @@
 // Load order: 2nd (after config.js)
 // ═══════════════════════════════════════════════════
 
+// ─────────────────────────────────────────
+// SUPPLIER TRACKER
+// ─────────────────────────────────────────
+
 const ITEM_TYPE = Object.freeze({
   PRODUK: 'produk',
   JASA:   'jasa'
@@ -54,3 +58,90 @@ const SATUAN_PRODUK = Object.freeze([
 const SATUAN_JASA = Object.freeze([
   'per project','per jam','per hari','per bulan','per m²','per unit','per pcs'
 ]);
+
+// ─────────────────────────────────────────
+// EXPENSE TRACKER
+// ─────────────────────────────────────────
+
+const EXPENSE_TYPE = Object.freeze({
+  UMUM:   'umum',
+  PROYEK: 'proyek'
+});
+
+const METODE_BAYAR = Object.freeze({
+  KAS_PERUSAHAAN: 'kas_perusahaan',
+  PERSONAL:       'personal',
+  VENDOR_PAYLATER:'vendor_paylater'
+});
+
+const METODE_BAYAR_LABEL = Object.freeze({
+  kas_perusahaan:  'Kas Perusahaan',
+  personal:        'Personal',
+  vendor_paylater: 'Vendor Paylater'
+});
+
+const REIMBURSE = Object.freeze({
+  YA:    'ya',
+  TIDAK: 'tidak'
+});
+
+const VENDOR_PAY_STATUS = Object.freeze({
+  BELUM: 'belum',
+  LUNAS: 'lunas'
+});
+
+const PROJECT_STATUS = Object.freeze({
+  ACTIVE: 'active',
+  CLOSED: 'closed'
+});
+
+// Expense tab identifiers
+const EXPENSE_TAB = Object.freeze({
+  PENGELUARAN: 'pengeluaran',
+  RINGKASAN:   'ringkasan'
+});
+
+// Expense categories — grouped, hardcoded
+// Last item in each group or use KATEGORI_LAINNYA sentinel for free text
+const KATEGORI_EXPENSE = Object.freeze([
+  {
+    grup: 'Operasional Umum',
+    items: [
+      'Transport & BBM',
+      'Makan & Konsumsi',
+      'ATK & Perlengkapan Kantor',
+      'Komunikasi & Internet',
+      'Sewa & Utilitas'
+    ]
+  },
+  {
+    grup: 'Project',
+    items: [
+      'Material & Bahan',
+      'Jasa & Subkon',
+      'Perizinan & Administrasi',
+      'Representasi & Entertain'
+    ]
+  },
+  {
+    grup: 'Lainnya',
+    items: ['Lain-lain']
+  }
+]);
+
+// Flat list of all kategori labels — useful for dropdowns
+const KATEGORI_EXPENSE_FLAT = Object.freeze(
+  KATEGORI_EXPENSE.flatMap(g => g.items)
+);
+
+// Sentinel — when user picks this, show free-text input
+const KATEGORI_LAINNYA = 'Lain-lain';
+
+// ─────────────────────────────────────────
+// PROJECT MANAGER
+// ─────────────────────────────────────────
+
+const PROJECT_SCREEN = Object.freeze({
+  MAIN:   'screen-main',
+  DETAIL: 'screen-detail'
+});

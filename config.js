@@ -1,7 +1,7 @@
-// ═══════════════════════════════════════════════════
-// Arkana App — Global Config
-// Single source of truth for Apps Script URL & version
-// ═══════════════════════════════════════════════════
+// ─────────────────────────────────────────
+// ARKANA APP — Central Config
+// Single source of truth for Script URL + App Version
+// ─────────────────────────────────────────
 
-const ARKANA_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxphpGspCLcYHwmsbJol20_y3dn76CSvwN3W_MqQZzwDVPwX3LJq3wqVuNJY4omaOo8Q/exec';
-const APP_VERSION = 'v1.7.0';
+const ARKANA_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-OmUSRNWFsqwhYomuIbfK_sjKe-Isg80eFynIxsajs50AjhpJc8QNr7VD8g2luTpV1g/exec';
+const APP_VERSION = '1.8.0';
