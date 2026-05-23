@@ -33,14 +33,13 @@ const ExpenseApp = (() => {
     _bindEvents();
     _loadData();
 
-    // Pull to refresh — both panes
+    // Pull to refresh — single instance, works across both panes
     const _doRefresh = async () => {
       clearCache(CACHE_KEY_EXPENSES);
       clearCache(CACHE_KEY_PROJECTS);
       await _loadData();
     };
     initPullToRefresh(document.getElementById('pane-pengeluaran'), _doRefresh);
-    initPullToRefresh(document.getElementById('pane-ringkasan'),   _doRefresh);
   }
 
   function _requireAuth() {

@@ -389,9 +389,10 @@ html, body {
   height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: height .2s, opacity .2s;
-  flex-shrink: 0;
+  transition: height .2s ease, opacity .15s ease;
   background: var(--bg);
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .ptr-spinner {

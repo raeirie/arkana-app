@@ -173,6 +173,14 @@ function getActivityLog() {
 // Usage: initPullToRefresh(document.getElementById('my-list'), async () => { await fetchData(); })
 // ─────────────────────────────────────────
 
+// ─────────────────────────────────────────
+// PULL TO REFRESH
+// Attach to any scrollable element.
+// Indicator inserted as stable sibling ABOVE the scroll element.
+// onRefresh: async function called when user pulls down.
+// Usage: initPullToRefresh(scrollEl, async () => { ... })
+// ─────────────────────────────────────────
+
 function initPullToRefresh(scrollEl, onRefresh) {
   const THRESHOLD = 72;
   const MAX_PULL  = 96;
@@ -181,11 +189,12 @@ function initPullToRefresh(scrollEl, onRefresh) {
   let pulling    = false;
   let refreshing = false;
 
-  // Insert indicator as first child inside scroll element
+  // Insert indicator as stable sibling BEFORE scroll element
+  // This survives innerHTML replacement inside the scroll element
   const indicator = document.createElement('div');
   indicator.className = 'ptr-indicator';
   indicator.innerHTML = '<div class="ptr-spinner"></div><span class="ptr-label">Tarik untuk refresh</span>';
-  scrollEl.insertBefore(indicator, scrollEl.firstChild);
+  scrollEl.parentElement.insertBefore(indicator, scrollEl);
 
   function _setIndicator(pull) {
     const progress = Math.min(pull / THRESHOLD, 1);
@@ -202,27 +211,40 @@ function initPullToRefresh(scrollEl, onRefresh) {
     pulling = false;
   }
 
-  scrollEl.addEventListener('touchstart', e => {
+  // Attach to parent (screen level) so touch events aren't lost
+  // when scroll element content is replaced
+  const touchTarget = scrollEl.parentElement;
+
+  touchTarget.addEventListener('touchstart', e => {
     if (scrollEl.scrollTop > 0 || refreshing) return;
-    startY  = e.touches[0].clientY;
+    // Only trigger if touch starts within scroll element bounds
+    const rect = scrollEl.getBoundingClientRect();
+    const touch = e.touches[0];
+    if (touch.clientX < rect.left || touch.clientX > rect.right) return;
+    startY  = touch.clientY;
     pulling = true;
   }, { passive: true });
 
-  scrollEl.addEventListener('touchmove', e => {
+  touchTarget.addEventListener('touchmove', e => {
     if (!pulling || refreshing) return;
     const dist = e.touches[0].clientY - startY;
     if (dist <= 0) { pulling = false; return; }
     _setIndicator(dist);
   }, { passive: true });
 
-  scrollEl.addEventListener('touchend', async e => {
+  touchTarget.addEventListener('touchend', async e => {
     if (!pulling || refreshing) return;
     const dist = e.changedTouches[0].clientY - startY;
-    if (dist < THRESHOLD) { _reset(); return; }
 
+    if (dist < THRESHOLD) {
+      _reset();
+      return;
+    }
+
+    // Trigger refresh
     refreshing = true;
-    indicator.style.height = '48px';
-    indicator.style.opacity = '1';
+    indicator.style.height   = '48px';
+    indicator.style.opacity  = '1';
     indicator.querySelector('.ptr-label').textContent = 'Memperbarui...';
 
     try {
