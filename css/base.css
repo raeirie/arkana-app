@@ -357,7 +357,7 @@ html, body {
 .confirm-msg   { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 20px; }
 .confirm-btns  { display: flex; gap: 10px; }
 
-/* ── FAB (shared component) ── */
+/* ── FAB (shared component — source: supplier-tracker) ── */
 .fab {
   position: fixed;
   bottom: 24px;
@@ -376,7 +376,6 @@ html, body {
   box-shadow: 0 8px 24px rgba(59, 130, 246, .4);
   z-index: 50;
   transition: transform .15s;
-  font-family: inherit;
 }
 
 .fab:active { transform: scale(.93); }
