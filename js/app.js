@@ -174,18 +174,18 @@ function getActivityLog() {
 // ─────────────────────────────────────────
 
 function initPullToRefresh(scrollEl, onRefresh) {
-  const THRESHOLD = 72;   // px to pull before triggering
-  const MAX_PULL  = 96;   // max visual pull distance
+  const THRESHOLD = 72;
+  const MAX_PULL  = 96;
 
-  let startY    = 0;
-  let pulling   = false;
+  let startY     = 0;
+  let pulling    = false;
   let refreshing = false;
 
-  // Create indicator element
+  // Insert indicator as first child inside scroll element
   const indicator = document.createElement('div');
   indicator.className = 'ptr-indicator';
   indicator.innerHTML = '<div class="ptr-spinner"></div><span class="ptr-label">Tarik untuk refresh</span>';
-  scrollEl.parentElement.insertBefore(indicator, scrollEl);
+  scrollEl.insertBefore(indicator, scrollEl.firstChild);
 
   function _setIndicator(pull) {
     const progress = Math.min(pull / THRESHOLD, 1);
@@ -204,7 +204,7 @@ function initPullToRefresh(scrollEl, onRefresh) {
 
   scrollEl.addEventListener('touchstart', e => {
     if (scrollEl.scrollTop > 0 || refreshing) return;
-    startY = e.touches[0].clientY;
+    startY  = e.touches[0].clientY;
     pulling = true;
   }, { passive: true });
 
@@ -220,7 +220,6 @@ function initPullToRefresh(scrollEl, onRefresh) {
     const dist = e.changedTouches[0].clientY - startY;
     if (dist < THRESHOLD) { _reset(); return; }
 
-    // Trigger refresh
     refreshing = true;
     indicator.style.height = '48px';
     indicator.style.opacity = '1';

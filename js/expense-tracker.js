@@ -441,7 +441,6 @@ const ExpenseApp = (() => {
     document.getElementById('sheet-expense-title').textContent = 'Pengeluaran Baru';
     _resetForm();
     _showOverlay('overlay-expense');
-    setTimeout(() => document.getElementById('f-deskripsi').focus(), 350);
   }
 
   function _openEditSheet(id) {

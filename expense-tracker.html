@@ -85,13 +85,19 @@
     <div class="sheet-title" id="sheet-expense-title">Pengeluaran Baru</div>
     <div class="sheet-sub">Data tersimpan ke Google Sheet</div>
 
-    <!-- 1. Tanggal -->
+    <!-- 1. Deskripsi -->
+    <div class="form-group">
+      <label class="form-label">Deskripsi</label>
+      <input class="form-input" id="f-deskripsi" type="text" placeholder="Keterangan singkat pengeluaran">
+    </div>
+
+    <!-- 2. Tanggal -->
     <div class="form-group">
       <label class="form-label">Tanggal</label>
       <input class="form-input" id="f-tanggal" type="date">
     </div>
 
-    <!-- 2. Tipe -->
+    <!-- 3. Tipe -->
     <div class="form-group">
       <label class="form-label">Tipe Pengeluaran</label>
       <select class="form-select" id="f-tipe">
@@ -100,7 +106,7 @@
       </select>
     </div>
 
-    <!-- 3. Proyek (conditional) -->
+    <!-- 4. Proyek (conditional) -->
     <div class="form-group" id="group-proyek" style="display:none">
       <label class="form-label">Proyek</label>
       <select class="form-select" id="f-proyek">
@@ -108,7 +114,7 @@
       </select>
     </div>
 
-    <!-- 4. Kategori -->
+    <!-- 5. Kategori -->
     <div class="form-group">
       <label class="form-label">Kategori</label>
       <select class="form-select" id="f-kategori">
@@ -116,16 +122,10 @@
       </select>
     </div>
 
-    <!-- 4b. Custom kategori (conditional) -->
+    <!-- 5b. Custom kategori (conditional) -->
     <div class="form-group" id="group-custom-kategori" style="display:none">
       <label class="form-label">Kategori Lainnya</label>
       <input class="form-input" id="f-custom-kategori" type="text" placeholder="Tulis kategori...">
-    </div>
-
-    <!-- 5. Deskripsi -->
-    <div class="form-group">
-      <label class="form-label">Deskripsi</label>
-      <input class="form-input" id="f-deskripsi" type="text" placeholder="Keterangan singkat pengeluaran">
     </div>
 
     <!-- 6. Vendor -->
