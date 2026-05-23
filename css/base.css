@@ -380,6 +380,35 @@ html, body {
 
 .fab:active { transform: scale(.93); }
 
+/* ── Pull to refresh ── */
+.ptr-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: height .2s, opacity .2s;
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+.ptr-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  flex-shrink: 0;
+}
+
+.ptr-label {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+}
 
 .empty-state {
   display: flex;

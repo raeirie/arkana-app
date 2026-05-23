@@ -26,6 +26,13 @@ const ProjectApp = (() => {
     _bindEvents();
     _populateUnitSelect();
     _loadData();
+
+    // Pull to refresh
+    initPullToRefresh(document.getElementById('pm-list'), async () => {
+      clearCache(CACHE_KEY_PROJECTS);
+      clearCache(CACHE_KEY_EXPENSES);
+      await _loadData();
+    });
   }
 
   function _requireAuth() {

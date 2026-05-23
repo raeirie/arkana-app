@@ -165,3 +165,72 @@ function getActivityLog() {
     return [];
   }
 }
+
+// ─────────────────────────────────────────
+// PULL TO REFRESH
+// Attach to any scrollable element.
+// onRefresh: async function called when user pulls down.
+// Usage: initPullToRefresh(document.getElementById('my-list'), async () => { await fetchData(); })
+// ─────────────────────────────────────────
+
+function initPullToRefresh(scrollEl, onRefresh) {
+  const THRESHOLD = 72;   // px to pull before triggering
+  const MAX_PULL  = 96;   // max visual pull distance
+
+  let startY    = 0;
+  let pulling   = false;
+  let refreshing = false;
+
+  // Create indicator element
+  const indicator = document.createElement('div');
+  indicator.className = 'ptr-indicator';
+  indicator.innerHTML = '<div class="ptr-spinner"></div><span class="ptr-label">Tarik untuk refresh</span>';
+  scrollEl.parentElement.insertBefore(indicator, scrollEl);
+
+  function _setIndicator(pull) {
+    const progress = Math.min(pull / THRESHOLD, 1);
+    indicator.style.height = Math.min(pull * 0.6, MAX_PULL * 0.6) + 'px';
+    indicator.style.opacity = progress;
+    indicator.querySelector('.ptr-label').textContent =
+      pull >= THRESHOLD ? 'Lepaskan untuk refresh' : 'Tarik untuk refresh';
+  }
+
+  function _reset() {
+    indicator.style.height = '0';
+    indicator.style.opacity = '0';
+    indicator.querySelector('.ptr-label').textContent = 'Tarik untuk refresh';
+    pulling = false;
+  }
+
+  scrollEl.addEventListener('touchstart', e => {
+    if (scrollEl.scrollTop > 0 || refreshing) return;
+    startY = e.touches[0].clientY;
+    pulling = true;
+  }, { passive: true });
+
+  scrollEl.addEventListener('touchmove', e => {
+    if (!pulling || refreshing) return;
+    const dist = e.touches[0].clientY - startY;
+    if (dist <= 0) { pulling = false; return; }
+    _setIndicator(dist);
+  }, { passive: true });
+
+  scrollEl.addEventListener('touchend', async e => {
+    if (!pulling || refreshing) return;
+    const dist = e.changedTouches[0].clientY - startY;
+    if (dist < THRESHOLD) { _reset(); return; }
+
+    // Trigger refresh
+    refreshing = true;
+    indicator.style.height = '48px';
+    indicator.querySelector('.ptr-label').textContent = 'Memperbarui...';
+    indicator.querySelector('.ptr-spinner').style.display = 'block';
+
+    try {
+      await onRefresh();
+    } finally {
+      refreshing = false;
+      _reset();
+    }
+  }, { passive: true });
+}

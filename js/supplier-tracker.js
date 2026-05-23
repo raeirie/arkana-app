@@ -41,6 +41,16 @@ const SupplierTracker = (() => {
     if (ARKANA_SCRIPT_URL) fetchAll();
 
     _bindEvents();
+
+    // Pull to refresh — all tab panes
+    const _doRefresh = async () => {
+      clearCache('supplier');
+      await fetchAll();
+    };
+    ['suppliers','products','jasa','compare'].forEach(pane => {
+      const el = document.getElementById('pane-' + pane);
+      if (el) initPullToRefresh(el, _doRefresh);
+    });
   }
 
   // ─────────────────────────────────────────

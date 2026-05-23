@@ -4,4 +4,4 @@
 // ─────────────────────────────────────────
 
 const ARKANA_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-OmUSRNWFsqwhYomuIbfK_sjKe-Isg80eFynIxsajs50AjhpJc8QNr7VD8g2luTpV1g/exec';
-const APP_VERSION = '1.8.4';
+const APP_VERSION = '1.8.5';
