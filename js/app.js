@@ -223,8 +223,8 @@ function initPullToRefresh(scrollEl, onRefresh) {
     // Trigger refresh
     refreshing = true;
     indicator.style.height = '48px';
+    indicator.style.opacity = '1';
     indicator.querySelector('.ptr-label').textContent = 'Memperbarui...';
-    indicator.querySelector('.ptr-spinner').style.display = 'block';
 
     try {
       await onRefresh();

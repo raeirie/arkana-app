@@ -94,9 +94,10 @@ const ProjectApp = (() => {
       return;
     }
 
-    // Group: active first, then closed
-    const active = filtered.filter(p => p.status === PROJECT_STATUS.ACTIVE);
-    const closed = filtered.filter(p => p.status === PROJECT_STATUS.CLOSED);
+    // Sort newest first within each group
+    const sortByDate = (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    const active = filtered.filter(p => p.status === PROJECT_STATUS.ACTIVE).sort(sortByDate);
+    const closed = filtered.filter(p => p.status === PROJECT_STATUS.CLOSED).sort(sortByDate);
 
     let html = '';
 
@@ -254,6 +255,7 @@ const ProjectApp = (() => {
         };
         await api('addProject', newProject);
         _projects.unshift(newProject);
+        _projects.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         saveToCache({ projects: _projects }, CACHE_KEY_PROJECTS);
         logActivity('add_project', `Proyek baru: ${nama}`);
         showToast('Proyek ditambahkan', 'success');

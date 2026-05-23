@@ -157,10 +157,12 @@ const ExpenseApp = (() => {
       return;
     }
 
-    // Sort newest first
-    const sorted = [...filtered].sort((a, b) =>
-      new Date(b.tanggal || 0) - new Date(a.tanggal || 0)
-    );
+    // Sort: newest date first, then newest createdAt as tiebreaker
+    const sorted = [...filtered].sort((a, b) => {
+      const dateDiff = new Date(b.tanggal || 0) - new Date(a.tanggal || 0);
+      if (dateDiff !== 0) return dateDiff;
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
 
     list.innerHTML = sorted.map(e => _cardHTML(e)).join('');
 
@@ -627,6 +629,10 @@ const ExpenseApp = (() => {
         };
         await api('addExpense', newExp);
         _expenses.unshift(newExp);
+        _expenses.sort((a, b) => {
+          const d = new Date(b.tanggal || 0) - new Date(a.tanggal || 0);
+          return d !== 0 ? d : new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        });
         logActivity('add_expense', `Pengeluaran baru: ${deskripsi} — ${_fmtRp(jumlah)}`);
         showToast('Pengeluaran disimpan', 'success');
       }
