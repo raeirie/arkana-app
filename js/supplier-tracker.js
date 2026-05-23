@@ -34,8 +34,8 @@ const SupplierTracker = (() => {
 
     document.getElementById('topbar-user').textContent = `Login sebagai ${user.name}`;
 
-    const cached = loadFromCache();
-    if (cached) DB = cached;
+    const cached = loadFromCache('supplier');
+    if (cached) DB = cached.data || cached;
     renderAll();
 
     if (ARKANA_SCRIPT_URL) fetchAll();
@@ -47,16 +47,13 @@ const SupplierTracker = (() => {
   // API / DATA
   // ─────────────────────────────────────────
   async function fetchAll() {
-    showLoading('Memuat data...');
     try {
       const data = await api('getAll');
       DB = data.db;
-      saveToCache(DB);
+      saveToCache(DB, 'supplier');
       renderAll();
     } catch (e) {
       showToast('Gagal memuat data: ' + e.message, 'error');
-    } finally {
-      hideLoading();
     }
   }
 

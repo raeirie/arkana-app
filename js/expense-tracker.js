@@ -579,8 +579,9 @@ const ExpenseApp = (() => {
     const vendorPayStatus = metode === METODE_BAYAR.VENDOR_PAYLATER
       ? VENDOR_PAY_STATUS.BELUM : '';
 
-    showLoading('Menyimpan...');
     _hideOverlay('overlay-expense');
+    await new Promise(r => setTimeout(r, 200));
+    showLoading('Menyimpan...');
 
     try {
       if (_editingId) {

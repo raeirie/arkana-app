@@ -5,43 +5,46 @@
 
 /* ── Header ── */
 .pm-header {
+  padding: max(env(safe-area-inset-top), 44px) 18px 12px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 52px 20px 16px;
-  flex-shrink: 0;
   background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 10;
 }
 
 .back-btn {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 10px;
   background: var(--surface);
   border: 1px solid var(--border);
-  color: var(--text);
-  font-size: 22px;
-  line-height: 1;
+  color: var(--text2);
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  padding-bottom: 2px;
+  padding-bottom: 0;
 }
 
 .pm-header-text { flex: 1; min-width: 0; }
 
 .pm-title {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--text);
   letter-spacing: -.01em;
 }
 
 .pm-sub {
-  font-size: 12px;
-  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
   margin-top: 2px;
 }
 
@@ -181,33 +184,6 @@
   font-size: 18px;
   color: var(--text3);
   flex-shrink: 0;
-}
-
-/* ── FAB ── */
-.fab {
-  position: fixed;
-  bottom: max(env(safe-area-inset-bottom), 24px);
-  right: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  background: var(--accent);
-  border: none;
-  color: white;
-  font-size: 28px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 24px rgba(59, 130, 246, .35);
-  transition: transform .15s, box-shadow .15s;
-  z-index: 50;
-}
-
-.fab:active {
-  transform: scale(.92);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, .25);
 }
 
 /* ── Detail sheet ── */

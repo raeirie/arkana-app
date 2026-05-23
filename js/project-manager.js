@@ -219,8 +219,9 @@ const ProjectApp = (() => {
       return;
     }
 
-    showLoading('Menyimpan...');
     _hideOverlay('overlay-project');
+    await new Promise(r => setTimeout(r, 200));
+    showLoading('Menyimpan...');
 
     try {
       if (_editingId) {

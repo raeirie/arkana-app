@@ -357,7 +357,31 @@ html, body {
 .confirm-msg   { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 20px; }
 .confirm-btns  { display: flex; gap: 10px; }
 
-/* ── Empty state ── */
+/* ── FAB (shared component) ── */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: max(calc(50% - 240px + 16px), 16px);
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--accent);
+  border: none;
+  color: white;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, .4);
+  z-index: 50;
+  transition: transform .15s;
+  font-family: inherit;
+}
+
+.fab:active { transform: scale(.93); }
+
+
 .empty-state {
   display: flex;
   flex-direction: column;
