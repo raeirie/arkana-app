@@ -33,13 +33,11 @@ const ExpenseApp = (() => {
     _bindEvents();
     _loadData();
 
-    // Pull to refresh — single instance, works across both panes
-    const _doRefresh = async () => {
-      clearCache(CACHE_KEY_EXPENSES);
-      clearCache(CACHE_KEY_PROJECTS);
-      await _loadData();
-    };
-    initPullToRefresh(document.getElementById('pane-pengeluaran'), _doRefresh);
+    // Pull to refresh — uses _fetchFresh() which is truly awaitable.
+    // Unlike _loadData() (stale-while-revalidate, returns immediately),
+    // _fetchFresh() awaits the API call — PTR indicator stays visible
+    // until data arrives, giving the user clear loading feedback.
+    initPullToRefresh(document.getElementById('pane-pengeluaran'), _fetchFresh);
   }
 
   function _requireAuth() {
@@ -86,6 +84,31 @@ const ExpenseApp = (() => {
       },
       () => {}
     );
+  }
+
+  // True async fetch — awaits API completion before returning.
+  // Used by PTR so the indicator stays visible during the full
+  // network round-trip. Contrast with _loadData() which returns
+  // immediately (stale-while-revalidate) and is used on page init.
+  async function _fetchFresh() {
+    try {
+      const [expResult, projResult] = await Promise.all([
+        api('getExpenses', {}),
+        api('getProjects', {})
+      ]);
+      _expenses = expResult.expenses || [];
+      _projects = (projResult.projects || []).filter(p => p.status === PROJECT_STATUS.ACTIVE);
+      saveToCache(expResult, CACHE_KEY_EXPENSES);
+      saveToCache(projResult, CACHE_KEY_PROJECTS);
+      _buildMonthFilter();
+      _renderExpenses();
+      _renderRingkasan();
+      _populateProyekSelect();
+      _updateSub(_summaryLine());
+    } catch (err) {
+      showToast('Gagal memuat data', 'error');
+      console.error(err);
+    }
   }
 
   function _summaryLine() {

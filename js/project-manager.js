@@ -27,12 +27,11 @@ const ProjectApp = (() => {
     _populateUnitSelect();
     _loadData();
 
-    // Pull to refresh
-    initPullToRefresh(document.getElementById('pm-list'), async () => {
-      clearCache(CACHE_KEY_PROJECTS);
-      clearCache(CACHE_KEY_EXPENSES);
-      await _loadData();
-    });
+    // Pull to refresh — uses _fetchFresh() which is truly awaitable.
+    // Unlike _loadData() (stale-while-revalidate, returns immediately),
+    // _fetchFresh() awaits the API call — PTR indicator stays visible
+    // until data arrives, giving the user clear loading feedback.
+    initPullToRefresh(document.getElementById('pm-list'), _fetchFresh);
   }
 
   function _requireAuth() {
@@ -71,6 +70,27 @@ const ProjectApp = (() => {
       },
       () => {} // silent fail — counts just won't show
     );
+  }
+
+  // True async fetch — awaits API completion before returning.
+  // Used by PTR so the indicator stays visible during the full
+  // network round-trip. Contrast with _loadData() which returns
+  // immediately (stale-while-revalidate) and is used on page init.
+  async function _fetchFresh() {
+    try {
+      const [projResult, expResult] = await Promise.all([
+        api('getProjects', {}),
+        api('getExpenses', {})
+      ]);
+      _projects = projResult.projects || [];
+      _expenses = expResult.expenses || [];
+      saveToCache(projResult, CACHE_KEY_PROJECTS);
+      saveToCache(expResult, CACHE_KEY_EXPENSES);
+      _renderList();
+    } catch (err) {
+      showToast('Gagal memuat data', 'error');
+      console.error(err);
+    }
   }
 
   // ─────────────────────────────────────────
