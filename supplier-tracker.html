@@ -10,6 +10,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/supplier-tracker.css">
+
+  <!-- JS load order: config → constants → utils → app → page -->
+  <script src="config.js?v=1.9.0"></script>
+  <script src="js/constants.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/supplier-tracker.js"></script>
 </head>
 <body>
 <div id="app">
@@ -372,15 +379,5 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- SCRIPTS: strict load order -->
-<script src="config.js"></script>
-<script src="js/constants.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/app.js"></script>
-<script src="js/supplier-tracker.js"></script>
-<script>
-  document.getElementById('btn-confirm-cancel').addEventListener('click', closeConfirm);
-  SupplierTracker.init();
-</script>
 </body>
 </html>

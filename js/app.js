@@ -169,16 +169,25 @@ function getActivityLog() {
 // ─────────────────────────────────────────
 // PULL TO REFRESH
 // Attach to any scrollable element.
+//
+// scrollEl: DOM element OR a function that returns the current
+//           active scroll element (useful when active pane changes).
 // onRefresh: async function called when user pulls down.
-// Usage: initPullToRefresh(document.getElementById('my-list'), async () => { await fetchData(); })
-// ─────────────────────────────────────────
-
-// ─────────────────────────────────────────
-// PULL TO REFRESH
-// Attach to any scrollable element.
-// Indicator inserted as stable sibling ABOVE the scroll element.
-// onRefresh: async function called when user pulls down.
-// Usage: initPullToRefresh(scrollEl, async () => { ... })
+//
+// Fix v1.9.0:
+// - Bounds check now validates BOTH X and Y axis — prevents PTR
+//   triggering when touch starts outside the scroll element
+//   (e.g. in a filter bar above the list).
+// - Reset guard: pulling = false immediately on out-of-bounds
+//   touchstart, not only on touchmove. Prevents stale pulling state
+//   corrupting subsequent PTR attempts.
+// - scrollEl can be a function: evaluated fresh on every touchstart
+//   so supplier-tracker can pass a single PTR instance that always
+//   checks the currently active pane.
+//
+// Usage:
+//   initPullToRefresh(document.getElementById('my-list'), async () => { ... })
+//   initPullToRefresh(() => getActivePaneEl(), async () => { ... })
 // ─────────────────────────────────────────
 
 function initPullToRefresh(scrollEl, onRefresh) {
@@ -189,12 +198,18 @@ function initPullToRefresh(scrollEl, onRefresh) {
   let pulling    = false;
   let refreshing = false;
 
-  // Insert indicator as stable sibling BEFORE scroll element
-  // This survives innerHTML replacement inside the scroll element
+  // Resolve scrollEl — supports DOM element or function
+  function _resolveEl() {
+    return typeof scrollEl === 'function' ? scrollEl() : scrollEl;
+  }
+
+  // Insert indicator as stable sibling BEFORE the initial scroll element.
+  // For function-based scrollEl, insert before the parent container.
+  const referenceEl = _resolveEl();
   const indicator = document.createElement('div');
   indicator.className = 'ptr-indicator';
   indicator.innerHTML = '<div class="ptr-spinner"></div><span class="ptr-label">Tarik untuk refresh</span>';
-  scrollEl.parentElement.insertBefore(indicator, scrollEl);
+  referenceEl.parentElement.insertBefore(indicator, referenceEl);
 
   function _setIndicator(pull) {
     const progress = Math.min(pull / THRESHOLD, 1);
@@ -211,16 +226,37 @@ function initPullToRefresh(scrollEl, onRefresh) {
     pulling = false;
   }
 
-  // Attach to parent (screen level) so touch events aren't lost
-  // when scroll element content is replaced
-  const touchTarget = scrollEl.parentElement;
+  // Attach touch events to parent — screen level.
+  // Using the reference element's parent as the touch target ensures
+  // events are captured even when scroll element content is replaced.
+  const touchTarget = referenceEl.parentElement;
 
   touchTarget.addEventListener('touchstart', e => {
-    if (scrollEl.scrollTop > 0 || refreshing) return;
-    // Only trigger if touch starts within scroll element bounds
-    const rect = scrollEl.getBoundingClientRect();
+    if (refreshing) return;
+
+    // Resolve current active scroll element (may change if tabs switch)
+    const el = _resolveEl();
+
+    // Y-axis bounds check — touch must start within the scroll element
+    // vertically. Prevents filter bars or other elements above the list
+    // from accidentally triggering PTR.
+    const rect  = el.getBoundingClientRect();
     const touch = e.touches[0];
-    if (touch.clientX < rect.left || touch.clientX > rect.right) return;
+
+    const outOfBounds =
+      touch.clientX < rect.left   ||
+      touch.clientX > rect.right  ||
+      touch.clientY < rect.top    ||
+      touch.clientY > rect.bottom;
+
+    if (outOfBounds) {
+      // Reset immediately — prevents stale pulling state
+      pulling = false;
+      return;
+    }
+
+    if (el.scrollTop > 0) return;
+
     startY  = touch.clientY;
     pulling = true;
   }, { passive: true });

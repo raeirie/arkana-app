@@ -42,15 +42,24 @@ const SupplierTracker = (() => {
 
     _bindEvents();
 
-    // Pull to refresh — all tab panes
+    // Pull to refresh — single instance, dynamically resolves active pane.
+    // Passing a function instead of a fixed element ensures bounds check
+    // always uses the currently visible pane, not a stale reference.
+    // Fixes: 4 conflicting touch listeners on the same parent (v1.8.0).
+    const _paneMap = {
+      [TAB.SUPPLIERS]: 'pane-suppliers',
+      [TAB.PRODUCTS]:  'pane-products',
+      [TAB.JASA]:      'pane-jasa',
+      [TAB.COMPARE]:   'pane-compare'
+    };
     const _doRefresh = async () => {
       clearCache('supplier');
       await fetchAll();
     };
-    ['suppliers','products','jasa','compare'].forEach(pane => {
-      const el = document.getElementById('pane-' + pane);
-      if (el) initPullToRefresh(el, _doRefresh);
-    });
+    initPullToRefresh(
+      () => document.getElementById(_paneMap[currentTab] || 'pane-suppliers'),
+      _doRefresh
+    );
   }
 
   // ─────────────────────────────────────────
@@ -1594,11 +1603,16 @@ const SupplierTracker = (() => {
     document.getElementById('btn-back-to-home').addEventListener('click', () => {
       window.location.href = 'index.html';
     });
+
+    // ── Confirm cancel button ──
+    document.getElementById('btn-confirm-cancel').addEventListener('click', closeConfirm);
   }
 
   // ─────────────────────────────────────────
   // PUBLIC API
   // ─────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', init);
+
   return { init };
 
 })();
