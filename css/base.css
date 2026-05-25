@@ -340,7 +340,7 @@ html, body {
 /* canonical classes: .btn, .btn-primary, .btn-secondary, .btn-danger */
 .btn-row {
   display: flex;
-  gap: var(--space-2) + 2px;
+  gap: 10px;
   margin-top: var(--space-5);
 }
 
@@ -371,7 +371,7 @@ html, body {
   text-transform: uppercase;
   letter-spacing: .1em;
   color: var(--color-text-3);
-  margin-bottom: var(--space-1) + 2px;
+  margin-bottom: 6px;
 }
 
 .form-input,
@@ -543,7 +543,7 @@ html, body {
 
 .confirm-title { font-size: var(--text-4xl); font-weight: var(--weight-extrabold); color: var(--color-text); margin-bottom: var(--space-2); }
 .confirm-msg   { font-size: var(--text-lg); color: var(--color-text-2); line-height: 1.5; margin-bottom: var(--space-5); }
-.confirm-btns  { display: flex; gap: var(--space-2) + 2px; }
+.confirm-btns  { display: flex; gap: 10px; }
 
 /* ── FAB ── */
 /* canonical class: .fab */

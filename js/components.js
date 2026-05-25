@@ -230,9 +230,10 @@ const UI = (() => {
         ? projects.find(p => p.id === e.projectId)
         : null;
 
+      // Pass raw string — badge.kategori handles escaping internally
       const kategoriLabel = (e.kategori === 'Lain-lain' && e.customKategori)
-        ? _esc(e.customKategori)
-        : _esc(e.kategori || '—');
+        ? e.customKategori
+        : (e.kategori || '—');
 
       const reimburseTag = (
         e.metodePembayaran === 'personal' &&
