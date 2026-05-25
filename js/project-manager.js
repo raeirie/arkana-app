@@ -106,11 +106,7 @@ const ProjectApp = (() => {
     _updateSub(`${_projects.filter(p => p.status === PROJECT_STATUS.ACTIVE).length} aktif · ${_projects.filter(p => p.status === PROJECT_STATUS.CLOSED).length} selesai`);
 
     if (!filtered.length) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">📁</div>
-          <div class="empty-text">${_filter === 'all' ? 'Belum ada proyek.<br>Tap + untuk menambahkan proyek baru.' : 'Tidak ada proyek dengan filter ini.'}</div>
-        </div>`;
+      list.innerHTML = UI.emptyState('📁', _filter === 'all' ? 'Belum ada proyek.<br>Tap + untuk menambahkan proyek baru.' : 'Tidak ada proyek dengan filter ini.');
       return;
     }
 
@@ -123,12 +119,12 @@ const ProjectApp = (() => {
 
     if (active.length) {
       if (_filter === 'all') html += `<div class="group-label">Aktif</div>`;
-      active.forEach(p => { html += _cardHTML(p); });
+      active.forEach(p => { html += UI.card.project(p); });
     }
 
     if (closed.length) {
       if (_filter === 'all') html += `<div class="group-label">Selesai</div>`;
-      closed.forEach(p => { html += _cardHTML(p); });
+      closed.forEach(p => { html += UI.card.project(p); });
     }
 
     list.innerHTML = html;
@@ -172,11 +168,9 @@ const ProjectApp = (() => {
 
     document.getElementById('detail-name').textContent = p.nama;
 
-    const statusClass = p.status === PROJECT_STATUS.ACTIVE ? 'status-active' : 'status-closed';
-    const statusLabel = p.status === PROJECT_STATUS.ACTIVE ? 'Aktif' : 'Selesai';
     document.getElementById('detail-meta').innerHTML = `
       <span class="card-unit">${_esc(p.unitBisnis || '—')}</span>
-      <span class="status-badge ${statusClass}">${statusLabel}</span>`;
+      ${UI.badge.status(p.status)}`;
 
     // Expense count for this project
     const expCount = _expenses.filter(e => e.projectId === id).length;

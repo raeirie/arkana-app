@@ -171,11 +171,7 @@ const ExpenseApp = (() => {
     const filtered = _filteredExpenses();
 
     if (!filtered.length) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">💸</div>
-          <div class="empty-text">Belum ada pengeluaran.<br>Tap + untuk mencatat pengeluaran baru.</div>
-        </div>`;
+      list.innerHTML = UI.emptyState("💸", "Belum ada pengeluaran.<br>Tap + untuk mencatat pengeluaran baru.");
       return;
     }
 
@@ -186,7 +182,7 @@ const ExpenseApp = (() => {
       return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
     });
 
-    list.innerHTML = sorted.map(e => _cardHTML(e)).join('');
+    list.innerHTML = sorted.map(e => UI.card.expense(e, _projects)).join('');
 
     list.querySelectorAll('.expense-card').forEach(card => {
       card.addEventListener('click', () => _openDetail(card.dataset.id));
@@ -194,7 +190,7 @@ const ExpenseApp = (() => {
   }
 
   function _cardHTML(e) {
-    const metodeBadge = _metodeBadge(e.metodePembayaran);
+    const metodeBadge = UI.badge.metode(e.metodePembayaran);
     const proj = e.tipe === EXPENSE_TYPE.PROYEK
       ? _projects.find(p => p.id === e.projectId)
       : null;
@@ -247,11 +243,7 @@ const ExpenseApp = (() => {
     const expenses  = _filteredExpenses();
 
     if (!expenses.length) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">📊</div>
-          <div class="empty-text">Belum ada data untuk ditampilkan.</div>
-        </div>`;
+      container.innerHTML = UI.emptyState("📊", "Belum ada data untuk ditampilkan.");
       return;
     }
 
@@ -424,7 +416,7 @@ const ExpenseApp = (() => {
     document.getElementById('detail-desc').textContent = e.deskripsi || '(tanpa deskripsi)';
     document.getElementById('detail-amount').textContent = _fmtRp(e.jumlah);
 
-    const metodeBadge = _metodeBadge(e.metodePembayaran);
+    const metodeBadge = UI.badge.metode(e.metodePembayaran);
     const reimburseTag = (e.metodePembayaran === METODE_BAYAR.PERSONAL && e.perluReimburse === REIMBURSE.YA)
       ? `<span class="badge badge-reimburse">↩ Reimburse</span>` : '';
     document.getElementById('detail-badges').innerHTML = metodeBadge + reimburseTag;

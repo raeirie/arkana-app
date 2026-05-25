@@ -300,10 +300,7 @@ const SupplierTracker = (() => {
 
     const el = document.getElementById('list-suppliers');
     if (!list.length) {
-      el.innerHTML = `<div class="empty-state">
-        <div class="empty-icon">🏪</div>
-        <div class="empty-text">Belum ada supplier.<br>Tap + untuk tambah supplier baru.</div>
-      </div>`;
+      el.innerHTML = UI.emptyState("🏪", "Belum ada supplier.<br>Tap + untuk tambah supplier baru.");
       return;
     }
 
@@ -317,37 +314,7 @@ const SupplierTracker = (() => {
       });
     });
 
-    el.innerHTML = list.map(s => {
-      const initials = s.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-      const color    = SUPPLIER_COLORS[s.name.charCodeAt(0) % SUPPLIER_COLORS.length];
-      const phone    = s.kontak ? String(s.kontak) : '—';
-      const counts   = countMap[s.id] || { produk: 0, jasa: 0 };
-      const chips    = [
-        counts.produk > 0
-          ? `<span class="count-chip count-produk">📦 ${counts.produk} produk</span>` : '',
-        counts.jasa > 0
-          ? `<span class="count-chip count-jasa">🔧 ${counts.jasa} jasa</span>` : ''
-      ].filter(Boolean).join('');
-      const isJasaLevel = s.level === SUPPLIER_LEVEL.JASA;
-      return `
-      <div class="supplier-card js-open-supplier" data-id="${s.id}">
-        <div class="supplier-card-top">
-          <div class="supplier-initial" style="background:${color}">${initials}</div>
-          <div class="supplier-info">
-            <div class="supplier-name">${s.name}</div>
-            <div class="supplier-meta">${phone}${s.kota ? ' · ' + s.kota : ''}</div>
-          </div>
-        </div>
-        <div class="supplier-badges">
-          <span class="level-badge ${isJasaLevel ? 'jasa' : s.level.toLowerCase()}">
-            ${isJasaLevel ? '🔧 Jasa' : s.level}
-          </span>
-          ${s.authorized && !isJasaLevel ? '<span class="auth-badge">✓ Authorized</span>' : ''}
-          ${(s.units || []).map(u => `<span class="unit-badge">${u}</span>`).join('')}
-        </div>
-        ${chips ? `<div class="supplier-count-chips">${chips}</div>` : ''}
-      </div>`;
-    }).join('');
+    el.innerHTML = list.map(s => UI.card.supplier(s, countMap)).join('');
   }
 
   // ─────────────────────────────────────────
@@ -365,10 +332,7 @@ const SupplierTracker = (() => {
     </div>`;
     const el = document.getElementById('list-products');
     el.innerHTML = !list.length
-      ? stats + `<div class="empty-state">
-          <div class="empty-icon">📦</div>
-          <div class="empty-text">Belum ada produk.<br>Tap + untuk tambah produk baru.</div>
-        </div>`
+      ? stats + UI.emptyState("📦", "Belum ada produk.<br>Tap + untuk tambah produk baru.")
       : stats + list.map(p => renderItemCard(p)).join('');
   }
 
@@ -388,10 +352,7 @@ const SupplierTracker = (() => {
       ${q && list.length !== all.length ? `<div class="stat-chip">Filter: <span>${list.length}</span></div>` : ''}
     </div>`;
     el.innerHTML = !list.length
-      ? stats + `<div class="empty-state">
-          <div class="empty-icon">🔧</div>
-          <div class="empty-text">Belum ada layanan jasa.<br>Tap + untuk tambah jasa baru.</div>
-        </div>`
+      ? stats + UI.emptyState("🔧", "Belum ada layanan jasa.<br>Tap + untuk tambah jasa baru.")
       : stats + list.map(p => renderItemCard(p)).join('');
   }
 
@@ -444,11 +405,7 @@ const SupplierTracker = (() => {
     });
     const el = document.getElementById('list-compare');
     if (!allWithEntries.length) {
-      el.innerHTML = `<div class="empty-state">
-        <div class="empty-icon">⚖️</div>
-        <div class="empty-text">Belum ada data harga untuk dibandingkan.<br>
-        Tambah produk atau jasa + harga dari tab Produk / Jasa.</div>
-      </div>`;
+      el.innerHTML = UI.emptyState("⚖️", "Belum ada data harga untuk dibandingkan.<br>Tambah produk atau jasa + harga dari tab Produk / Jasa.");
       return;
     }
 
@@ -721,7 +678,7 @@ const SupplierTracker = (() => {
         </div>
         ${renderHistoryTimeline(panelId, history, id, false)}
       </div>`;
-    }).join('') || '<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Belum ada harga.</div></div>';
+    }).join('') || UI.emptyState("💰", "Belum ada harga.");
 
     document.getElementById('product-detail-content').innerHTML = `
       <div class="detail-section">
@@ -811,7 +768,7 @@ const SupplierTracker = (() => {
         </div>
         ${renderHistoryTimeline(panelId, history, productId, true)}
       </div>`;
-    }).join('') || '<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Belum ada harga.</div></div>';
+    }).join('') || UI.emptyState("💰", "Belum ada harga.");
 
     document.getElementById('jasa-detail-content').innerHTML = `
       <div class="detail-section">
