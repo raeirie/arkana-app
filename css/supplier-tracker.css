@@ -22,8 +22,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
   position: relative;
   z-index: 10;
 }
@@ -31,9 +31,9 @@
 .back-btn {
   width: 34px;
   height: 34px;
-  border-radius: 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,28 +41,28 @@
   cursor: pointer;
   flex-shrink: 0;
   text-decoration: none;
-  color: var(--text2);
+  color: var(--color-text-2);
 }
 
 .topbar-title {
   font-size: 17px;
   font-weight: 800;
-  color: var(--text);
+  color: var(--color-text);
   flex: 1;
   letter-spacing: -0.01em;
 }
 
 .topbar-sub {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--muted);
+  color: var(--color-muted);
 }
 
 .topbar-action {
   width: 34px;
   height: 34px;
-  border-radius: 10px;
-  background: var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
   border: none;
   display: flex;
   align-items: center;
@@ -77,8 +77,8 @@
 .tab-bar {
   flex-shrink: 0;
   display: flex;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   position: relative;
   z-index: 9;
 }
@@ -90,13 +90,13 @@
   cursor: pointer;
   font-size: 11px;
   font-weight: 600;
-  color: var(--text3);
+  color: var(--color-text-3);
   letter-spacing: 0.04em;
   position: relative;
   transition: color .2s;
 }
 
-.tab.active { color: var(--accent); }
+.tab.active { color: var(--color-accent); }
 
 .tab.active::after {
   content: '';
@@ -105,7 +105,7 @@
   left: 20%;
   right: 20%;
   height: 2px;
-  background: var(--accent);
+  background: var(--color-accent);
   border-radius: 2px;
 }
 
@@ -127,19 +127,19 @@
 
 .search-input {
   width: 100%;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 11px 14px 11px 38px;
   font-size: 13px;
-  color: var(--text);
+  color: var(--color-text);
   font-family: inherit;
   outline: none;
   transition: border-color .2s;
 }
 
-.search-input:focus         { border-color: var(--accent); }
-.search-input::placeholder  { color: var(--text3); }
+.search-input:focus         { border-color: var(--color-accent); }
+.search-input::placeholder  { color: var(--color-text-3); }
 
 .search-icon {
   position: absolute;
@@ -164,21 +164,21 @@
 
 .chip {
   flex-shrink: 0;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 20px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
   padding: 6px 12px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--text3);
+  color: var(--color-text-3);
   cursor: pointer;
   transition: all .15s;
   white-space: nowrap;
 }
 
 .chip.active {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
   background: rgba(59, 130, 246, 0.08);
 }
 
@@ -192,28 +192,28 @@
 
 .stat-chip {
   flex-shrink: 0;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   padding: 5px 12px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--text2);
+  color: var(--color-text-2);
   white-space: nowrap;
 }
 
 .stat-chip span {
-  color: var(--accent);
-  font-family: 'JetBrains Mono', monospace;
+  color: var(--color-accent);
+  font-family: var(--font-mono);
 }
 
 /* ── Section label (compare groups) ── */
 .section-label {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: .14em;
-  color: var(--muted);
+  color: var(--color-muted);
   margin-bottom: 10px;
   margin-top: 4px;
 }
@@ -223,9 +223,9 @@
 
 /* ── Supplier card ── */
 .supplier-card {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-xl);
   padding: 14px 16px;
   cursor: pointer;
   transition: border-color .2s;
@@ -243,7 +243,7 @@
 .supplier-initial {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -254,17 +254,17 @@
 }
 
 .supplier-info    { flex: 1; min-width: 0; }
-.supplier-name    { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.supplier-meta    { font-size: 11px; color: var(--text3); }
+.supplier-name    { font-size: 14px; font-weight: 700; color: var(--color-text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.supplier-meta    { font-size: 11px; color: var(--color-text-3); }
 .supplier-badges  { display: flex; gap: 6px; flex-wrap: wrap; }
 
 .unit-badge {
   font-size: 10px;
   font-weight: 500;
   padding: 3px 8px;
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   background: rgba(79, 127, 255, .08);
-  color: var(--accent);
+  color: var(--color-accent);
   border: 1px solid rgba(79, 127, 255, .15);
 }
 
@@ -277,30 +277,30 @@
 }
 
 .count-chip {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   padding: 2px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-weight: 500;
 }
 
 .count-produk {
   background: rgba(59, 130, 246, .08);
-  color: var(--accent);
+  color: var(--color-accent);
   border: 1px solid rgba(59, 130, 246, .18);
 }
 
 .count-jasa {
   background: rgba(139, 92, 246, .08);
-  color: var(--purple);
+  color: var(--color-purple);
   border: 1px solid rgba(139, 92, 246, .18);
 }
 
 /* ── Product card ── */
 .product-card {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-xl);
   padding: 14px 16px;
   cursor: pointer;
   transition: border-color .2s;
@@ -309,26 +309,26 @@
 .product-card:active { opacity: .85; }
 
 .product-header         { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-.product-name           { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; margin-right: 8px; line-height: 1.3; }
-.product-category       { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); background: var(--surface2); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+.product-name           { font-size: 14px; font-weight: 700; color: var(--color-text); flex: 1; margin-right: 8px; line-height: 1.3; }
+.product-category       { font-family: var(--font-mono); font-size: 10px; color: var(--color-muted); background: var(--color-surface-2); padding: 3px 8px; border-radius: var(--radius-sm); white-space: nowrap; }
 .product-price-row      { display: flex; justify-content: space-between; align-items: center; }
-.product-best-price     { font-size: 15px; font-weight: 700; color: var(--green); }
-.product-supplier-count { font-size: 11px; color: var(--text3); }
-.product-updated        { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 4px; }
+.product-best-price     { font-size: 15px; font-weight: 700; color: var(--color-success); }
+.product-supplier-count { font-size: 11px; color: var(--color-text-3); }
+.product-updated        { font-family: var(--font-mono); font-size: 10px; color: var(--color-muted); margin-top: 4px; }
 
 /* ── Compare card ── */
 .compare-card {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-xl);
   padding: 14px 16px;
   cursor: pointer;
   transition: border-color .2s;
 }
 
 .compare-card:active       { opacity: .85; }
-.compare-name              { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-.compare-cat               { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+.compare-name              { font-size: 14px; font-weight: 700; color: var(--color-text); margin-bottom: 4px; }
+.compare-cat               { font-size: 11px; color: var(--color-text-3); margin-bottom: 10px; }
 .compare-suppliers         { display: flex; flex-direction: column; gap: 6px; }
 
 .compare-row {
@@ -336,16 +336,16 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  background: var(--surface2);
-  border-radius: 8px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm);
   position: relative;
 }
 
 .compare-row.best          { border: 1px solid rgba(16,185,129,.3); background: rgba(16,185,129,.05); }
-.compare-supplier-name     { flex: 1; font-size: 12px; font-weight: 600; color: var(--text); }
-.compare-price             { font-size: 13px; font-weight: 700; color: var(--text); }
-.compare-row.best .compare-price { color: var(--green); }
-.best-label                { font-size: 9px; font-weight: 700; color: var(--green); background: rgba(16,185,129,.12); padding: 2px 6px; border-radius: 10px; }
+.compare-supplier-name     { flex: 1; font-size: 12px; font-weight: 600; color: var(--color-text); }
+.compare-price             { font-size: 13px; font-weight: 700; color: var(--color-text); }
+.compare-row.best .compare-price { color: var(--color-success); }
+.best-label                { font-size: 9px; font-weight: 700; color: var(--color-success); background: rgba(16,185,129,.12); padding: 2px 6px; border-radius: var(--radius-md); }
 
 /* ── FAB ── */
 .fab {
@@ -354,8 +354,8 @@
   right: max(calc(50% - 240px + 16px), 16px);
   width: 52px;
   height: 52px;
-  border-radius: 16px;
-  background: var(--accent);
+  border-radius: var(--radius-2xl);
+  background: var(--color-accent);
   border: none;
   color: white;
   font-size: 22px;
@@ -374,22 +374,22 @@
 .detail-section       { margin-bottom: 20px; }
 
 .detail-section-title {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: .14em;
-  color: var(--muted);
+  color: var(--color-muted);
   margin-bottom: 10px;
 }
 
 .detail-field         { margin-bottom: 10px; }
-.detail-field-label   { font-size: 11px; color: var(--text3); margin-bottom: 2px; }
-.detail-field-value   { font-size: 14px; color: var(--text); font-weight: 500; line-height: 1.5; }
+.detail-field-label   { font-size: 11px; color: var(--color-text-3); margin-bottom: 2px; }
+.detail-field-value   { font-size: 14px; color: var(--color-text); font-weight: 500; line-height: 1.5; }
 
 .detail-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   margin-bottom: 10px;
 }
@@ -397,44 +397,44 @@
 .detail-action-btn {
   font-size: 18px;
   cursor: pointer;
-  color: var(--accent);
+  color: var(--color-accent);
 }
 
 .detail-action-link {
   cursor: pointer;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
 }
 
 .price-entry-row    { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
-.price-entry-name   { font-size: 13px; font-weight: 700; color: var(--text); }
-.price-entry-price  { font-size: 14px; font-weight: 800; color: var(--green); }
-.price-entry-meta   { font-size: 11px; color: var(--text3); }
-.price-entry-moq    { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+.price-entry-name   { font-size: 13px; font-weight: 700; color: var(--color-text); }
+.price-entry-price  { font-size: 14px; font-weight: 800; color: var(--color-success); }
+.price-entry-meta   { font-size: 11px; color: var(--color-text-3); }
+.price-entry-moq    { font-family: var(--font-mono); font-size: 10px; color: var(--color-muted); margin-top: 2px; }
 
 /* ── Price History (PRD-01.1) ── */
 .trend-badge {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
   padding: 2px 7px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   flex-shrink: 0;
   vertical-align: middle;
 }
 
-.trend-up     { background: rgba(239,68,68,.1);  color: var(--red);   border: 1px solid rgba(239,68,68,.2); }
-.trend-down   { background: rgba(16,185,129,.1); color: var(--green); border: 1px solid rgba(16,185,129,.2); }
-.trend-stable { background: rgba(75,86,128,.1);  color: var(--muted); border: 1px solid rgba(75,86,128,.2); }
+.trend-up     { background: rgba(239,68,68,.1);  color: var(--color-danger);   border: 1px solid rgba(239,68,68,.2); }
+.trend-down   { background: rgba(16,185,129,.1); color: var(--color-success); border: 1px solid rgba(16,185,129,.2); }
+.trend-stable { background: rgba(75,86,128,.1);  color: var(--color-muted); border: 1px solid rgba(75,86,128,.2); }
 
 .history-toggle {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--color-accent);
   cursor: pointer;
   padding: 2px 0;
   flex-shrink: 0;
@@ -445,9 +445,9 @@
 
 .history-timeline {
   margin-top: 10px;
-  background: var(--surface2);
-  border-radius: 10px;
-  border: 1px solid var(--border);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
   overflow: hidden;
   display: none;
 }
@@ -459,36 +459,36 @@
   align-items: center;
   gap: 8px;
   padding: 9px 12px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--color-border);
   position: relative;
 }
 
 .history-row:last-child      { border-bottom: none; }
 .history-row.latest          { background: rgba(59,130,246,.04); }
-.history-row-price           { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
-.history-row.latest .history-row-price { color: var(--accent); }
-.history-row-meta            { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; line-height: 1.5; }
+.history-row-price           { font-size: 13px; font-weight: 700; color: var(--color-text); flex: 1; }
+.history-row.latest .history-row-price { color: var(--color-accent); }
+.history-row-meta            { font-family: var(--font-mono); font-size: 10px; color: var(--color-muted); text-align: right; line-height: 1.5; }
 
 .history-latest-tag {
   font-size: 9px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--color-accent);
   background: rgba(59,130,246,.1);
   border: 1px solid rgba(59,130,246,.2);
   padding: 1px 6px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin-left: 4px;
   flex-shrink: 0;
 }
 
 .history-del {
   font-size: 10px;
-  color: var(--red);
+  color: var(--color-danger);
   cursor: pointer;
   padding: 2px 6px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   flex-shrink: 0;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-weight: 500;
 }
 

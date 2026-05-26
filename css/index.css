@@ -21,7 +21,7 @@
    LOGIN SCREEN
 ══════════════════════════════════ */
 #screen-login {
-  background: var(--bg);
+  background: var(--color-bg);
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -61,11 +61,11 @@
 }
 
 .login-eyebrow {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--color-accent);
   margin-bottom: 10px;
   opacity: 0.8;
 }
@@ -73,14 +73,14 @@
 .login-title {
   font-size: clamp(28px, 7vw, 36px);
   font-weight: 800;
-  color: var(--text);
+  color: var(--color-text);
   line-height: 1.1;
   letter-spacing: -0.02em;
   margin-bottom: 8px;
 }
 
 .login-title span {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -88,14 +88,14 @@
 
 .login-sub {
   font-size: 13px;
-  color: var(--text3);
+  color: var(--color-text-3);
   font-weight: 400;
 }
 
 .login-version {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--muted);
+  color: var(--color-muted);
   margin-top: 8px;
   letter-spacing: 0.05em;
 }
@@ -104,7 +104,7 @@
 .choose-label {
   font-size: 11px;
   font-weight: 700;
-  color: var(--text3);
+  color: var(--color-text-3);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 12px;
@@ -118,9 +118,9 @@
 }
 
 .user-card {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-2xl);
   padding: 16px 18px;
   display: flex;
   align-items: center;
@@ -134,14 +134,14 @@
 .user-card:active { opacity: 0.8; }
 
 .user-card.selected {
-  border-color: var(--accent);
+  border-color: var(--color-accent);
   background: rgba(59,130,246,0.06);
 }
 
 .user-avatar {
   width: 46px;
   height: 46px;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,7 +162,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   position: absolute;
   inset: 0;
 }
@@ -176,7 +176,7 @@
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   opacity: 0;
   transition: opacity 0.2s;
 }
@@ -189,13 +189,13 @@
 .user-name {
   font-size: 15px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--color-text);
   margin-bottom: 2px;
 }
 
 .user-role {
   font-size: 11px;
-  color: var(--text3);
+  color: var(--color-text-3);
   font-weight: 400;
 }
 
@@ -203,7 +203,7 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 1.5px solid var(--border2);
+  border: 1.5px solid var(--color-border-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -214,23 +214,23 @@
 }
 
 .user-card.selected .user-check {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
   color: white;
 }
 
 /* PIN section */
 .pin-section {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-2xl);
   padding: 20px 18px;
   margin-top: 4px;
   transition: border-color 0.2s;
 }
 
 .pin-section.error {
-  border-color: var(--red);
+  border-color: var(--color-danger);
   animation: shake 0.4s ease;
 }
 
@@ -245,14 +245,14 @@
 .pin-top-label {
   font-size: 11px;
   font-weight: 700;
-  color: var(--text3);
+  color: var(--color-text-3);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 16px;
   transition: color 0.2s;
 }
 
-.pin-section.error .pin-top-label { color: var(--red); }
+.pin-section.error .pin-top-label { color: var(--color-danger); }
 
 .pin-dots {
   display: flex;
@@ -265,21 +265,21 @@
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  border: 1.5px solid var(--border2);
+  border: 1.5px solid var(--color-border-2);
   background: transparent;
   transition: all 0.15s ease;
 }
 
 .pin-dot.filled {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
   box-shadow: 0 0 10px rgba(59,130,246,0.4);
   transform: scale(1.1);
 }
 
 .pin-dot.error-dot {
-  background: var(--red);
-  border-color: var(--red);
+  background: var(--color-danger);
+  border-color: var(--color-danger);
   box-shadow: 0 0 10px rgba(239,68,68,0.4);
 }
 
@@ -290,34 +290,34 @@
 }
 
 .pin-key {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--color-text);
   cursor: pointer;
   transition: all 0.1s;
   user-select: none;
 }
 
 .pin-key:active {
-  background: var(--border2);
+  background: var(--color-border-2);
   transform: scale(0.95);
 }
 
 .pin-key.del {
   font-size: 20px;
-  color: var(--text2);
+  color: var(--color-text-2);
 }
 
 .pin-key.enter {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
   color: white;
   font-size: 13px;
   font-weight: 700;
@@ -328,16 +328,16 @@
 
 .pin-key.enter:disabled,
 .pin-key.enter.disabled {
-  background: var(--border2);
-  border-color: var(--border2);
-  color: var(--muted);
+  background: var(--color-border-2);
+  border-color: var(--color-border-2);
+  color: var(--color-muted);
   cursor: not-allowed;
 }
 
 /* ══════════════════════════════════
    HOME SCREEN
 ══════════════════════════════════ */
-#screen-home { background: var(--bg); }
+#screen-home { background: var(--color-bg); }
 
 .home-bg {
   position: absolute;
@@ -361,7 +361,7 @@
 .greeting-small {
   font-size: 12px;
   font-weight: 500;
-  color: var(--text3);
+  color: var(--color-text-3);
   letter-spacing: 0.03em;
   margin-bottom: 2px;
 }
@@ -369,33 +369,33 @@
 .greeting-name {
   font-size: 26px;
   font-weight: 800;
-  color: var(--text);
+  color: var(--color-text);
   letter-spacing: -0.02em;
   margin-bottom: 2px;
   line-height: 1.1;
 }
 
 .greeting-name span {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .greeting-date {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text3);
+  color: var(--color-text-3);
 }
 
 .logout-btn {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   padding: 8px 14px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--text3);
+  color: var(--color-text-3);
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
@@ -403,13 +403,13 @@
 }
 
 .logout-btn:active {
-  background: var(--border);
-  color: var(--red);
+  background: var(--color-border);
+  color: var(--color-danger);
 }
 
 .home-divider {
   height: 1px;
-  background: var(--border);
+  background: var(--color-border);
   margin: 0 22px;
   flex-shrink: 0;
   position: relative;
@@ -435,7 +435,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--text3);
+  color: var(--color-text-3);
   margin-bottom: 12px;
 }
 
@@ -447,9 +447,9 @@
 }
 
 .feat-card {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-2xl);
   padding: 16px 14px;
   cursor: pointer;
   position: relative;
@@ -473,10 +473,10 @@
   opacity: 0.07;
 }
 
-.feat-card.c-blue::before   { background: var(--accent); }
-.feat-card.c-green::before  { background: var(--green); }
-.feat-card.c-orange::before { background: var(--orange); }
-.feat-card.c-purple::before { background: var(--purple); }
+.feat-card.c-blue::before   { background: var(--color-accent); }
+.feat-card.c-green::before  { background: var(--color-success); }
+.feat-card.c-orange::before { background: var(--color-warning); }
+.feat-card.c-purple::before { background: var(--color-purple); }
 
 .feat-icon {
   font-size: 24px;
@@ -488,14 +488,14 @@
 .feat-name {
   font-size: 12px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--color-text);
   line-height: 1.3;
   margin-bottom: 4px;
 }
 
 .feat-desc {
   font-size: 10px;
-  color: var(--text3);
+  color: var(--color-text-3);
   line-height: 1.45;
   font-weight: 400;
 }
@@ -503,25 +503,25 @@
 .feat-badge {
   display: inline-block;
   margin-top: 8px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 500;
   padding: 3px 8px;
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   letter-spacing: 0.05em;
 }
 
 .badge-soon {
   background: rgba(75,86,128,0.18);
-  color: var(--muted);
+  color: var(--color-muted);
   border: 1px solid rgba(75,86,128,0.25);
 }
 
 /* User info strip */
 .user-strip {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   display: flex;
   justify-content: space-between;
@@ -530,16 +530,16 @@
 
 .strip-label {
   font-size: 10px;
-  color: var(--text3);
+  color: var(--color-text-3);
   margin-bottom: 3px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.05em;
 }
 
 .strip-name {
   font-size: 14px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -548,7 +548,7 @@
 .strip-avatar {
   width: 20px;
   height: 20px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -560,16 +560,16 @@
 .strip-right { text-align: right; }
 
 .strip-app {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text2);
+  color: var(--color-text-2);
   margin-bottom: 2px;
 }
 
 .strip-version {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--muted);
+  color: var(--color-muted);
 }
 
 /* ══════════════════════════════════
@@ -577,8 +577,8 @@
 ══════════════════════════════════ */
 .bottom-nav {
   flex-shrink: 0;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
   display: flex;
   padding: 10px 0 max(env(safe-area-inset-bottom), 10px);
   position: relative;
@@ -606,12 +606,12 @@
 .nav-label {
   font-size: 9px;
   font-weight: 600;
-  color: var(--text3);
+  color: var(--color-text-3);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-.nav-item.active .nav-label { color: var(--accent); }
+.nav-item.active .nav-label { color: var(--color-accent); }
 
 .nav-indicator {
   width: 4px;
@@ -621,7 +621,7 @@
   margin-top: 1px;
 }
 
-.nav-item.active .nav-indicator { background: var(--accent); }
+.nav-item.active .nav-indicator { background: var(--color-accent); }
 
 /* ══════════════════════════════════
    SHARED SCREEN HEADER
@@ -636,14 +636,14 @@
 .screen-title {
   font-size: 22px;
   font-weight: 800;
-  color: var(--text);
+  color: var(--color-text);
   letter-spacing: -0.02em;
   margin-bottom: 2px;
 }
 
 .screen-sub {
   font-size: 12px;
-  color: var(--text3);
+  color: var(--color-text-3);
 }
 
 .screen-content {
@@ -660,7 +660,7 @@
 /* ══════════════════════════════════
    AKTIVITAS SCREEN
 ══════════════════════════════════ */
-#screen-aktivitas { background: var(--bg); }
+#screen-aktivitas { background: var(--color-bg); }
 
 .log-list {
   display: flex;
@@ -669,9 +669,9 @@
 }
 
 .log-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 12px 14px;
   display: flex;
   gap: 12px;
@@ -681,7 +681,7 @@
 .log-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -696,27 +696,27 @@
 .log-action {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--color-text);
   margin-bottom: 2px;
 }
 
 .log-detail {
   font-size: 11px;
-  color: var(--text3);
+  color: var(--color-text-3);
   margin-bottom: 4px;
 }
 
 .log-time {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
-  color: var(--muted);
+  color: var(--color-muted);
   letter-spacing: 0.05em;
 }
 
 /* ══════════════════════════════════
    SETTING SCREEN
 ══════════════════════════════════ */
-#screen-setting { background: var(--bg); }
+#screen-setting { background: var(--color-bg); }
 
 .setting-list {
   display: flex;
@@ -729,14 +729,14 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--text3);
+  color: var(--color-text-3);
   margin: 12px 0 8px;
 }
 
 .setting-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   display: flex;
   align-items: center;
@@ -751,8 +751,8 @@
   font-size: 18px;
   width: 36px;
   height: 36px;
-  background: var(--surface2);
-  border-radius: 10px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -764,24 +764,24 @@
 .setting-name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--color-text);
   margin-bottom: 2px;
 }
 
 .setting-desc {
   font-size: 11px;
-  color: var(--text3);
+  color: var(--color-text-3);
 }
 
 .setting-arrow {
-  color: var(--muted);
+  color: var(--color-muted);
   font-size: 14px;
 }
 
 .app-info-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
   padding: 20px;
   text-align: center;
   margin-top: 8px;
@@ -793,23 +793,23 @@
 }
 
 .app-info-name {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 16px;
   font-weight: 500;
-  color: var(--text);
+  color: var(--color-text);
   margin-bottom: 4px;
 }
 
 .app-info-version {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--muted);
+  color: var(--color-muted);
   margin-bottom: 8px;
 }
 
 .app-info-company {
   font-size: 12px;
-  color: var(--text3);
+  color: var(--color-text-3);
 }
 
 /* ══════════════════════════════════
@@ -833,9 +833,9 @@
 }
 
 .modal-sheet {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 24px 24px 0 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
   padding: 20px 24px max(env(safe-area-inset-bottom), 24px);
   width: 100%;
   max-width: 480px;
@@ -849,7 +849,7 @@
 .modal-handle {
   width: 36px;
   height: 4px;
-  background: var(--border2);
+  background: var(--color-border-2);
   border-radius: 2px;
   margin: 0 auto 20px;
 }
@@ -857,25 +857,25 @@
 .modal-title {
   font-size: 17px;
   font-weight: 800;
-  color: var(--text);
+  color: var(--color-text);
   margin-bottom: 4px;
 }
 
 .modal-sub {
   font-size: 12px;
-  color: var(--text3);
+  color: var(--color-text-3);
   margin-bottom: 20px;
 }
 
 .modal-btn {
   width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 14px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text3);
+  color: var(--color-text-3);
   cursor: pointer;
   margin-top: 12px;
   transition: all 0.2s;
@@ -885,7 +885,7 @@
 .modal-btn:active { opacity: 0.7; }
 
 .modal-btn.primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
   color: white;
 }
