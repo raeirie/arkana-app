@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   Arkana App — Base CSS  v1.10.0
+   Arkana App — Base CSS  v1.11.0
    Design System Foundation: tokens + shared components.
    ─────────────────────────────────────────────────────
    LAYER 1 — DESIGN TOKENS (:root)
@@ -7,9 +7,15 @@
      properties. No hardcoded values anywhere else.
    LAYER 2 — STRUCTURAL COMPONENTS
      Shared components token-referenced. Named per
-     the official component inventory. Behavior and
-     markup untouched — visual redesign deferred to
-     PRD-00.4.
+     the official component inventory.
+   ─────────────────────────────────────────────────────
+   PRD-00.4 — Token Mapping (Notion dark-mode adaptation)
+     · Backgrounds desaturated: blue-tinted → neutral zinc
+     · Borders desaturated: zinc scale
+     · Text hierarchy: warm-neutral (FAFAFA / A1A1AA / 52525B)
+     · Radius tightened: sm 8→6px, md 10→8px, 3xl 24→20px
+     · Font tokens added: --font-body, --font-mono
+     · Shadow scale added: sm / md / lg / fab
    ═══════════════════════════════════════════════════ */
 
 /* ── Reset & base ── */
@@ -72,13 +78,13 @@ input, textarea {
 
    RADIUS TOKENS
    ─────────────
-   --radius-sm   8px   chip, tag
-   --radius-md   10px  button, input
-   --radius-lg   12px  card (sm), confirm box
-   --radius-xl   14px  card (main)
-   --radius-2xl  16px  button (primary), user card
-   --radius-3xl  24px  sheet
-   --radius-full 9999px  pill badge
+   --radius-sm   6px    chip, tag           (Notion rounded.sm)
+   --radius-md   8px    button, input       (Notion rounded.md — sober editorial)
+   --radius-lg   12px   card (sm), confirm  (Notion rounded.lg)
+   --radius-xl   14px   card (main)
+   --radius-2xl  16px   user card, FAB
+   --radius-3xl  20px   sheet
+   --radius-full 9999px pill badge
 
    FONT SIZE TOKENS
    ────────────────
@@ -103,7 +109,15 @@ input, textarea {
 
    SHADOW TOKENS
    ─────────────
-   --shadow-fab   FAB elevation
+   --shadow-sm    subtle hover lift
+   --shadow-md    cards
+   --shadow-lg    sheets, modals
+   --shadow-fab   FAB elevation (accent glow)
+
+   FONT TOKENS
+   ───────────
+   --font-body   Plus Jakarta Sans (humanist-geometric, Notion-Sans equivalent)
+   --font-mono   JetBrains Mono (badges, PTR label, mono UI)
 
    TRANSITION TOKENS
    ─────────────────
@@ -117,13 +131,15 @@ input, textarea {
 
 :root {
   /* ── Color: Backgrounds ── */
-  --color-bg:        #080B12;
-  --color-surface:   #0F1320;
-  --color-surface-2: #161C2E;
+  /* Desaturated neutral zinc — removes blue tint from dark surfaces */
+  --color-bg:        #09090B;
+  --color-surface:   #111113;
+  --color-surface-2: #1A1A1D;
 
   /* ── Color: Borders ── */
-  --color-border:    #1E2640;
-  --color-border-2:  #2A3352;
+  /* Neutral zinc borders — Notion hairline spirit, no blue bleed */
+  --color-border:    #27272A;
+  --color-border-2:  #3F3F46;
 
   /* ── Color: Brand / Interactive ── */
   --color-accent:    #3B82F6;
@@ -134,10 +150,11 @@ input, textarea {
   --color-purple:    #8B5CF6;
 
   /* ── Color: Text ── */
-  --color-text:      #F0F2FA;
-  --color-text-2:    #8B93B4;
-  --color-text-3:    #4B5680;
-  --color-muted:     #4B5680;
+  /* Warm-neutral hierarchy — purer white primary, zinc secondary/tertiary */
+  --color-text:      #FAFAFA;
+  --color-text-2:    #A1A1AA;
+  --color-text-3:    #52525B;
+  --color-muted:     #52525B;
 
   /* ── Color: Supplier levels ── */
   --color-supplier-l1: #F59E0B;
@@ -156,12 +173,13 @@ input, textarea {
   --space-12: 48px;
 
   /* ── Border radius ── */
-  --radius-sm:   8px;
-  --radius-md:   10px;
+  /* Notion-aligned: sober editorial geometry — rectangles, not pills */
+  --radius-sm:   6px;
+  --radius-md:   8px;
   --radius-lg:   12px;
   --radius-xl:   14px;
   --radius-2xl:  16px;
-  --radius-3xl:  24px;
+  --radius-3xl:  20px;
   --radius-full: 9999px;
 
   /* ── Font size ── */
@@ -183,8 +201,15 @@ input, textarea {
   --weight-bold:      700;
   --weight-extrabold: 800;
 
+  /* ── Font families ── */
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
   /* ── Shadows ── */
-  --shadow-fab: 0 8px 24px rgba(59, 130, 246, .4);
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, .4);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, .5);
+  --shadow-lg:  0 8px 32px rgba(0, 0, 0, .6);
+  --shadow-fab: 0 8px 24px rgba(59, 130, 246, .35);
 
   /* ── Transitions ── */
   --duration-fast:   0.15s;
@@ -225,7 +250,7 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: #000;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-body);
   color: var(--color-text);
 }
 
@@ -243,8 +268,9 @@ html, body {
 /* ════════════════════════════════════════════════════
    LAYER 2 — STRUCTURAL COMPONENTS
    Named per official component inventory (PRD-00.3).
-   CSS values reference tokens. Markup & behavior
-   unchanged — visual redesign deferred to PRD-00.4.
+   CSS values reference tokens only — no hardcoded values.
+   PRD-00.4: token values updated; component visual
+   redesign applied incrementally per page.
    ════════════════════════════════════════════════════ */
 
 /* ── Screen transitions ── */
@@ -399,7 +425,7 @@ html, body {
 .form-textarea         { resize: none; min-height: 80px; line-height: 1.5; }
 
 .form-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234B5680' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
   padding-right: 36px;
@@ -483,7 +509,7 @@ html, body {
 .loading-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(8, 11, 18, .85);
+  background: rgba(9, 9, 11, .88);
   z-index: 300;
   display: flex;
   flex-direction: column;
@@ -599,7 +625,7 @@ html, body {
 .ptr-label {
   font-size: var(--text-base);
   color: var(--color-text-3);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 /* ── Top Bar ── */
@@ -685,7 +711,7 @@ html, body {
 /* ── Level Badges ── */
 /* canonical class: .level-badge + .l1/.l2/.l3/.l4/.jasa */
 .level-badge {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   padding: 3px var(--space-2);
