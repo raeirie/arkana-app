@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#080B12">
+  <meta name="theme-color" content="#09090B">
   <title>Expense Tracker — Arkana App</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/expense-tracker.css">
 
   <!-- JS load order: config → constants → utils → app → page -->
-  <script src="config.js?v=2.0.2"></script>
+  <script src="config.js?v=2.0.3"></script>
   <script src="js/constants.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/app.js"></script>
@@ -26,49 +26,50 @@
   ══════════════════════════════════════ -->
   <div id="screen-main" class="screen active">
 
-    <!-- Topbar -->
-    <div class="topbar">
-      <button class="back-btn" id="btn-back">←</button>
-      <div class="topbar-body">
+    <!-- Frosted bar: topbar + tab-bar + filters as one glass unit -->
+    <div class="frost-bar" id="frost-main">
+      <div class="topbar">
+        <button class="back-btn" id="btn-back">‹</button>
         <div class="topbar-title">Expense Tracker</div>
-        <div class="topbar-sub" id="topbar-sub">Memuat...</div>
+        <div class="topbar-action" style="visibility:hidden"></div>
+      </div>
+      <div class="tab-bar">
+        <div class="tab active" id="tab-pengeluaran">Pengeluaran</div>
+        <div class="tab"        id="tab-ringkasan">Ringkasan</div>
+      </div>
+      <!-- Filter bars — inside frost bar so they scroll with glass -->
+      <div class="filters-wrap">
+        <div class="filter-scroll" id="filter-bulan-wrap">
+          <button class="filter-chip active" data-bulan="">Semua</button>
+        </div>
+        <div class="filter-scroll" id="filter-tipe-wrap">
+          <button class="filter-chip active" data-tipe="">Semua Tipe</button>
+          <button class="filter-chip" data-tipe="umum">Umum</button>
+          <button class="filter-chip" data-tipe="proyek">Proyek</button>
+        </div>
+        <div class="filter-scroll" id="filter-metode-wrap">
+          <button class="filter-chip active" data-metode="">Semua Metode</button>
+          <button class="filter-chip" data-metode="kas_perusahaan">Kas Perusahaan</button>
+          <button class="filter-chip" data-metode="personal">Personal</button>
+          <button class="filter-chip" data-metode="vendor_paylater">Vendor Paylater</button>
+        </div>
       </div>
     </div>
 
-    <!-- Tab bar -->
-    <div class="tab-bar">
-      <div class="tab active" id="tab-pengeluaran">Pengeluaran</div>
-      <div class="tab"        id="tab-ringkasan">Ringkasan</div>
-    </div>
+    <!-- Scroll area — bleeds under frost bar -->
+    <div class="scroll-area" id="scroll-main">
 
-    <!-- Filter bars — shared across both tabs -->
-    <div class="filters-wrap">
-      <div class="filter-scroll" id="filter-bulan-wrap">
-        <button class="filter-chip active" data-bulan="">Semua</button>
+      <!-- ── PANE: PENGELUARAN ── -->
+      <div id="pane-pengeluaran" class="scroll-pane">
+        <div class="card-list" id="list-expenses"></div>
       </div>
-      <div class="filter-scroll" id="filter-tipe-wrap">
-        <button class="filter-chip active" data-tipe="">Semua Tipe</button>
-        <button class="filter-chip" data-tipe="umum">Umum</button>
-        <button class="filter-chip" data-tipe="proyek">Proyek</button>
-      </div>
-      <div class="filter-scroll" id="filter-metode-wrap">
-        <button class="filter-chip active" data-metode="">Semua Metode</button>
-        <button class="filter-chip" data-metode="kas_perusahaan">Kas Perusahaan</button>
-        <button class="filter-chip" data-metode="personal">Personal</button>
-        <button class="filter-chip" data-metode="vendor_paylater">Vendor Paylater</button>
-      </div>
-    </div>
 
-    <!-- ── PANE: PENGELUARAN ── -->
-    <div id="pane-pengeluaran" class="scroll-content">
-      <!-- Expense list -->
-      <div class="card-list" id="list-expenses"></div>
-    </div>
+      <!-- ── PANE: RINGKASAN ── -->
+      <div id="pane-ringkasan" class="scroll-pane" style="display:none">
+        <div id="ringkasan-content"></div>
+      </div>
 
-    <!-- ── PANE: RINGKASAN ── -->
-    <div id="pane-ringkasan" class="scroll-content" style="display:none">
-      <div id="ringkasan-content"></div>
-    </div>
+    </div><!-- /.scroll-area -->
 
     <!-- FAB -->
     <button class="fab" id="btn-fab">+</button>
@@ -215,5 +216,35 @@
 <div class="toast" id="toast"></div>
 
 <script src="js/expense-tracker.js"></script>
+
+<script>
+/* ── PRD-00.4-B: Frost Bar init ── */
+(function() {
+  function initFrostBar(frostId, scrollId, threshold) {
+    threshold = threshold || 10;
+    var frost  = document.getElementById(frostId);
+    var scroll = document.getElementById(scrollId);
+    if (!frost || !scroll) return;
+
+    function setpad() {
+      scroll.style.paddingTop = frost.offsetHeight + 12 + 'px';
+    }
+    setpad();
+
+    if (window.ResizeObserver) {
+      new ResizeObserver(setpad).observe(frost);
+    }
+
+    scroll.addEventListener('scroll', function() {
+      frost.classList.toggle('topbar-shrunk', scroll.scrollTop > threshold);
+    }, { passive: true });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    initFrostBar('frost-main', 'scroll-main');
+  });
+})();
+</script>
+
 </body>
 </html>

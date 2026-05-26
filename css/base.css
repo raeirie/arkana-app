@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   Arkana App — Base CSS  v1.11.0
+   Arkana App — Base CSS  v2.0.3
    Design System Foundation: tokens + shared components.
    ─────────────────────────────────────────────────────
    LAYER 1 — DESIGN TOKENS (:root)
@@ -16,6 +16,12 @@
      · Radius tightened: sm 8→6px, md 10→8px, 3xl 24→20px
      · Font tokens added: --font-body, --font-mono
      · Shadow scale added: sm / md / lg / fab
+   PRD-00.4-B — Top Bar + Back Button + Tab Bar
+     · Glass tokens added: --blur-glass, --saturate-glass,
+       --bg-glass, --color-border-glass, --color-border-glass-inner
+     · .topbar base rule → position:absolute + glass bg
+     · .tab-bar base rule → transparent bg, inner border
+     · .screen base rule → position:relative for frost container
    ═══════════════════════════════════════════════════ */
 
 /* ── Reset & base ── */
@@ -64,6 +70,14 @@ input, textarea {
    --color-supplier-l2  L2 level color (blue)
    --color-supplier-l3  L3 level color (green)
    --color-supplier-l4  L4 level color (gray)
+
+   GLASS TOKENS (PRD-00.4-B)
+   ──────────────────────────
+   --blur-glass          backdrop blur amount (20px)
+   --saturate-glass      backdrop saturation (1.5)
+   --bg-glass            frosted bar background (56% opacity)
+   --color-border-glass  outer hairline (barely-there white)
+   --color-border-glass-inner  separator between topbar & tabbar
 
    SPACING TOKENS
    ──────────────
@@ -162,6 +176,13 @@ input, textarea {
   --color-supplier-l2: #3B82F6;
   --color-supplier-l3: #10B981;
   --color-supplier-l4: #6B7280;
+
+  /* ── Glass tokens (PRD-00.4-B) ── */
+  --blur-glass:              20px;
+  --saturate-glass:          1.5;
+  --bg-glass:                rgba(9, 9, 11, 0.56);
+  --color-border-glass:      rgba(255, 255, 255, 0.06);
+  --color-border-glass-inner: rgba(255, 255, 255, 0.04);
 
   /* ── Spacing ── */
   --space-1:  4px;
@@ -275,16 +296,18 @@ html, body {
    ════════════════════════════════════════════════════ */
 
 /* ── Screen transitions ── */
+/* PRD-00.4-B: position:relative so scroll-area + frost bar
+   siblings work correctly inside each screen. */
 .screen {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--duration-slow) var(--ease-standard),
               transform var(--duration-slow) var(--ease-standard);
   transform: translateX(30px);
+  /* NOTE: display:flex flex-direction:column removed here —
+     page CSS sets layout per screen via .frost-bar + .scroll-area */
 }
 
 .screen.active {
@@ -297,6 +320,146 @@ html, body {
   transform: translateX(-30px);
   opacity: 0;
 }
+
+/* ── Frosted bar container (PRD-00.4-B) ── */
+/* Wraps .topbar + optional .tab-bar as a single frosted unit.
+   Absolutely positioned so scroll-area bleeds underneath. */
+.frost-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  backdrop-filter: blur(var(--blur-glass)) saturate(var(--saturate-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(var(--saturate-glass));
+  background: var(--bg-glass);
+  border-bottom: 0.5px solid var(--color-border-glass);
+}
+
+/* ── Top Bar (PRD-00.4-B) ── */
+/* canonical class: .topbar
+   Layout: 3-col grid (32px · 1fr · 32px) — title always centered.
+   Shrink state toggled by JS via .topbar-shrunk on .frost-bar. */
+.topbar {
+  display: grid;
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+  gap: 8px;
+  padding: max(env(safe-area-inset-top), 44px) 14px 8px;
+  transition: padding var(--duration-normal) var(--ease-standard);
+}
+
+.frost-bar.topbar-shrunk .topbar {
+  padding: max(env(safe-area-inset-top), 14px) 14px 6px;
+}
+
+.topbar-title {
+  text-align: center;
+  font-size: var(--text-3xl);     /* 17px at rest */
+  font-weight: var(--weight-extrabold);
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+  transition: font-size var(--duration-normal) var(--ease-standard);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.frost-bar.topbar-shrunk .topbar-title {
+  font-size: var(--text-lg);      /* 13px on scroll */
+}
+
+/* ── Back Button (PRD-00.4-B) ── */
+/* Ghost style: no background, no border. Chevron only. */
+.back-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--color-accent);
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.back-btn:active { opacity: 0.6; }
+
+/* Right slot — same size as back-btn, for action icons in detail screens */
+.topbar-action {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--color-accent);
+  font-size: 16px;
+  padding: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.topbar-action:active { opacity: 0.6; }
+
+/* ── Tab Bar (PRD-00.4-B) ── */
+/* Part of frost-bar — transparent bg, separated from topbar by hairline. */
+/* canonical class: .tab-bar, .tab, .tab.active */
+.tab-bar {
+  display: flex;
+  border-top: 0.5px solid var(--color-border-glass-inner);
+  background: transparent;
+}
+
+.tab {
+  flex: 1;
+  padding: 9px var(--space-1) 9px;
+  text-align: center;
+  cursor: pointer;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-3);
+  letter-spacing: .04em;
+  position: relative;
+  transition: color var(--duration-normal) var(--ease-standard);
+  white-space: nowrap;
+}
+
+.tab.active { color: var(--color-accent); }
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+
+/* ── Scroll Area (PRD-00.4-B) ── */
+/* Full-screen scroll container that bleeds under the frost bar.
+   padding-top set by JS to match frost-bar height. */
+.scroll-area {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  /* padding-top injected by JS: initFrostBar() */
+}
+
+.scroll-area::-webkit-scrollbar { display: none; }
 
 /* ── Overlay ── */
 /* canonical class: .overlay */
@@ -627,58 +790,6 @@ html, body {
   font-size: var(--text-base);
   color: var(--color-text-3);
   font-family: var(--font-mono);
-}
-
-/* ── Top Bar ── */
-/* canonical class: .topbar */
-/* Note: padding/layout in page CSS — shared token values here */
-.topbar {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--radius-lg);
-  background: var(--color-bg);
-  border-bottom: 1px solid var(--color-border);
-  position: relative;
-  z-index: 10;
-}
-
-/* ── Tab Bar ── */
-/* canonical class: .tab-bar, .tab, .tab.active */
-.tab-bar {
-  flex-shrink: 0;
-  display: flex;
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  position: relative;
-  z-index: 9;
-}
-
-.tab {
-  flex: 1;
-  padding: 11px var(--space-1) 10px;
-  text-align: center;
-  cursor: pointer;
-  font-size: var(--text-base);
-  font-weight: var(--weight-semibold);
-  color: var(--color-text-3);
-  letter-spacing: .04em;
-  position: relative;
-  transition: color var(--duration-normal) var(--ease-standard);
-  white-space: nowrap;
-}
-
-.tab.active { color: var(--color-accent); }
-
-.tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 20%;
-  right: 20%;
-  height: 2px;
-  background: var(--color-accent);
-  border-radius: 2px;
 }
 
 /* ── Empty State ── */

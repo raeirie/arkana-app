@@ -1,96 +1,50 @@
 /* ═══════════════════════════════════════════════════
-   Arkana App — Project Manager CSS
+   Arkana App — Project Manager CSS  v2.0.3
    Page-specific styles. base.css loaded first.
+   PRD-00.4-B: topbar/back-btn/pm-header rules removed —
+   now owned by base.css. Scroll containers updated to
+   .scroll-area + scroll-pane (.pm-list) pattern.
+   Filter-bar moved inside frost-bar in HTML.
    ═══════════════════════════════════════════════════ */
 
-/* ── Header ── */
-.pm-header {
-  padding: max(env(safe-area-inset-top), 44px) 18px 12px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--color-bg);
-  border-bottom: 1px solid var(--color-border);
-  position: relative;
-  z-index: 10;
-}
-
-.back-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-2);
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  padding-bottom: 0;
-}
-
-.pm-header-text { flex: 1; min-width: 0; }
-
-.pm-title {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--color-text);
-  letter-spacing: -.01em;
-}
-
-.pm-sub {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--color-muted);
-  margin-top: 2px;
-}
-
-/* ── Filter bar ── */
+/* ── Filter bar — inside frost bar ── */
+/* Sits below topbar, inside .frost-bar glass container */
 .filter-bar {
   display: flex;
   gap: 8px;
-  padding: 12px 20px 12px;
-  flex-shrink: 0;
+  padding: 8px 16px 10px;
   overflow-x: auto;
   scrollbar-width: none;
-  border-bottom: 1px solid var(--color-border);
+  border-top: 0.5px solid var(--color-border-glass-inner);
 }
 
 .filter-bar::-webkit-scrollbar { display: none; }
 
 .filter-chip {
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-full);
-  padding: 6px 14px;
+  padding: 5px 14px;
   font-size: 12px;
   font-weight: 600;
   color: var(--color-text-3);
   cursor: pointer;
   white-space: nowrap;
   font-family: inherit;
-  transition: all .15s;
+  transition: all var(--duration-fast) var(--ease-standard);
   flex-shrink: 0;
 }
 
 .filter-chip.active {
   border-color: var(--color-accent);
   color: var(--color-accent);
-  background: rgba(59, 130, 246, .08);
+  background: rgba(59, 130, 246, .12);
 }
 
-/* ── Project list ── */
+/* ── Project list — the scroll pane ── */
 .pm-list {
-  flex: 1;
-  overflow-y: auto;
   padding: 12px 20px 100px;
-  scrollbar-width: none;
 }
-
-.pm-list::-webkit-scrollbar { display: none; }
 
 /* ── Group label (Active / Selesai) ── */
 .group-label {
@@ -112,7 +66,7 @@
   padding: 16px;
   margin-bottom: 10px;
   cursor: pointer;
-  transition: border-color .15s;
+  transition: border-color var(--duration-fast) var(--ease-standard);
   display: flex;
   align-items: center;
   gap: 14px;
