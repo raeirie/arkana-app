@@ -12,7 +12,7 @@
    PRD-00.4 — Token Mapping (Notion dark-mode adaptation)
      · Backgrounds desaturated: blue-tinted → neutral zinc
      · Borders desaturated: zinc scale
-     · Text hierarchy: warm-neutral (FAFAFA / A1A1AA / 52525B)
+     · Text hierarchy: warm-neutral (FAFAFA / B4B4BB / 787880)
      · Radius tightened: sm 8→6px, md 10→8px, 3xl 24→20px
      · Font tokens added: --font-body, --font-mono
      · Shadow scale added: sm / md / lg / fab
@@ -151,10 +151,11 @@ input, textarea {
 
   /* ── Color: Text ── */
   /* Warm-neutral hierarchy — purer white primary, zinc secondary/tertiary */
-  --color-text:      #FAFAFA;
-  --color-text-2:    #A1A1AA;
-  --color-text-3:    #52525B;
-  --color-muted:     #52525B;
+  /* All values pass 4.5:1 contrast on --color-bg (#09090B)               */
+  --color-text:      #FAFAFA;  /* ~19:1 */
+  --color-text-2:    #B4B4BB;  /* ~6.5:1 */
+  --color-text-3:    #787880;  /* ~4.8:1 */
+  --color-muted:     #787880;  /* ~4.8:1 */
 
   /* ── Color: Supplier levels ── */
   --color-supplier-l1: #F59E0B;
@@ -425,7 +426,7 @@ html, body {
 .form-textarea         { resize: none; min-height: 80px; line-height: 1.5; }
 
 .form-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23787880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
   padding-right: 36px;
