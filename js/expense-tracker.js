@@ -58,6 +58,10 @@ const ExpenseApp = (() => {
   // DATA LOADING
   // ─────────────────────────────────────────
   function _loadData() {
+    // Show loading overlay only when cache is empty (first load)
+    const cached = loadFromCache(CACHE_KEY_EXPENSES);
+    if (!cached) showLoading('Memuat data...');
+
     // Load expenses — stale-while-revalidate
     loadWithCache(
       'getExpenses', {}, CACHE_KEY_EXPENSES,
@@ -66,10 +70,12 @@ const ExpenseApp = (() => {
         _buildMonthFilter();
         _renderExpenses();
         _renderRingkasan();
+        hideLoading();
         if (isStale) _updateSub('Memperbarui...');
         else _updateSub(_summaryLine());
       },
       (err) => {
+        hideLoading();
         showToast('Gagal memuat data', 'error');
         console.error(err);
       }

@@ -47,15 +47,21 @@ const ProjectApp = (() => {
   // DATA LOADING — stale-while-revalidate
   // ─────────────────────────────────────────
   function _loadData() {
+    // Show loading overlay only when cache is empty (first load)
+    const cached = loadFromCache(CACHE_KEY_PROJECTS);
+    if (!cached) showLoading('Memuat data...');
+
     // Load projects
     loadWithCache(
       'getProjects', {}, CACHE_KEY_PROJECTS,
       (result, isStale) => {
         _projects = result.projects || [];
         _renderList();
+        hideLoading();
         if (isStale) _updateSub('Memperbarui...');
       },
       (err) => {
+        hideLoading();
         showToast('Gagal memuat proyek', 'error');
         console.error(err);
       }

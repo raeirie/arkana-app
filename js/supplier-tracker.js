@@ -33,8 +33,13 @@ const SupplierTracker = (() => {
     if (!user.id) { window.location.href = 'index.html'; return; }
 
     const cached = loadFromCache('supplier');
-    if (cached) DB = cached.data || cached;
-    renderAll();
+    if (cached) {
+      DB = cached.data || cached;
+      renderAll();
+    } else {
+      // No cache — show loading overlay until first fetch completes
+      showLoading('Memuat data...');
+    }
 
     if (ARKANA_SCRIPT_URL) fetchAll();
 
@@ -73,6 +78,8 @@ const SupplierTracker = (() => {
       renderAll();
     } catch (e) {
       showToast('Gagal memuat data: ' + e.message, 'error');
+    } finally {
+      hideLoading();
     }
   }
 
@@ -1487,17 +1494,50 @@ const SupplierTracker = (() => {
     document.getElementById('back-to-main-product').addEventListener('click',  () => goBack(SCREEN.MAIN));
     document.getElementById('back-to-main-jasa').addEventListener('click',     () => goBack(SCREEN.MAIN));
 
-    // ── Supplier detail actions ──
-    document.getElementById('btn-edit-supplier').addEventListener('click',   openEditSupplier);
-    document.getElementById('btn-delete-supplier').addEventListener('click', confirmDeleteSupplier);
+    // ── Supplier detail — ⋯ menu ──
+    document.getElementById('btn-menu-supplier').addEventListener('click', () => {
+      const s = DB.suppliers.find(x => x.id === currentSupplierId);
+      document.getElementById('menu-supplier-title').textContent = s ? s.name : 'Opsi';
+      openSheet('overlay-menu-supplier');
+    });
+    document.getElementById('btn-edit-supplier').addEventListener('click', () => {
+      closeSheet('overlay-menu-supplier'); openEditSupplier();
+    });
+    document.getElementById('btn-delete-supplier').addEventListener('click', () => {
+      closeSheet('overlay-menu-supplier'); confirmDeleteSupplier();
+    });
+    document.getElementById('btn-menu-supplier-cancel').addEventListener('click', () =>
+      closeSheet('overlay-menu-supplier'));
 
-    // ── Product detail actions ──
-    document.getElementById('btn-edit-product').addEventListener('click',   openEditProduct);
-    document.getElementById('btn-delete-product').addEventListener('click', confirmDeleteProduct);
+    // ── Product detail — ⋯ menu ──
+    document.getElementById('btn-menu-product').addEventListener('click', () => {
+      const p = DB.products.find(x => x.id === currentProductId);
+      document.getElementById('menu-product-title').textContent = p ? p.name : 'Opsi';
+      openSheet('overlay-menu-product');
+    });
+    document.getElementById('btn-edit-product').addEventListener('click', () => {
+      closeSheet('overlay-menu-product'); openEditProduct();
+    });
+    document.getElementById('btn-delete-product').addEventListener('click', () => {
+      closeSheet('overlay-menu-product'); confirmDeleteProduct();
+    });
+    document.getElementById('btn-menu-product-cancel').addEventListener('click', () =>
+      closeSheet('overlay-menu-product'));
 
-    // ── Jasa detail actions ──
-    document.getElementById('btn-edit-jasa').addEventListener('click',   openEditJasa);
-    document.getElementById('btn-delete-jasa').addEventListener('click', confirmDeleteJasa);
+    // ── Jasa detail — ⋯ menu ──
+    document.getElementById('btn-menu-jasa').addEventListener('click', () => {
+      const p = DB.products.find(x => x.id === currentJasaId);
+      document.getElementById('menu-jasa-title').textContent = p ? p.name : 'Opsi';
+      openSheet('overlay-menu-jasa');
+    });
+    document.getElementById('btn-edit-jasa').addEventListener('click', () => {
+      closeSheet('overlay-menu-jasa'); openEditJasa();
+    });
+    document.getElementById('btn-delete-jasa').addEventListener('click', () => {
+      closeSheet('overlay-menu-jasa'); confirmDeleteJasa();
+    });
+    document.getElementById('btn-menu-jasa-cancel').addEventListener('click', () =>
+      closeSheet('overlay-menu-jasa'));
 
     // ── Supplier form ──
     document.getElementById('btn-save-supplier').addEventListener('click', saveSupplier);
