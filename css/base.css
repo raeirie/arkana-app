@@ -1,0 +1,856 @@
+/* ═══════════════════════════════════════════════════
+   Arkana App — Base CSS  v2.0.3
+   Design System Foundation: tokens + shared components.
+   ─────────────────────────────────────────────────────
+   LAYER 1 — DESIGN TOKENS (:root)
+     All visual primitives live here as CSS custom
+     properties. No hardcoded values anywhere else.
+   LAYER 2 — STRUCTURAL COMPONENTS
+     Shared components token-referenced. Named per
+     the official component inventory.
+   ─────────────────────────────────────────────────────
+   PRD-00.4 — Token Mapping (Notion dark-mode adaptation)
+     · Backgrounds desaturated: blue-tinted → neutral zinc
+     · Borders desaturated: zinc scale
+     · Text hierarchy: warm-neutral (FAFAFA / B4B4BB / 787880)
+     · Radius tightened: sm 8→6px, md 10→8px, 3xl 24→20px
+     · Font tokens added: --font-body, --font-mono
+     · Shadow scale added: sm / md / lg / fab
+   PRD-00.4-B — Top Bar + Back Button + Tab Bar
+     · Glass tokens added: --blur-glass, --saturate-glass,
+       --bg-glass, --color-border-glass, --color-border-glass-inner
+     · .topbar base rule → position:absolute + glass bg
+     · .tab-bar base rule → transparent bg, inner border
+     · .screen keeps display:flex (index.html needs it); frost-bar/scroll-area
+     use position:absolute inside the screen
+   ═══════════════════════════════════════════════════ */
+
+/* ── Reset & base ── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* ════════════════════════════════════════════════════
+   LAYER 1 — DESIGN TOKENS
+   ════════════════════════════════════════════════════
+
+   Naming convention: --{category}-{variant}
+   All values defined once here, referenced everywhere.
+
+   COLOR TOKENS
+   ────────────
+   --color-bg          Page/app background
+   --color-surface     Card / component background
+   --color-surface-2   Nested surface (inputs, rows)
+   --color-border      Primary border
+   --color-border-2    Secondary border (stronger)
+
+   --color-accent      Primary interactive (blue)
+   --color-accent-2    Secondary interactive (indigo)
+   --color-success     Positive / green
+   --color-warning     Caution / amber
+   --color-danger      Error / red
+   --color-purple      Jasa / services accent
+
+   --color-text        Primary text
+   --color-text-2      Secondary text
+   --color-text-3      Tertiary / muted text
+   --color-muted       Placeholder / disabled
+
+   --color-supplier-l1  L1 level color (amber)
+   --color-supplier-l2  L2 level color (blue)
+   --color-supplier-l3  L3 level color (green)
+   --color-supplier-l4  L4 level color (gray)
+
+   GLASS TOKENS (PRD-00.4-B)
+   ──────────────────────────
+   --blur-glass          backdrop blur amount (20px)
+   --saturate-glass      backdrop saturation (1.5)
+   --bg-glass            frosted bar background (56% opacity)
+   --color-border-glass  outer hairline (barely-there white)
+   --color-border-glass-inner  separator between topbar & tabbar
+
+   SPACING TOKENS
+   ──────────────
+   --space-1  4px
+   --space-2  8px
+   --space-3  12px
+   --space-4  16px
+   --space-5  20px
+   --space-6  24px
+   --space-8  32px
+   --space-12 48px
+
+   RADIUS TOKENS
+   ─────────────
+   --radius-sm   6px    chip, tag           (Notion rounded.sm)
+   --radius-md   8px    button, input       (Notion rounded.md — sober editorial)
+   --radius-lg   12px   card (sm), confirm  (Notion rounded.lg)
+   --radius-xl   14px   card (main)
+   --radius-2xl  16px   user card, FAB
+   --radius-3xl  20px   sheet
+   --radius-full 9999px pill badge
+
+   FONT SIZE TOKENS
+   ────────────────
+   --text-xs   9px
+   --text-sm   10px
+   --text-base 11px
+   --text-md   12px
+   --text-lg   13px
+   --text-xl   14px
+   --text-2xl  15px
+   --text-3xl  17px
+   --text-4xl  18px
+   --text-5xl  20px
+
+   FONT WEIGHT TOKENS
+   ──────────────────
+   --weight-regular  400
+   --weight-medium   500
+   --weight-semibold 600
+   --weight-bold     700
+   --weight-extrabold 800
+
+   SHADOW TOKENS
+   ─────────────
+   --shadow-sm    subtle hover lift
+   --shadow-md    cards
+   --shadow-lg    sheets, modals
+   --shadow-fab   FAB elevation (accent glow)
+
+   FONT TOKENS
+   ───────────
+   --font-body   Plus Jakarta Sans (humanist-geometric, Notion-Sans equivalent)
+   --font-mono   JetBrains Mono (badges, PTR label, mono UI)
+
+   TRANSITION TOKENS
+   ─────────────────
+   --duration-fast    0.15s
+   --duration-normal  0.2s
+   --duration-slow    0.3s
+   --duration-sheet   0.35s
+   --ease-standard    ease
+   --ease-sheet       cubic-bezier(.32, .72, 0, 1)
+   ════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Color: Backgrounds ── */
+  /* Desaturated neutral zinc — removes blue tint from dark surfaces */
+  --color-bg:        #09090B;
+  --color-surface:   #111113;
+  --color-surface-2: #1A1A1D;
+
+  /* ── Color: Borders ── */
+  /* Neutral zinc borders — Notion hairline spirit, no blue bleed */
+  --color-border:    #27272A;
+  --color-border-2:  #3F3F46;
+
+  /* ── Color: Brand / Interactive ── */
+  --color-accent:    #3B82F6;
+  --color-accent-2:  #6366F1;
+  --color-success:   #10B981;
+  --color-warning:   #F59E0B;
+  --color-danger:    #EF4444;
+  --color-purple:    #8B5CF6;
+
+  /* ── Color: Text ── */
+  /* Warm-neutral hierarchy — purer white primary, zinc secondary/tertiary */
+  /* All values pass 4.5:1 contrast on --color-bg (#09090B)               */
+  --color-text:      #FAFAFA;  /* ~19:1 */
+  --color-text-2:    #B4B4BB;  /* ~6.5:1 */
+  --color-text-3:    #787880;  /* ~4.8:1 */
+  --color-muted:     #787880;  /* ~4.8:1 */
+
+  /* ── Color: Supplier levels ── */
+  --color-supplier-l1: #F59E0B;
+  --color-supplier-l2: #3B82F6;
+  --color-supplier-l3: #10B981;
+  --color-supplier-l4: #6B7280;
+
+  /* ── Glass tokens (PRD-00.4-B) ── */
+  --blur-glass:              20px;
+  --saturate-glass:          1.5;
+  --bg-glass:                rgba(9, 9, 11, 0.56);
+  --color-border-glass:      rgba(255, 255, 255, 0.06);
+  --color-border-glass-inner: rgba(255, 255, 255, 0.04);
+
+  /* ── Spacing ── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+
+  /* ── Border radius ── */
+  /* Notion-aligned: sober editorial geometry — rectangles, not pills */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   14px;
+  --radius-2xl:  16px;
+  --radius-3xl:  20px;
+  --radius-full: 9999px;
+
+  /* ── Font size ── */
+  --text-xs:   9px;
+  --text-sm:   10px;
+  --text-base: 11px;
+  --text-md:   12px;
+  --text-lg:   13px;
+  --text-xl:   14px;
+  --text-2xl:  15px;
+  --text-3xl:  17px;
+  --text-4xl:  18px;
+  --text-5xl:  20px;
+
+  /* ── Font weight ── */
+  --weight-regular:   400;
+  --weight-medium:    500;
+  --weight-semibold:  600;
+  --weight-bold:      700;
+  --weight-extrabold: 800;
+
+  /* ── Font families ── */
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* ── Shadows ── */
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, .4);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, .5);
+  --shadow-lg:  0 8px 32px rgba(0, 0, 0, .6);
+  --shadow-fab: 0 8px 24px rgba(59, 130, 246, .35);
+
+  /* ── Transitions ── */
+  --duration-fast:   0.15s;
+  --duration-normal: 0.2s;
+  --duration-slow:   0.3s;
+  --duration-sheet:  0.35s;
+  --ease-standard:   ease;
+  --ease-sheet:      cubic-bezier(.32, .72, 0, 1);
+
+  /* ────────────────────────────────────────────────
+     LEGACY ALIASES
+     Keep old var names pointing to tokens so existing
+     page CSS doesn't break before PRD-00.4 refactor.
+     Remove these aliases once all page CSS migrates.
+     ──────────────────────────────────────────────── */
+  --bg:      var(--color-bg);
+  --surface: var(--color-surface);
+  --surface2: var(--color-surface-2);
+  --border:  var(--color-border);
+  --border2: var(--color-border-2);
+  --accent:  var(--color-accent);
+  --accent2: var(--color-accent-2);
+  --green:   var(--color-success);
+  --orange:  var(--color-warning);
+  --red:     var(--color-danger);
+  --purple:  var(--color-purple);
+  --muted:   var(--color-muted);
+  --text:    var(--color-text);
+  --text2:   var(--color-text-2);
+  --text3:   var(--color-text-3);
+  --l1: var(--color-supplier-l1);
+  --l2: var(--color-supplier-l2);
+  --l3: var(--color-supplier-l3);
+  --l4: var(--color-supplier-l4);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: var(--font-body);
+  color: var(--color-text);
+}
+
+/* ── PWA container ── */
+#app {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  margin: 0 auto;
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+/* ════════════════════════════════════════════════════
+   LAYER 2 — STRUCTURAL COMPONENTS
+   Named per official component inventory (PRD-00.3).
+   CSS values reference tokens only — no hardcoded values.
+   PRD-00.4: token values updated; component visual
+   redesign applied incrementally per page.
+   ════════════════════════════════════════════════════ */
+
+/* ── Screen transitions ── */
+/* PRD-00.4-B: position:relative so scroll-area + frost bar
+   siblings work correctly inside each screen. */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-slow) var(--ease-standard),
+              transform var(--duration-slow) var(--ease-standard);
+  transform: translateX(30px);
+}
+
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(0);
+}
+
+.screen.prev {
+  transform: translateX(-30px);
+  opacity: 0;
+}
+
+/* ── Frosted bar container (PRD-00.4-B) ── */
+/* Wraps .topbar + optional .tab-bar as a single frosted unit.
+   Absolutely positioned so scroll-area bleeds underneath. */
+.frost-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  backdrop-filter: blur(var(--blur-glass)) saturate(var(--saturate-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(var(--saturate-glass));
+  background: var(--bg-glass);
+  border-bottom: 0.5px solid var(--color-border-glass);
+}
+
+/* ── Top Bar (PRD-00.4-B) ── */
+/* canonical class: .topbar
+   Layout: 3-col grid (32px · 1fr · 32px) — title always centered.
+   Shrink state toggled by JS via .topbar-shrunk on .frost-bar. */
+.topbar {
+  display: grid;
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+  gap: 8px;
+  padding: max(env(safe-area-inset-top), 44px) 14px 8px;
+  transition: padding var(--duration-normal) var(--ease-standard);
+}
+
+.frost-bar.topbar-shrunk .topbar {
+  padding: max(env(safe-area-inset-top), 14px) 14px 6px;
+}
+
+.topbar-title {
+  text-align: center;
+  font-size: var(--text-3xl);     /* 17px at rest */
+  font-weight: var(--weight-extrabold);
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+  transition: font-size var(--duration-normal) var(--ease-standard);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.frost-bar.topbar-shrunk .topbar-title {
+  font-size: var(--text-lg);      /* 13px on scroll */
+}
+
+/* ── Back Button (PRD-00.4-B) ── */
+/* Ghost style: no background, no border. Chevron only. */
+.back-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--color-accent);
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.back-btn:active { opacity: 0.6; }
+
+/* Right slot — same size as back-btn, for action icons in detail screens */
+.topbar-action {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--color-accent);
+  font-size: 16px;
+  padding: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.topbar-action:active { opacity: 0.6; }
+
+/* ── Tab Bar (PRD-00.4-B) ── */
+/* Part of frost-bar — transparent bg, separated from topbar by hairline. */
+/* canonical class: .tab-bar, .tab, .tab.active */
+.tab-bar {
+  display: flex;
+  border-top: 0.5px solid var(--color-border-glass-inner);
+  background: transparent;
+}
+
+.tab {
+  flex: 1;
+  padding: 9px var(--space-1) 9px;
+  text-align: center;
+  cursor: pointer;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-3);
+  letter-spacing: .04em;
+  position: relative;
+  transition: color var(--duration-normal) var(--ease-standard);
+  white-space: nowrap;
+}
+
+.tab.active { color: var(--color-accent); }
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+
+/* ── Scroll Area (PRD-00.4-B) ── */
+/* Flex child that fills remaining screen height below .ptr-indicator.
+   frost-bar sits above it via position:absolute + z-index.
+   padding-top injected by initFrostBar() so content clears the bar.
+   flex:1 means app.js can insert .ptr-indicator as a sibling before
+   this element and it will appear correctly in the flex column. */
+.scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  /* padding-top injected by JS: initFrostBar() */
+}
+
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* ── Overlay ── */
+/* canonical class: .overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .75);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+.overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Bottom Sheet ── */
+/* canonical class: .sheet */
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  width: 100%;
+  max-width: 480px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+  padding: var(--space-5) var(--space-5) max(env(safe-area-inset-bottom), var(--space-6));
+  z-index: 101;
+  transition: transform var(--duration-sheet) var(--ease-sheet);
+  max-height: 90vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.sheet::-webkit-scrollbar { display: none; }
+
+.overlay.active .sheet {
+  transform: translateX(-50%) translateY(0);
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--color-border-2);
+  border-radius: var(--radius-full);
+  margin: 0 auto 18px;
+}
+
+.sheet-title {
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-extrabold);
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
+  letter-spacing: -.01em;
+}
+
+.sheet-sub {
+  font-size: var(--text-md);
+  color: var(--color-text-3);
+  margin-bottom: var(--space-5);
+}
+
+/* ── Buttons ── */
+/* canonical classes: .btn, .btn-primary, .btn-secondary, .btn-danger */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: var(--space-5);
+}
+
+.btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition: opacity var(--duration-normal) var(--ease-standard);
+}
+
+.btn:active         { opacity: .8; }
+.btn-primary        { background: var(--color-accent); color: white; }
+.btn-secondary      { background: var(--color-surface-2); color: var(--color-text-2); border: 1px solid var(--color-border); }
+.btn-danger         { background: rgba(239, 68, 68, .1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, .2); }
+
+/* ── Form fields ── */
+.form-group { margin-bottom: 14px; }
+
+.form-label {
+  display: block;
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--color-text-3);
+  margin-bottom: 6px;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  font-size: var(--text-xl);
+  color: var(--color-text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--duration-normal) var(--ease-standard);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus   { border-color: var(--color-accent); }
+.form-input::placeholder,
+.form-textarea::placeholder { color: var(--color-text-3); }
+.form-textarea         { resize: none; min-height: 80px; line-height: 1.5; }
+
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23787880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.form-select option { background: var(--color-surface-2); }
+
+/* Toggle */
+.toggle-row       { display: flex; justify-content: space-between; align-items: center; }
+.toggle-label     { font-size: var(--text-xl); color: var(--color-text); }
+.toggle           { position: relative; width: 44px; height: 26px; }
+.toggle input     { display: none; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--color-border-2);
+  border-radius: 13px;
+  cursor: pointer;
+  transition: background var(--duration-normal) var(--ease-standard);
+}
+.toggle input:checked + .toggle-track  { background: var(--color-accent); }
+.toggle-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--duration-normal) var(--ease-standard);
+  pointer-events: none;
+}
+.toggle input:checked ~ .toggle-thumb  { transform: translateX(18px); }
+
+/* Multi-select chips */
+.multi-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+.multi-chip {
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 7px var(--radius-lg);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-3);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.multi-chip.selected {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(59, 130, 246, .08);
+}
+
+/* ── Toast ── */
+/* canonical class: .toast, .toast-success (also .success), .toast-error (also .error) */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-lg);
+  padding: 10px var(--space-5);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  z-index: 200;
+  opacity: 0;
+  transition: all var(--duration-slow) var(--ease-standard);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.toast.show              { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success           { border-color: var(--color-success); color: var(--color-success); }
+.toast.error             { border-color: var(--color-danger);  color: var(--color-danger);  }
+
+/* ── Loading Overlay ── */
+/* canonical class: .loading-overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 9, 11, .88);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+.loading-overlay.active { opacity: 1; pointer-events: all; }
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--color-border-2);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text { font-size: var(--text-lg); color: var(--color-text-3); }
+
+/* ── Confirm Dialog ── */
+/* canonical class: .confirm-overlay, .confirm-box */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .8);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-normal) var(--ease-standard);
+}
+
+.confirm-overlay.active { opacity: 1; pointer-events: all; }
+
+.confirm-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--space-5);
+  padding: var(--space-6);
+  width: 100%;
+  max-width: 320px;
+  transform: scale(.95);
+  transition: transform var(--duration-normal) var(--ease-standard);
+}
+
+.confirm-overlay.active .confirm-box { transform: scale(1); }
+
+.confirm-title { font-size: var(--text-4xl); font-weight: var(--weight-extrabold); color: var(--color-text); margin-bottom: var(--space-2); }
+.confirm-msg   { font-size: var(--text-lg); color: var(--color-text-2); line-height: 1.5; margin-bottom: var(--space-5); }
+.confirm-btns  { display: flex; gap: 10px; }
+
+/* ── FAB ── */
+/* canonical class: .fab */
+.fab {
+  position: fixed;
+  bottom: var(--space-6);
+  right: max(calc(50% - 240px + 16px), 16px);
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-2xl);
+  background: var(--color-accent);
+  border: none;
+  color: white;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-fab);
+  z-index: 50;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.fab:active { transform: scale(.93); }
+
+/* ── Pull-to-Refresh Indicator ── */
+/* canonical class: .ptr-indicator */
+.ptr-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 0;
+  opacity: 0;
+  /* overflow:hidden removed — was clipping spinner+label during height animation */
+  transition: height var(--duration-normal) var(--ease-standard),
+              opacity var(--duration-fast) var(--ease-standard);
+  background: var(--color-bg);
+  flex-shrink: 0;
+  width: 100%;
+  /* Push spinner content below frost-bar using JS-injected --frost-h var.
+     Falls back to 100px if var not set yet. */
+  padding-top: var(--frost-h, 100px);
+  box-sizing: border-box;
+}
+
+.ptr-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border-2);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  flex-shrink: 0;
+}
+
+.ptr-label {
+  font-size: var(--text-base);
+  color: var(--color-text-3);
+  font-family: var(--font-mono);
+}
+
+/* ── Empty State ── */
+/* canonical class: .empty-state, .empty-icon, .empty-text */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px var(--space-5);
+  gap: var(--radius-lg);
+  text-align: center;
+}
+
+.empty-icon { font-size: 40px; opacity: .3; }
+.empty-text { font-size: var(--text-lg); color: var(--color-text-3); line-height: 1.6; }
+
+.empty-btn {
+  margin-top: var(--space-2);
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 10px var(--space-5);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── Level Badges ── */
+/* canonical class: .level-badge + .l1/.l2/.l3/.l4/.jasa */
+.level-badge {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-full);
+  letter-spacing: .04em;
+}
+
+.l1   { background: rgba(245,158,11,.12); color: var(--color-supplier-l1); border: 1px solid rgba(245,158,11,.2); }
+.l2   { background: rgba(59,130,246,.12);  color: var(--color-supplier-l2); border: 1px solid rgba(59,130,246,.2); }
+.l3   { background: rgba(16,185,129,.12);  color: var(--color-supplier-l3); border: 1px solid rgba(16,185,129,.2); }
+.l4   { background: rgba(107,114,128,.12); color: var(--color-supplier-l4); border: 1px solid rgba(107,114,128,.2); }
+.jasa { background: rgba(139,92,246,.12);  color: var(--color-purple);      border: 1px solid rgba(139,92,246,.2); }
+
+.auth-badge {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-full);
+  background: rgba(16,185,129,.1);
+  color: var(--color-success);
+  border: 1px solid rgba(16,185,129,.2);
+}

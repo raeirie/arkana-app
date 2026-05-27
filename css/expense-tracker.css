@@ -1,0 +1,422 @@
+/* ═══════════════════════════════════════════════════
+   Arkana App — Expense Tracker CSS  v2.0.3
+   Page-specific styles. base.css loaded first.
+   PRD-00.4-B: topbar/back-btn/tab-bar rules removed —
+   now owned by base.css. Scroll containers updated to
+   .scroll-area + .scroll-pane pattern.
+   Filters-wrap moved inside frost-bar in HTML.
+   ═══════════════════════════════════════════════════ */
+
+/* ── Filters wrap — inside frost bar ── */
+/* Accordion container — collapsed by default, toggled by JS */
+.filters-wrap {
+  border-top: 0.5px solid var(--color-border-glass-inner);
+}
+
+/* ── Filter toggle row ── */
+/* Always visible — shows active filter summary + chevron */
+.filter-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  cursor: pointer;
+  gap: 8px;
+}
+
+.filter-toggle-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-3);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-toggle-label .active-summary {
+  color: var(--color-accent);
+}
+
+.filter-toggle-chevron {
+  font-size: 12px;
+  color: var(--color-text-3);
+  transition: transform var(--duration-normal) var(--ease-standard);
+  flex-shrink: 0;
+}
+
+.filters-wrap.open .filter-toggle-chevron {
+  transform: rotate(180deg);
+}
+
+/* ── Filter body — collapsible chip rows ── */
+.filter-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 0 10px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--duration-slow) var(--ease-standard),
+              padding var(--duration-slow) var(--ease-standard);
+}
+
+.filters-wrap.open .filter-body {
+  max-height: 200px;
+  padding-bottom: 10px;
+}
+
+/* ── Filter chips (horizontal scroll, edge-to-edge) ── */
+/* padding-inline on the scroll container + leading/trailing
+   spacers give the illusion of edge-to-edge while keeping
+   the first/last chip fully visible on scroll */
+.filter-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 16px;
+  /* Allow first chip to start flush, last chip to end flush */
+  scroll-padding-inline: 16px;
+}
+
+.filter-scroll::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-3);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: all var(--duration-fast) var(--ease-standard);
+  flex-shrink: 0;
+}
+
+.filter-chip.active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(59, 130, 246, .12);
+}
+
+/* ── Scroll pane — inner content wrapper ── */
+.scroll-pane {
+  padding: 14px 20px 100px;
+}
+
+/* ── Expense card ── */
+.card-list { display: flex; flex-direction: column; gap: 10px; }
+
+.expense-card {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.expense-card:active { border-color: var(--color-accent); }
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.card-left { flex: 1; min-width: 0; }
+
+.card-desc {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-date {
+  font-size: 11px;
+  color: var(--color-text-3);
+  font-family: var(--font-mono);
+}
+
+.card-amount {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+.card-bottom {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Badges ── */
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.badge-kategori {
+  background: var(--color-surface-2);
+  color: var(--color-text-3);
+  border: 1px solid var(--color-border);
+}
+
+.badge-kas {
+  background: rgba(16, 185, 129, .1);
+  color: var(--color-success);
+  border: 1px solid rgba(16, 185, 129, .2);
+}
+
+.badge-personal {
+  background: rgba(245, 158, 11, .1);
+  color: var(--color-warning);
+  border: 1px solid rgba(245, 158, 11, .2);
+}
+
+.badge-paylater {
+  background: rgba(239, 68, 68, .1);
+  color: var(--color-danger);
+  border: 1px solid rgba(239, 68, 68, .2);
+}
+
+.badge-reimburse {
+  background: rgba(245, 158, 11, .15);
+  color: var(--color-warning);
+  border: 1px solid rgba(245, 158, 11, .3);
+}
+
+.badge-proyek {
+  background: rgba(99, 102, 241, .1);
+  color: var(--color-accent-2);
+  border: 1px solid rgba(99, 102, 241, .2);
+}
+
+.badge-user {
+  background: var(--color-surface-2);
+  color: var(--color-text-3);
+  border: 1px solid var(--color-border);
+}
+
+/* ── Detail sheet ── */
+.detail-desc {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.detail-amount {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  margin-bottom: 12px;
+  letter-spacing: -.02em;
+}
+
+.detail-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.detail-rows {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 14px;
+  gap: 12px;
+}
+
+.detail-row:not(:last-child) {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.detail-row-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--color-text-3);
+  flex-shrink: 0;
+}
+
+.detail-row-value {
+  font-size: 13px;
+  color: var(--color-text);
+  text-align: right;
+  font-weight: 500;
+}
+
+/* ── Form optional label ── */
+.form-optional {
+  font-size: 10px;
+  color: var(--color-text-3);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Ringkasan ── */
+.summary-section { margin-bottom: 24px; }
+
+.summary-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--color-text-3);
+  margin-bottom: 10px;
+}
+
+.summary-totals {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.summary-total-card {
+  flex: 1;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  text-align: center;
+}
+
+.summary-total-num {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  margin-bottom: 4px;
+  letter-spacing: -.02em;
+}
+
+.summary-total-label {
+  font-size: 10px;
+  color: var(--color-text-3);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.summary-list {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  gap: 12px;
+}
+
+.summary-row:not(:last-child) { border-bottom: 1px solid var(--color-border); }
+
+.summary-row-label {
+  font-size: 13px;
+  color: var(--color-text-2);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary-row-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.summary-row-sub {
+  font-size: 11px;
+  color: var(--color-text-3);
+  margin-top: 2px;
+}
+
+/* Reimburse outstanding highlight */
+.reimburse-grand-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(245, 158, 11, .12);
+  border: 1px solid rgba(245, 158, 11, .3);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-warning);
+}
+
+.reimburse-card {
+  background: rgba(245, 158, 11, .06);
+  border: 1px solid rgba(245, 158, 11, .2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.reimburse-card .summary-row { padding: 12px 14px; }
+.reimburse-card .summary-row:not(:last-child) { border-bottom: 1px solid rgba(245, 158, 11, .15); }
+.reimburse-card .summary-row-label { color: var(--color-text); font-weight: 600; }
+.reimburse-card .summary-row-value { color: var(--color-warning); }
+
+/* Vendor paylater outstanding */
+.paylater-card {
+  background: rgba(239, 68, 68, .04);
+  border: 1px solid rgba(239, 68, 68, .15);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.paylater-card .summary-row:not(:last-child) { border-bottom: 1px solid rgba(239, 68, 68, .1); }
+.paylater-card .summary-row-label { color: var(--color-text); font-weight: 600; }
+.paylater-card .summary-row-value { color: var(--color-danger); }
+
+.btn-lunas {
+  background: rgba(16, 185, 129, .1);
+  border: 1px solid rgba(16, 185, 129, .2);
+  color: var(--color-success);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
