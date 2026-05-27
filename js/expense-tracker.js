@@ -126,6 +126,18 @@ const ExpenseApp = (() => {
     // PRD-00.4-B: sub-label removed from topbar design
   }
 
+  function _updateFilterSummary() {
+    var parts = [];
+    var bulanEl = document.querySelector('#filter-bulan-wrap .filter-chip.active');
+    var tipeEl  = document.querySelector('#filter-tipe-wrap .filter-chip.active');
+    var metodeEl = document.querySelector('#filter-metode-wrap .filter-chip.active');
+    if (bulanEl  && bulanEl.dataset.bulan)   parts.push(bulanEl.textContent.trim());
+    if (tipeEl   && tipeEl.dataset.tipe)     parts.push(tipeEl.textContent.trim());
+    if (metodeEl && metodeEl.dataset.metode) parts.push(metodeEl.textContent.trim());
+    var el = document.getElementById('filter-summary');
+    if (el) el.textContent = parts.length ? parts.join(' · ') : 'Semua';
+  }
+
   // ─────────────────────────────────────────
   // MONTH FILTER — built from expense data
   // ─────────────────────────────────────────
@@ -766,6 +778,20 @@ const ExpenseApp = (() => {
     document.getElementById('btn-back')
       .addEventListener('click', () => window.location.href = 'index.html');
 
+    // ── Filter accordion toggle ──
+    document.getElementById('filter-toggle').addEventListener('click', () => {
+      document.getElementById('filters-wrap').classList.toggle('open');
+      // Recalculate frost-bar height so scroll padding-top stays correct
+      var frost = document.getElementById('frost-main');
+      var scroll = document.getElementById('scroll-main');
+      var app = document.getElementById('app');
+      if (frost && scroll) {
+        var h = frost.offsetHeight;
+        scroll.style.paddingTop = h + 12 + 'px';
+        if (app) app.style.setProperty('--frost-h', h + 'px');
+      }
+    });
+
     // Tabs
     document.getElementById('tab-pengeluaran')
       .addEventListener('click', () => _switchTab(EXPENSE_TAB.PENGELUARAN));
@@ -823,6 +849,7 @@ const ExpenseApp = (() => {
       _fTipe = chip.dataset.tipe;
       _renderExpenses();
       _renderRingkasan();
+      _updateFilterSummary();
     });
 
     document.getElementById('filter-metode-wrap').addEventListener('click', e => {
@@ -833,6 +860,7 @@ const ExpenseApp = (() => {
       _fMetode = chip.dataset.metode;
       _renderExpenses();
       _renderRingkasan();
+      _updateFilterSummary();
     });
   }
 

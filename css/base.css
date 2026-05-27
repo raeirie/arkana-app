@@ -778,8 +778,10 @@ html, body {
   background: var(--color-bg);
   flex-shrink: 0;
   width: 100%;
-  position: relative;
-  z-index: 1; /* below frost-bar (z:10) so it slides out from under it */
+  /* Push spinner content below frost-bar using JS-injected --frost-h var.
+     Falls back to 100px if var not set yet. */
+  padding-top: var(--frost-h, 100px);
+  box-sizing: border-box;
 }
 
 .ptr-spinner {

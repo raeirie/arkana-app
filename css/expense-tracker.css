@@ -8,21 +8,76 @@
    ═══════════════════════════════════════════════════ */
 
 /* ── Filters wrap — inside frost bar ── */
-/* Sits below tab-bar, inside .frost-bar glass container */
+/* Accordion container — collapsed by default, toggled by JS */
 .filters-wrap {
-  padding: 8px 16px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   border-top: 0.5px solid var(--color-border-glass-inner);
 }
 
-/* ── Filter chips (horizontal scroll) ── */
+/* ── Filter toggle row ── */
+/* Always visible — shows active filter summary + chevron */
+.filter-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  cursor: pointer;
+  gap: 8px;
+}
+
+.filter-toggle-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-3);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-toggle-label .active-summary {
+  color: var(--color-accent);
+}
+
+.filter-toggle-chevron {
+  font-size: 12px;
+  color: var(--color-text-3);
+  transition: transform var(--duration-normal) var(--ease-standard);
+  flex-shrink: 0;
+}
+
+.filters-wrap.open .filter-toggle-chevron {
+  transform: rotate(180deg);
+}
+
+/* ── Filter body — collapsible chip rows ── */
+.filter-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 0 10px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--duration-slow) var(--ease-standard),
+              padding var(--duration-slow) var(--ease-standard);
+}
+
+.filters-wrap.open .filter-body {
+  max-height: 200px;
+  padding-bottom: 10px;
+}
+
+/* ── Filter chips (horizontal scroll, edge-to-edge) ── */
+/* padding-inline on the scroll container + leading/trailing
+   spacers give the illusion of edge-to-edge while keeping
+   the first/last chip fully visible on scroll */
 .filter-scroll {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
+  padding: 0 16px;
+  /* Allow first chip to start flush, last chip to end flush */
+  scroll-padding-inline: 16px;
 }
 
 .filter-scroll::-webkit-scrollbar { display: none; }

@@ -471,6 +471,7 @@
 /* ── PRD-00.4-B: Frost Bar init ──────────────────────
    initFrostBar(frostId, scrollId, threshold?)
    · Sets scroll-area padding-top to frost bar height
+   · Sets --frost-h CSS var on #app for PTR indicator offset
    · Observes resize (safe area inset changes on rotation)
    · Toggles .topbar-shrunk on frost bar after threshold px
    ──────────────────────────────────────────────────── */
@@ -479,14 +480,17 @@
     threshold = threshold || 10;
     var frost  = document.getElementById(frostId);
     var scroll = document.getElementById(scrollId);
+    var app    = document.getElementById('app');
     if (!frost || !scroll) return;
 
     function setpad() {
-      scroll.style.paddingTop = frost.offsetHeight + 12 + 'px';
+      var h = frost.offsetHeight;
+      scroll.style.paddingTop = h + 12 + 'px';
+      // Expose frost height as CSS var so .ptr-indicator can offset itself
+      if (app) app.style.setProperty('--frost-h', h + 'px');
     }
     setpad();
 
-    // ResizeObserver keeps padding correct after safe-area changes
     if (window.ResizeObserver) {
       new ResizeObserver(setpad).observe(frost);
     }

@@ -37,21 +37,29 @@
         <div class="tab active" id="tab-pengeluaran">Pengeluaran</div>
         <div class="tab"        id="tab-ringkasan">Ringkasan</div>
       </div>
-      <!-- Filter bars — inside frost bar so they scroll with glass -->
-      <div class="filters-wrap">
-        <div class="filter-scroll" id="filter-bulan-wrap">
-          <button class="filter-chip active" data-bulan="">Semua</button>
+      <!-- Filter bars — accordion, inside frost bar -->
+      <div class="filters-wrap" id="filters-wrap">
+        <!-- Toggle row: always visible, tap to expand/collapse -->
+        <div class="filter-toggle-row" id="filter-toggle">
+          <span class="filter-toggle-label">Filter: <span class="active-summary" id="filter-summary">Semua</span></span>
+          <span class="filter-toggle-chevron">▾</span>
         </div>
-        <div class="filter-scroll" id="filter-tipe-wrap">
-          <button class="filter-chip active" data-tipe="">Semua Tipe</button>
-          <button class="filter-chip" data-tipe="umum">Umum</button>
-          <button class="filter-chip" data-tipe="proyek">Proyek</button>
-        </div>
-        <div class="filter-scroll" id="filter-metode-wrap">
-          <button class="filter-chip active" data-metode="">Semua Metode</button>
-          <button class="filter-chip" data-metode="kas_perusahaan">Kas Perusahaan</button>
-          <button class="filter-chip" data-metode="personal">Personal</button>
-          <button class="filter-chip" data-metode="vendor_paylater">Vendor Paylater</button>
+        <!-- Collapsible chip rows -->
+        <div class="filter-body" id="filter-body">
+          <div class="filter-scroll" id="filter-bulan-wrap">
+            <button class="filter-chip active" data-bulan="">Semua Bulan</button>
+          </div>
+          <div class="filter-scroll" id="filter-tipe-wrap">
+            <button class="filter-chip active" data-tipe="">Semua Tipe</button>
+            <button class="filter-chip" data-tipe="umum">Umum</button>
+            <button class="filter-chip" data-tipe="proyek">Proyek</button>
+          </div>
+          <div class="filter-scroll" id="filter-metode-wrap">
+            <button class="filter-chip active" data-metode="">Semua Metode</button>
+            <button class="filter-chip" data-metode="kas_perusahaan">Kas Perusahaan</button>
+            <button class="filter-chip" data-metode="personal">Personal</button>
+            <button class="filter-chip" data-metode="vendor_paylater">Vendor Paylater</button>
+          </div>
         </div>
       </div>
     </div>
@@ -218,16 +226,26 @@
 <script src="js/expense-tracker.js"></script>
 
 <script>
-/* ── PRD-00.4-B: Frost Bar init ── */
+/* ── PRD-00.4-B: Frost Bar init ──────────────────────
+   initFrostBar(frostId, scrollId, threshold?)
+   · Sets scroll-area padding-top to frost bar height
+   · Sets --frost-h CSS var on #app for PTR indicator offset
+   · Observes resize (safe area inset changes on rotation)
+   · Toggles .topbar-shrunk on frost bar after threshold px
+   ──────────────────────────────────────────────────── */
 (function() {
   function initFrostBar(frostId, scrollId, threshold) {
     threshold = threshold || 10;
     var frost  = document.getElementById(frostId);
     var scroll = document.getElementById(scrollId);
+    var app    = document.getElementById('app');
     if (!frost || !scroll) return;
 
     function setpad() {
-      scroll.style.paddingTop = frost.offsetHeight + 12 + 'px';
+      var h = frost.offsetHeight;
+      scroll.style.paddingTop = h + 12 + 'px';
+      // Expose frost height as CSS var so .ptr-indicator can offset itself
+      if (app) app.style.setProperty('--frost-h', h + 'px');
     }
     setpad();
 
