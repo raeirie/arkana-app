@@ -109,10 +109,7 @@
       <div class="topbar">
         <button class="back-btn" id="back-to-main-supplier">‹</button>
         <div class="topbar-title" id="detail-supplier-name">Supplier</div>
-        <div style="display:flex;gap:6px;">
-          <button class="topbar-action" id="btn-edit-supplier">✏️</button>
-          <button class="topbar-action danger-action" id="btn-delete-supplier">🗑️</button>
-        </div>
+        <button class="topbar-action" id="btn-menu-supplier" aria-label="Opsi">⋯</button>
       </div>
     </div>
 
@@ -131,10 +128,7 @@
       <div class="topbar">
         <button class="back-btn" id="back-to-main-product">‹</button>
         <div class="topbar-title" id="detail-product-name">Produk</div>
-        <div style="display:flex;gap:6px;">
-          <button class="topbar-action" id="btn-edit-product">✏️</button>
-          <button class="topbar-action danger-action" id="btn-delete-product">🗑️</button>
-        </div>
+        <button class="topbar-action" id="btn-menu-product" aria-label="Opsi">⋯</button>
       </div>
     </div>
 
@@ -153,10 +147,7 @@
       <div class="topbar">
         <button class="back-btn" id="back-to-main-jasa">‹</button>
         <div class="topbar-title" id="detail-jasa-name">Layanan Jasa</div>
-        <div style="display:flex;gap:6px;">
-          <button class="topbar-action" id="btn-edit-jasa">✏️</button>
-          <button class="topbar-action danger-action" id="btn-delete-jasa">🗑️</button>
-        </div>
+        <button class="topbar-action" id="btn-menu-jasa" aria-label="Opsi">⋯</button>
       </div>
     </div>
 
@@ -394,6 +385,63 @@
     </div>
     <div class="btn-row" style="margin-top:12px;">
       <button class="btn btn-secondary" id="btn-cancel-add-choice">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ACTION SHEET: SUPPLIER DETAIL ══ -->
+<div class="overlay" id="overlay-menu-supplier">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="menu-supplier-title">Opsi</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+      <button class="btn btn-secondary" id="btn-edit-supplier" style="text-align:left;padding:16px 18px;">
+        <div style="font-size:15px;">✏️ Edit Supplier</div>
+      </button>
+      <button class="btn btn-danger" id="btn-delete-supplier" style="text-align:left;padding:16px 18px;">
+        <div style="font-size:15px;">🗑️ Hapus Supplier</div>
+      </button>
+    </div>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn btn-secondary" id="btn-menu-supplier-cancel">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ACTION SHEET: PRODUCT DETAIL ══ -->
+<div class="overlay" id="overlay-menu-product">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="menu-product-title">Opsi</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+      <button class="btn btn-secondary" id="btn-edit-product" style="text-align:left;padding:16px 18px;">
+        <div style="font-size:15px;">✏️ Edit Produk</div>
+      </button>
+      <button class="btn btn-danger" id="btn-delete-product" style="text-align:left;padding:16px 18px;">
+        <div style="font-size:15px;">🗑️ Hapus Produk</div>
+      </button>
+    </div>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn btn-secondary" id="btn-menu-product-cancel">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ACTION SHEET: JASA DETAIL ══ -->
+<div class="overlay" id="overlay-menu-jasa">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="menu-jasa-title">Opsi</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+      <button class="btn btn-secondary" id="btn-edit-jasa" style="text-align:left;padding:16px 18px;">
+        <div style="font-size:15px;">✏️ Edit Layanan</div>
+      </button>
+      <button class="btn btn-danger" id="btn-delete-jasa" style="text-align:left;padding:16px 18px;">
+        <div style="font-size:15px;">🗑️ Hapus Layanan</div>
+      </button>
+    </div>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn btn-secondary" id="btn-menu-jasa-cancel">Batal</button>
     </div>
   </div>
 </div>
