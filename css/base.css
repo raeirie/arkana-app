@@ -772,12 +772,14 @@ html, body {
   gap: var(--space-2);
   height: 0;
   opacity: 0;
-  overflow: hidden;
+  /* overflow:hidden removed — was clipping spinner+label during height animation */
   transition: height var(--duration-normal) var(--ease-standard),
               opacity var(--duration-fast) var(--ease-standard);
   background: var(--color-bg);
   flex-shrink: 0;
   width: 100%;
+  position: relative;
+  z-index: 1; /* below frost-bar (z:10) so it slides out from under it */
 }
 
 .ptr-spinner {
