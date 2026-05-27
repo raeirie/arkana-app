@@ -449,11 +449,14 @@ html, body {
 }
 
 /* ── Scroll Area (PRD-00.4-B) ── */
-/* Full-screen scroll container that bleeds under the frost bar.
-   padding-top set by JS to match frost-bar height. */
+/* Flex child that fills remaining screen height below .ptr-indicator.
+   frost-bar sits above it via position:absolute + z-index.
+   padding-top injected by initFrostBar() so content clears the bar.
+   flex:1 means app.js can insert .ptr-indicator as a sibling before
+   this element and it will appear correctly in the flex column. */
 .scroll-area {
-  position: absolute;
-  inset: 0;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
