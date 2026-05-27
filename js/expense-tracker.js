@@ -117,7 +117,7 @@ const ExpenseApp = (() => {
   }
 
   function _updateSub(text) {
-    document.getElementById('topbar-sub').textContent = text;
+    // PRD-00.4-B: sub-label removed from topbar design
   }
 
   // ─────────────────────────────────────────

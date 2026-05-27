@@ -32,8 +32,6 @@ const SupplierTracker = (() => {
     const user = getUser();
     if (!user.id) { window.location.href = 'index.html'; return; }
 
-    document.getElementById('topbar-user').textContent = `Login sebagai ${user.name}`;
-
     const cached = loadFromCache('supplier');
     if (cached) DB = cached.data || cached;
     renderAll();
@@ -543,9 +541,6 @@ const SupplierTracker = (() => {
     if (!s) return;
 
     document.getElementById('detail-supplier-name').textContent = s.name;
-    document.getElementById('detail-supplier-level').textContent = s.level === SUPPLIER_LEVEL.JASA
-      ? '🔧 Jasa / Service Provider'
-      : `${s.level}${s.authorized ? ' · ✓ Authorized' : ''}`;
 
     const allActive = DB.products.reduce((acc, prod) => {
       const active = latestPricePerSupplier(prod.id).find(e => e.supplierId === id);
@@ -624,7 +619,6 @@ const SupplierTracker = (() => {
     if (p.type === ITEM_TYPE.JASA) { openJasaDetail(id); return; }
 
     document.getElementById('detail-product-name').textContent = p.name;
-    document.getElementById('detail-product-cat').textContent = `${p.category || ''} · ${p.satuan || 'pcs'}`;
 
     const activeEntries = latestPricePerSupplier(id).sort((a, b) =>
       parseFloat(a.harga) - parseFloat(b.harga));
@@ -714,7 +708,6 @@ const SupplierTracker = (() => {
     if (!p) return;
 
     document.getElementById('detail-jasa-name').textContent = p.name;
-    document.getElementById('detail-jasa-cat').textContent  = `${p.category || ''} · ${p.satuan || 'per project'}`;
 
     const activeEntries = latestPricePerSupplier(productId).sort((a, b) =>
       parseFloat(a.harga) - parseFloat(b.harga));
