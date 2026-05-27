@@ -37,7 +37,7 @@ const ExpenseApp = (() => {
     // Unlike _loadData() (stale-while-revalidate, returns immediately),
     // _fetchFresh() awaits the API call — PTR indicator stays visible
     // until data arrives, giving the user clear loading feedback.
-    initPullToRefresh(document.getElementById('pane-pengeluaran'), _fetchFresh);
+    initPullToRefresh(document.getElementById('scroll-main'), _fetchFresh);
   }
 
   function _requireAuth() {

@@ -54,8 +54,10 @@ const SupplierTracker = (() => {
       clearCache('supplier');
       await fetchAll();
     };
+    // PTR must target the actual scroll container (#scroll-main),
+    // not the inner pane divs which don't scroll themselves.
     initPullToRefresh(
-      () => document.getElementById(_paneMap[currentTab] || 'pane-suppliers'),
+      document.getElementById('scroll-main'),
       _doRefresh
     );
   }
