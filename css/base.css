@@ -21,7 +21,8 @@
        --bg-glass, --color-border-glass, --color-border-glass-inner
      · .topbar base rule → position:absolute + glass bg
      · .tab-bar base rule → transparent bg, inner border
-     · .screen base rule → position:relative for frost container
+     · .screen keeps display:flex (index.html needs it); frost-bar/scroll-area
+     use position:absolute inside the screen
    ═══════════════════════════════════════════════════ */
 
 /* ── Reset & base ── */
@@ -301,13 +302,13 @@ html, body {
 .screen {
   position: absolute;
   inset: 0;
+  display: flex;
+  flex-direction: column;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--duration-slow) var(--ease-standard),
               transform var(--duration-slow) var(--ease-standard);
   transform: translateX(30px);
-  /* NOTE: display:flex flex-direction:column removed here —
-     page CSS sets layout per screen via .frost-bar + .scroll-area */
 }
 
 .screen.active {
